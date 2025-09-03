@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/medications")
 @RequiredArgsConstructor
-public class MedicationController {
+public class MedicationController implements MedicationSwagger {
 
     private final MedicationService medicationService;
 
+    @Override
     @PostMapping
     public ResponseEntity<MedicationResponse> createMedication(@RequestBody MedicationCreateRequest request) {
         MedicationResponse response = medicationService.createMedication(request);
