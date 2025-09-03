@@ -1,13 +1,14 @@
 package backend.medsnap.domain.medication.entity;
 
 import backend.medsnap.global.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -19,7 +20,8 @@ public class MedicationAlarm extends BaseEntity {
     private Long id;
 
     // 복용 시간
-    private LocalDateTime doseTime;
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime doseTime;
 
     // 복용 요일
     @Enumerated(EnumType.STRING)
@@ -30,7 +32,7 @@ public class MedicationAlarm extends BaseEntity {
     private Medication medication;
 
     @Builder
-    public MedicationAlarm(LocalDateTime doseTime, DayOfWeek dayOfWeek, Medication medication) {
+    public MedicationAlarm(LocalTime doseTime, DayOfWeek dayOfWeek, Medication medication) {
         this.doseTime = doseTime;
         this.dayOfWeek = dayOfWeek;
         this.medication = medication;
