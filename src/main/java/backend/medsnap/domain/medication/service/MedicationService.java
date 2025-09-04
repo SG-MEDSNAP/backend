@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -52,28 +51,12 @@ public class MedicationService {
     }
 
     private void createAlarms(Medication medication, MedicationCreateRequest request) {
-        List<MedicationAlarm> alarms = new ArrayList<>();
+        List<DayOfWeek> expandedDays = DayOfWeek.expandDays(request.getDoseDays());
 
-        if (request.getDoseDays().contains(DayOfWeek.DAILY)) {
-            //매일 복용 -> 월~일 전체 요일 생성
-            DayOfWeek[] allDays = {
-                    DayOfWeek.MON, DayOfWeek.TUE, DayOfWeek.WED,
-                    DayOfWeek.THU, DayOfWeek.FRI, DayOfWeek.SAT, DayOfWeek.SUN
-            };
-
-            for (DayOfWeek day : allDays) {
-                for (LocalTime time : request.getDoseTimes()) {
-                    alarms.add(createAlarm(medication, time, day));
-                }
-            }
-        } else {
-            // 특정 요일에만 복용
-            for (DayOfWeek day : request.getDoseDays()) {
-                for (LocalTime time : request.getDoseTimes()) {
-                    alarms.add(createAlarm(medication, time, day));
-                }
-            }
-        }
+        List<MedicationAlarm> alarms = expandedDays.stream()
+                        .flatMap(day -> request.getDoseTimes().stream()
+                                .map(time -> createAlarm(medication, time, day)))
+                                .toList();
 
         medication.getAlarms().addAll(alarms);
     }
