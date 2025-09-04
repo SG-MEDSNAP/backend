@@ -3,6 +3,7 @@ package backend.medsnap.domain.medication.controller;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.service.MedicationService;
+import backend.medsnap.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,8 +20,13 @@ public class MedicationController implements MedicationSwagger {
 
     @Override
     @PostMapping
-    public ResponseEntity<MedicationResponse> createMedication(@RequestBody MedicationCreateRequest request) {
-        MedicationResponse response = medicationService.createMedication(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ApiResponse<MedicationResponse>> createMedication(
+            @RequestBody MedicationCreateRequest request) {
+        try {
+            MedicationResponse response = medicationService.createMedication(request);
+            return ResponseEntity.status(201).body(ApiResponse.success(response));
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(ApiResponse.error(e.getMessage()));
+        }
     }
 }
