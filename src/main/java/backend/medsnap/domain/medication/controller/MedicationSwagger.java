@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "Medication", description = "약 API")
+@Tag(name = "medications", description = "약 API")
 public interface MedicationSwagger {
 
     @Operation(summary = "약 등록", description = "새로운 약을 등록합니다.")

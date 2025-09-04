@@ -21,10 +21,12 @@ public class MedicationAlarm extends BaseEntity {
 
     // 복용 시간
     @JsonFormat(pattern = "HH:mm")
+    @Column(nullable = false)
     private LocalTime doseTime;
 
     // 복용 요일
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private DayOfWeek dayOfWeek;
 
     @ManyToOne(fetch = FetchType.LAZY)

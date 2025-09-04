@@ -20,12 +20,16 @@ public class Medication extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(nullable = false, length = 500)
     private String imageUrl;
 
+    @Column(nullable = false)
     private Boolean notifyCaregiver;
 
+    @Column(nullable = false)
     private Boolean preNotify;
 
     @OneToMany(mappedBy = "medication", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -38,5 +42,4 @@ public class Medication extends BaseEntity {
         this.notifyCaregiver = notifyCaregiver;
         this.preNotify = preNotify;
     }
-
 }
