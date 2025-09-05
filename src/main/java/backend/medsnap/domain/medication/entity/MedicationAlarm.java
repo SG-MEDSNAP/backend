@@ -30,7 +30,7 @@ public class MedicationAlarm extends BaseEntity {
     private DayOfWeek dayOfWeek;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medication_id", insertable = false, updatable = false)
+    @JoinColumn(name = "medication_id", nullable = false)
     private Medication medication;
 
     @Builder

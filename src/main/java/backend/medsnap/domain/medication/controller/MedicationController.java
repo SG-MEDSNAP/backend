@@ -4,6 +4,7 @@ import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.service.MedicationService;
 import backend.medsnap.global.dto.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,7 @@ public class MedicationController implements MedicationSwagger {
     @Override
     @PostMapping
     public ResponseEntity<ApiResponse<MedicationResponse>> createMedication(
-            @RequestBody MedicationCreateRequest request) {
+            @RequestBody @Valid MedicationCreateRequest request) {
         try {
             MedicationResponse response = medicationService.createMedication(request);
             return ResponseEntity.status(201).body(ApiResponse.success(response));

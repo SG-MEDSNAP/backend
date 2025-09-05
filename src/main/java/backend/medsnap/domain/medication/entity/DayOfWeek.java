@@ -10,6 +10,9 @@ public enum DayOfWeek {
     );
 
     public static List<DayOfWeek> expandDays(List<DayOfWeek> requestDays) {
-        return requestDays.contains(DAILY) ? ALL_DAYS : requestDays;
+        if (requestDays == null || requestDays.isEmpty()) {
+            throw new IllegalArgumentException("Request days cannot be null or empty");
+        }
+        return requestDays.contains(DAILY) ? List.copyOf(ALL_DAYS) : List.copyOf(requestDays);
     }
 }
