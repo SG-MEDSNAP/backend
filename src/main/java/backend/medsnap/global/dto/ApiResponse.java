@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.ErrorResponse;
 
 @Getter
 @Builder
@@ -17,11 +16,16 @@ public class ApiResponse<T> {
     private final T data;
     private final Object error;
 
-    // 성공 응답
+    // 성공 응답 (200)
     public static <T> ApiResponse<T> success(T data) {
+        return success(HttpStatus.OK, data);
+    }
+
+    // 성공 응답 (상태 지정)
+    public static <T> ApiResponse<T> success(HttpStatus status, T data) {
         return ApiResponse.<T>builder()
                 .code("SUCCESS")
-                .httpStatus(HttpStatus.OK.value())
+                .httpStatus(status.value())
                 .message("요청이 성공적으로 처리되었습니다.")
                 .data(data)
                 .build();
@@ -34,16 +38,18 @@ public class ApiResponse<T> {
                 .httpStatus(errorCode.getStatus().value())
                 .message(errorCode.getMessage())
                 .data(null)
+                .error(null)
                 .build();
     }
 
     // 에러 응답 (Error data)
-    public static <T> ApiResponse<T> error(ErrorCode errorCode, T data) {
+    public static <T> ApiResponse<T> error(ErrorCode errorCode, Object error) {
         return ApiResponse.<T>builder()
                 .code(errorCode.getCode())
                 .httpStatus(errorCode.getStatus().value())
                 .message(errorCode.getMessage())
-                .data(data)
+                .data(null)
+                .error(error)
                 .build();
     }
 }
