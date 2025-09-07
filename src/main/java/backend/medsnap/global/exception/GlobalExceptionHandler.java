@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleValidationException(
             MethodArgumentNotValidException e) {
 
-        log.warn("Validation error occurred");
+        log.warn("Validation error occurred: {}", e.getMessage());
 
         ApiResponse<Object> response = ApiResponse.error(
                 ErrorCode.COMMON_VALIDATION_ERROR,
