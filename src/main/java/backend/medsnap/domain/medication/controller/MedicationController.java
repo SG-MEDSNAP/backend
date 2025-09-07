@@ -29,6 +29,6 @@ public class MedicationController implements MedicationSwagger {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(response));
+                .body(ApiResponse.success(HttpStatus.CREATED, response));
     }
 }
