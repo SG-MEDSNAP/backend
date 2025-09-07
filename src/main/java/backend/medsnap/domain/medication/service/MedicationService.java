@@ -9,6 +9,7 @@ import backend.medsnap.domain.medication.exception.InvalidMedicationDataExceptio
 import backend.medsnap.domain.medication.repository.MedicationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,34 +25,33 @@ public class MedicationService {
 
     @Transactional
     public MedicationResponse createMedication(MedicationCreateRequest request) {
+
+        // 1. 약 이름 중복 검증
+        validateDuplicateName(request.getName());
         log.info("약 등록 시작 - 이름: {}", request.getName());
 
-        // 1. Medication 생성
+        // 2. Medication 생성
         Medication medication = Medication.builder()
-                .name(request.getName())
-                .imageUrl(request.getImageUrl())
+                .name(request.getName().trim())
+                .imageUrl(request.getImageUrl().trim())
                 .notifyCaregiver(request.getNotifyCaregiver())
                 .preNotify(request.getPreNotify())
                 .build();
 
-        // 2. Alarm 생성
+        // 3. Alarm 생성
         createAlarms(medication, request);
 
-        // 3. 저장
-        Medication savedMedication = medicationRepository.save(medication);
+        // 4. 저장
+        Medication savedMedication;
+        try {
+            savedMedication = medicationRepository.save(medication);
+        } catch (DataIntegrityViolationException e) {
+            // DB 레벨에서 중복 제약 위반 시 처리
+            throw InvalidMedicationDataException.duplicateName(request.getName().trim());
+        }
 
-        // 4. response 반환
-        return MedicationResponse.builder()
-                .id(savedMedication.getId())
-                .name(savedMedication.getName())
-                .imageUrl(savedMedication.getImageUrl())
-                .notifyCaregiver(savedMedication.getNotifyCaregiver())
-                .preNotify(savedMedication.getPreNotify())
-                .doseTimes(request.getDoseTimes())
-                .doseDays(request.getDoseDays())
-                .createdAt(savedMedication.getCreatedAt())
-                .updatedAt(savedMedication.getUpdatedAt())
-                .build();
+        // 5. response 반환
+        return getMedicationResponse(savedMedication, request);
     }
 
     /**
