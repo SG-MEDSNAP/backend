@@ -1,24 +1,29 @@
+# ====== BUILD STAGE ======
+FROM amazoncorretto:17-alpine AS builder
+WORKDIR /src
+
+RUN apk add --no-cache bash curl unzip ca-certificates
+
+# 캐시 최적화: 래퍼/스펙 먼저 복사
+COPY gradlew ./gradlew
+COPY gradle ./gradle
+COPY settings.gradle* ./
+COPY build.gradle* ./
+RUN chmod +x ./gradlew
+
+RUN ./gradlew --no-daemon dependencies || true
+
+COPY . .
+RUN ./gradlew clean bootJar --no-daemon -x test
+
+# ====== RUNTIME STAGE ======
 FROM amazoncorretto:17-alpine
-
-# 전용 사용자 생성
-RUN addgroup -g 1001 medsnap && \
-    adduser -D -s /bin/sh -u 1001 -G medsnap medsnap
-
 WORKDIR /app
 
-# JAR 파일 복사
-ARG JAR_FILE=build/libs/*.jar
-COPY ${JAR_FILE} app.jar
+USER 1001
 
-# 파일 소유권 변경
-RUN chown medsnap:medsnap app.jar
-
-# 사용자 변경
-USER medsnap
+COPY --from=builder /src/build/libs/app.jar /app/app.jar
 
 EXPOSE 8080
-
-# JVM 옵션 최적화
 ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC"
-
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/app.jar"]
