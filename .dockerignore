@@ -1,0 +1,7 @@
+.git
+.gradle
+**/*.iml
+build
+.idea
+out
+node_modules
