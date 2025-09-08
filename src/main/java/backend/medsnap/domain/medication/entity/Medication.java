@@ -20,7 +20,7 @@ public class Medication extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, columnDefinition = "citext")
+    @Column(nullable = false, columnDefinition = "citext", unique = true)
     private String name;
 
     @Column(nullable = false)
