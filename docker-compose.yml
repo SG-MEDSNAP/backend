@@ -1,8 +1,36 @@
 version: "3.8"
 
 services:
+  postgres:
+    image: postgres:15
+    container_name: local-postgres
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${HOST_POSTGRES_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
   app:
     build: .
     container_name: springboot
     ports:
       - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge
