@@ -20,7 +20,10 @@ public enum ErrorCode {
     MED_INVALID_DOSE_TIME(HttpStatus.BAD_REQUEST, "M004", "유효하지 않은 복용 시간입니다."),
     MED_INVALID_DOSE_DAY(HttpStatus.BAD_REQUEST, "M005", "유효하지 않은 복용 요일입니다."),
     MED_DUPLICATE_NAME(HttpStatus.CONFLICT, "M006", "이미 등록된 약 이름입니다."),
-    MED_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "M007", "약 등록에 실패했습니다.");
+    MED_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "M007", "약 등록에 실패했습니다."),
+
+    // S3 File Upload
+    S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S001", "파일 업로드에 실패했습니다.");
 
     private final HttpStatus status;
     private final String code;
