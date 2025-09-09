@@ -1,14 +1,15 @@
 package backend.medsnap.domain.medication.entity;
 
-import backend.medsnap.global.entity.BaseEntity;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
+
+import backend.medsnap.global.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -32,7 +33,11 @@ public class Medication extends BaseEntity {
     @Column(nullable = false)
     private Boolean preNotify;
 
-    @OneToMany(mappedBy = "medication", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "medication",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
     private List<MedicationAlarm> alarms = new ArrayList<>();
 
     @Builder
