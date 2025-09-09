@@ -1,14 +1,16 @@
 package backend.medsnap.domain.medication.entity;
 
-import backend.medsnap.global.entity.BaseEntity;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalTime;
+
 import jakarta.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import backend.medsnap.global.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalTime;
 
 @Entity
 @Getter

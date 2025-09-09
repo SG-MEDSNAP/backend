@@ -1,20 +1,25 @@
 package backend.medsnap.domain.medication.dto.request;
 
-import backend.medsnap.domain.medication.entity.DayOfWeek;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalTime;
 import java.util.List;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import backend.medsnap.domain.medication.entity.DayOfWeek;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 @Getter
 @NoArgsConstructor
-@Schema(description = "약 등록 요청", example = """
+@Schema(
+        description = "약 등록 요청",
+        example =
+                """
     {
       "name": "타이레놀",
       "imageUrl": "https://example.com/image.jpg",
@@ -28,7 +33,7 @@ import java.util.List;
       ]
     }
     """)
-public class MedicationCreateRequest{
+public class MedicationCreateRequest {
 
     @Schema(description = "약 이름")
     @NotBlank(message = "약 이름은 필수입니다")

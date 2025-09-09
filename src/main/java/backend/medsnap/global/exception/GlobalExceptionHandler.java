@@ -1,13 +1,15 @@
 package backend.medsnap.global.exception;
 
-import backend.medsnap.global.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+
+import backend.medsnap.global.dto.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
@@ -22,14 +24,10 @@ public class GlobalExceptionHandler {
 
         log.warn("Validation error occurred: {}", e.getMessage());
 
-        ApiResponse<Object> response = ApiResponse.error(
-                ErrorCode.COMMON_VALIDATION_ERROR,
-                "입력값 검증에 실패했습니다."
-        );
+        ApiResponse<Object> response =
+                ApiResponse.error(ErrorCode.COMMON_VALIDATION_ERROR, "입력값 검증에 실패했습니다.");
 
-        return ResponseEntity
-                .status(ErrorCode.COMMON_VALIDATION_ERROR.getStatus())
-                .body(response);
+        return ResponseEntity.status(ErrorCode.COMMON_VALIDATION_ERROR.getStatus()).body(response);
     }
 
     /**
@@ -43,14 +41,10 @@ public class GlobalExceptionHandler {
 
         ApiResponse<Object> response = ApiResponse.error(ErrorCode.COMMON_VALIDATION_ERROR);
 
-        return ResponseEntity
-                .status(ErrorCode.COMMON_VALIDATION_ERROR.getStatus())
-                .body(response);
+        return ResponseEntity.status(ErrorCode.COMMON_VALIDATION_ERROR.getStatus()).body(response);
     }
 
-    /**
-     * BusinessException 처리
-     */
+    /** BusinessException 처리 */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException e) {
         log.warn("BusinessException: {}", e.getMessage());
@@ -58,14 +52,10 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = e.getErrorCode();
         ApiResponse<Object> response = ApiResponse.error(errorCode);
 
-        return ResponseEntity
-                .status(errorCode.getStatus())
-                .body(response);
+        return ResponseEntity.status(errorCode.getStatus()).body(response);
     }
 
-    /**
-     * 기타 모든 예외 처리
-     */
+    /** 기타 모든 예외 처리 */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleException(
             Exception e, HttpServletRequest request) {
@@ -84,13 +74,11 @@ public class GlobalExceptionHandler {
                 request.getQueryString(),
                 request.getRemoteAddr(),
                 e.toString(),
-                e
-        );
+                e);
 
         ApiResponse<Object> response = ApiResponse.error(ErrorCode.COMMON_INTERNAL_SERVER_ERROR);
 
-        return ResponseEntity
-                .status(ErrorCode.COMMON_INTERNAL_SERVER_ERROR.getStatus())
+        return ResponseEntity.status(ErrorCode.COMMON_INTERNAL_SERVER_ERROR.getStatus())
                 .body(response);
     }
 }

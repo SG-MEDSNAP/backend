@@ -1,5 +1,12 @@
 package backend.medsnap.domain.medication.service;
 
+import java.time.LocalTime;
+import java.util.List;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.entity.DayOfWeek;
@@ -9,12 +16,6 @@ import backend.medsnap.domain.medication.exception.InvalidMedicationDataExceptio
 import backend.medsnap.domain.medication.repository.MedicationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalTime;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -31,12 +32,13 @@ public class MedicationService {
         log.info("약 등록 시작 - 이름: {}", request.getName());
 
         // 2. Medication 생성
-        Medication medication = Medication.builder()
-                .name(request.getName().trim())
-                .imageUrl(request.getImageUrl().trim())
-                .notifyCaregiver(request.getNotifyCaregiver())
-                .preNotify(request.getPreNotify())
-                .build();
+        Medication medication =
+                Medication.builder()
+                        .name(request.getName().trim())
+                        .imageUrl(request.getImageUrl().trim())
+                        .notifyCaregiver(request.getNotifyCaregiver())
+                        .preNotify(request.getPreNotify())
+                        .build();
 
         // 3. Alarm 생성
         createAlarms(medication, request);
@@ -54,9 +56,7 @@ public class MedicationService {
         return getMedicationResponse(savedMedication, request);
     }
 
-    /**
-     * 약 이름 중복 검증
-     */
+    /** 약 이름 중복 검증 */
     private void validateDuplicateName(String name) {
         String trimmedName = name.trim();
         if (medicationRepository.existsByName(trimmedName)) {
@@ -64,23 +64,22 @@ public class MedicationService {
         }
     }
 
-    /**
-     * 알람 생성 및 연관관계 설정
-     */
+    /** 알람 생성 및 연관관계 설정 */
     private void createAlarms(Medication medication, MedicationCreateRequest request) {
         List<DayOfWeek> expandedDays = DayOfWeek.expandDays(request.getDoseDays());
 
-        List<MedicationAlarm> alarms = expandedDays.stream()
-                        .flatMap(day -> request.getDoseTimes().stream()
-                                .map(time -> createAlarm(medication, time, day)))
+        List<MedicationAlarm> alarms =
+                expandedDays.stream()
+                        .flatMap(
+                                day ->
+                                        request.getDoseTimes().stream()
+                                                .map(time -> createAlarm(medication, time, day)))
                         .toList();
 
         medication.getAlarms().addAll(alarms);
     }
 
-    /**
-     * 단일 알람 생성
-     */
+    /** 단일 알람 생성 */
     private MedicationAlarm createAlarm(Medication medication, LocalTime time, DayOfWeek day) {
         return MedicationAlarm.builder()
                 .doseTime(time)
@@ -89,9 +88,7 @@ public class MedicationService {
                 .build();
     }
 
-    /**
-     * Medication 엔티티 생성
-     */
+    /** Medication 엔티티 생성 */
     private Medication createMedicationEntity(MedicationCreateRequest request) {
         return Medication.builder()
                 .name(request.getName().trim())
@@ -101,26 +98,27 @@ public class MedicationService {
                 .build();
     }
 
-    /**
-     * Response 객체 생성
-     */
-    private MedicationResponse getMedicationResponse(Medication savedMedication, MedicationCreateRequest request) {
+    /** Response 객체 생성 */
+    private MedicationResponse getMedicationResponse(
+            Medication savedMedication, MedicationCreateRequest request) {
         return MedicationResponse.builder()
                 .id(savedMedication.getId())
                 .name(savedMedication.getName())
                 .imageUrl(savedMedication.getImageUrl())
                 .notifyCaregiver(savedMedication.getNotifyCaregiver())
                 .preNotify(savedMedication.getPreNotify())
-                .doseTimes(savedMedication.getAlarms().stream()
-                        .map(MedicationAlarm::getDoseTime)
-                        .distinct()
-                        .sorted()
-                        .toList())
-                .doseDays(savedMedication.getAlarms().stream()
-                        .map(MedicationAlarm::getDayOfWeek)
-                        .distinct()
-                        .sorted()
-                        .toList())
+                .doseTimes(
+                        savedMedication.getAlarms().stream()
+                                .map(MedicationAlarm::getDoseTime)
+                                .distinct()
+                                .sorted()
+                                .toList())
+                .doseDays(
+                        savedMedication.getAlarms().stream()
+                                .map(MedicationAlarm::getDayOfWeek)
+                                .distinct()
+                                .sorted()
+                                .toList())
                 .createdAt(savedMedication.getCreatedAt())
                 .updatedAt(savedMedication.getUpdatedAt())
                 .build();
