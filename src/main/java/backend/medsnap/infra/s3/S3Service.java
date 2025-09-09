@@ -39,13 +39,15 @@ public class S3Service {
                                             : "application/octet-stream")
                             .build();
 
-            s3Client.putObject(
-                    putObjectRequest,
-                    RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            try (var inputStream = file.getInputStream()) {
+                s3Client.putObject(
+                        putObjectRequest, RequestBody.fromInputStream(inputStream, file.getSize()));
+            }
 
             return s3Client.utilities()
                     .getUrl(GetUrlRequest.builder().bucket(bucketName).key(key).build())
                     .toString();
+
         } catch (Exception e) {
             throw new S3UploadFailException();
         }
@@ -61,8 +63,11 @@ public class S3Service {
 
     /** 업로드 키 생성 */
     private String buildKey(String folder, String ext) {
-        String cleanFolder = (folder == null || folder.isBlank()) ? "uploads"
-                : folder.replaceAll("^/|/$", "").replaceAll("/{2,}", "/");
-        return String.format("%s/%s_%d.%s", cleanFolder, UUID.randomUUID(), Instant.now().toEpochMilli(), ext);
+        String cleanFolder =
+                (folder == null || folder.isBlank())
+                        ? "uploads"
+                        : folder.replaceAll("^/|/$", "").replaceAll("/{2,}", "/");
+        return String.format(
+                "%s/%s_%d.%s", cleanFolder, UUID.randomUUID(), Instant.now().toEpochMilli(), ext);
     }
 }
