@@ -1,12 +1,46 @@
 version: "3.8"
+
 services:
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    command:
+      # 엔트리포인트
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      # http → https 리다이렉트
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      # 도커 프로바이더 활성화
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      # Let's Encrypt 인증서 설정
+      - --certificatesresolvers.le.acme.email=medsnap.cloud@gmail.com
+      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.le.acme.httpchallenge=true
+      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - app-network
+
   app:
     build: .
     container_name: springboot
-    ports:
-      - "8080:8080"
     env_file:
       - .env.prod
+    labels:
+      - "traefik.enable=true"
+      # http → https 리다이렉트 이후 https 엔드포인트
+      - "traefik.http.routers.app.rule=Host(`hiedu.site`)"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls.certresolver=le"
+      # 컨테이너 내부 포트
+      - "traefik.http.services.app.loadbalancer.server.port=8080"
     networks:
       - app-network
 
