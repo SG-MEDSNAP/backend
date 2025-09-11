@@ -1,13 +1,14 @@
 package backend.medsnap.global.config;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class SwaggerConfig {
@@ -16,7 +17,7 @@ public class SwaggerConfig {
     private String httpsServerUrl;
 
     @Bean
-    public OpenAPI openAPI () {
+    public OpenAPI openAPI() {
         Info info = new Info().title("MEDSNAP API Docs").version("1.0").description("API 명세서");
 
         // 서버 URL 설정
@@ -24,13 +25,10 @@ public class SwaggerConfig {
         localServer.setUrl("http://localhost:8080");
         localServer.setDescription("MEDSNAP 로컬 서버");
 
-
         Server httpsServer = new Server();
         httpsServer.setUrl(httpsServerUrl);
         httpsServer.setDescription("MEDSNAP https 서버");
 
-        return new OpenAPI()
-                .info(info)
-                .servers(List.of(localServer, httpsServer));
+        return new OpenAPI().info(info).servers(List.of(localServer, httpsServer));
     }
 }
