@@ -22,7 +22,7 @@ public class SwaggerConfig {
 
         // 서버 URL 설정
         Server localServer = new Server();
-        localServer.setUrl("http://localhost:8080");
+        localServer.setUrl("http://localhost:8000");
         localServer.setDescription("MEDSNAP 로컬 서버");
 
         Server httpsServer = new Server();

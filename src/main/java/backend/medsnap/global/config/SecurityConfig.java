@@ -22,6 +22,9 @@ public class SecurityConfig {
     @Value("${swagger.password}")
     private String swaggerPassword;
 
+    @Value("${swagger.auth.enabled}")
+    private boolean swaggerAuthEnabled;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -33,20 +36,37 @@ public class SecurityConfig {
                 User.withUsername(swaggerUsername)
                         .password(encoder.encode(swaggerPassword))
                         .roles("DOCS")
-                        .build()
-        );
+                        .build());
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/v1/docs/**", "/api/v1/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                        .hasRole("DOCS")
-                        .anyRequest().permitAll()
-                )
+                .authorizeHttpRequests(
+                        authz -> {
+                            if (swaggerAuthEnabled) {
+                                // 배포 환경: Swagger에 인증 필요
+                                authz.requestMatchers(
+                                                "/api/v1/docs/**",
+                                                "/api/v1/api-docs/**",
+                                                "/swagger-ui/**",
+                                                "/swagger-ui.html")
+                                        .hasRole("DOCS")
+                                        .anyRequest()
+                                        .permitAll();
+                            } else {
+                                // 로컬 환경: Swagger 인증 없이 접근 허용
+                                authz.requestMatchers(
+                                                "/api/v1/docs/**",
+                                                "/api/v1/api-docs/**",
+                                                "/swagger-ui/**",
+                                                "/swagger-ui.html")
+                                        .permitAll()
+                                        .anyRequest()
+                                        .permitAll();
+                            }
+                        })
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
