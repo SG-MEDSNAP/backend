@@ -53,6 +53,8 @@ public class SecurityConfig {
                                                 "/swagger-ui/**",
                                                 "/swagger-ui.html")
                                         .hasRole("DOCS")
+                                        .requestMatchers("/actuator/**")
+                                        .permitAll()
                                         .anyRequest()
                                         .permitAll();
                             } else {
@@ -62,6 +64,8 @@ public class SecurityConfig {
                                                 "/api/v1/api-docs/**",
                                                 "/swagger-ui/**",
                                                 "/swagger-ui.html")
+                                        .permitAll()
+                                        .requestMatchers("/actuator/**")
                                         .permitAll()
                                         .anyRequest()
                                         .permitAll();
