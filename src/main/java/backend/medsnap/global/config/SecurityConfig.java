@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
 @Configuration
 public class SecurityConfig {
@@ -24,6 +25,9 @@ public class SecurityConfig {
 
     @Value("${swagger.auth.enabled}")
     private boolean swaggerAuthEnabled;
+
+    @Value("${security.require-ssl}")
+    private boolean requireSsl;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -42,8 +46,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // HTTPS 강제 설정
+        if (requireSsl) {
+            http.requiresChannel(channel -> channel.anyRequest().requiresSecure())
+                    .headers(headers -> headers
+                            .httpStrictTransportSecurity(hstsConfig -> hstsConfig
+                                    .maxAgeInSeconds(31536000)
+                                    .includeSubDomains(true))
+                            .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                            .frameOptions(frame -> frame.deny())
+                            .contentTypeOptions(contentType -> {}));
+        }
+
+        http.authorizeHttpRequests(
                         authz -> {
                             if (swaggerAuthEnabled) {
                                 // 배포 환경: Swagger에 인증 필요
