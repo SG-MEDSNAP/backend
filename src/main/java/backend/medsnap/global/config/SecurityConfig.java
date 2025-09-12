@@ -51,13 +51,21 @@ public class SecurityConfig {
         // HTTPS 강제 설정
         if (requireSsl) {
             http.requiresChannel(channel -> channel.anyRequest().requiresSecure())
-                    .headers(headers -> headers
-                            .httpStrictTransportSecurity(hstsConfig -> hstsConfig
-                                    .maxAgeInSeconds(31536000)
-                                    .includeSubDomains(true))
-                            .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                            .frameOptions(frame -> frame.deny())
-                            .contentTypeOptions(contentType -> {}));
+                    .headers(
+                            headers ->
+                                    headers.httpStrictTransportSecurity(
+                                                    hstsConfig ->
+                                                            hstsConfig
+                                                                    .maxAgeInSeconds(31536000)
+                                                                    .includeSubDomains(true))
+                                            .referrerPolicy(
+                                                    referrer ->
+                                                            referrer.policy(
+                                                                    ReferrerPolicyHeaderWriter
+                                                                            .ReferrerPolicy
+                                                                            .STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                                            .frameOptions(frame -> frame.deny())
+                                            .contentTypeOptions(contentType -> {}));
         }
 
         http.authorizeHttpRequests(

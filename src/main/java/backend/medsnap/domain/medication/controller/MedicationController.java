@@ -3,11 +3,10 @@ package backend.medsnap.domain.medication.controller;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
@@ -23,11 +22,12 @@ public class MedicationController implements MedicationSwagger {
     private final MedicationService medicationService;
 
     @Override
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<MedicationResponse>> createMedication(
-            @RequestBody @Valid MedicationCreateRequest request) {
+            @RequestPart("request") @Valid MedicationCreateRequest request,
+            @RequestPart("image") MultipartFile image) {
 
-        MedicationResponse response = medicationService.createMedication(request);
+        MedicationResponse response = medicationService.createMedication(request, image);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(HttpStatus.CREATED, response));
