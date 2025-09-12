@@ -3,6 +3,7 @@ package backend.medsnap.domain.medication.service;
 import java.time.LocalTime;
 import java.util.List;
 
+import backend.medsnap.infra.s3.S3Service;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import backend.medsnap.domain.medication.exception.InvalidMedicationDataExceptio
 import backend.medsnap.domain.medication.repository.MedicationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -23,27 +25,32 @@ import lombok.extern.slf4j.Slf4j;
 public class MedicationService {
 
     private final MedicationRepository medicationRepository;
+    private final S3Service s3Service;
 
     @Transactional
-    public MedicationResponse createMedication(MedicationCreateRequest request) {
+    public MedicationResponse createMedication(MedicationCreateRequest request, MultipartFile image) {
 
-        // 1. 약 이름 중복 검증
+        // 약 이름 중복 검증
         validateDuplicateName(request.getName());
         log.info("약 등록 시작 - 이름: {}", request.getName());
 
-        // 2. Medication 생성
+        // 이미지 업로드
+        String imageUrl = s3Service.uploadFile(image, "medications");
+        log.info("이미지 업로드 완료 - URL: {}", imageUrl);
+
+        // Medication 생성
         Medication medication =
                 Medication.builder()
                         .name(request.getName().trim())
-                        .imageUrl(request.getImageUrl().trim())
+                        .imageUrl(imageUrl)
                         .notifyCaregiver(request.getNotifyCaregiver())
                         .preNotify(request.getPreNotify())
                         .build();
 
-        // 3. Alarm 생성
+        // Alarm 생성
         createAlarms(medication, request);
 
-        // 4. 저장
+        // 저장
         Medication savedMedication;
         try {
             savedMedication = medicationRepository.save(medication);
@@ -52,7 +59,7 @@ public class MedicationService {
             throw InvalidMedicationDataException.duplicateName(request.getName().trim());
         }
 
-        // 5. response 반환
+        // response 반환
         return getMedicationResponse(savedMedication, request);
     }
 
@@ -73,7 +80,10 @@ public class MedicationService {
                         .flatMap(
                                 day ->
                                         request.getDoseTimes().stream()
-                                                .map(time -> createAlarm(medication, time, day)))
+                                                .map(timeStr -> {
+                                                    LocalTime time = LocalTime.parse(timeStr);
+                                                    return createAlarm(medication, time, day);
+                                                }))
                         .toList();
 
         medication.getAlarms().addAll(alarms);
@@ -85,16 +95,6 @@ public class MedicationService {
                 .doseTime(time)
                 .dayOfWeek(day)
                 .medication(medication)
-                .build();
-    }
-
-    /** Medication 엔티티 생성 */
-    private Medication createMedicationEntity(MedicationCreateRequest request) {
-        return Medication.builder()
-                .name(request.getName().trim())
-                .imageUrl(request.getImageUrl().trim())
-                .notifyCaregiver(request.getNotifyCaregiver())
-                .preNotify(request.getPreNotify())
                 .build();
     }
 

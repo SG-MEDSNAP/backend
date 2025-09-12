@@ -22,7 +22,6 @@ import lombok.NoArgsConstructor;
                 """
     {
       "name": "타이레놀",
-      "imageUrl": "https://example.com/image.jpg",
       "notifyCaregiver": true,
       "preNotify": true,
       "doseTimes": ["09:00","21:00"],
@@ -39,10 +38,6 @@ public class MedicationCreateRequest {
     @NotBlank(message = "약 이름은 필수입니다")
     private String name;
 
-    @Schema(description = "약 이미지 URL")
-    @NotBlank(message = "약 이미지 URL은 필수입니다")
-    private String imageUrl;
-
     @Schema(description = "보호자 알림 여부")
     @NotNull(message = "보호자 알림 여부는 필수입니다")
     private Boolean notifyCaregiver;
@@ -51,10 +46,9 @@ public class MedicationCreateRequest {
     @NotNull(message = "사전 알림 여부는 필수입니다")
     private Boolean preNotify;
 
-    @Schema(description = "복용 시간 목록")
-    @JsonFormat(pattern = "HH:mm")
+    @Schema(description = "복용 시간 목록 (HH:mm)")
     @NotEmpty(message = "복용 시간은 최소 1개 이상이어야 합니다")
-    private List<LocalTime> doseTimes;
+    private List<String> doseTimes;
 
     @Schema(description = "복용 요일 목록")
     @NotEmpty(message = "복용 요일은 최소 1개 이상이어야 합니다")
