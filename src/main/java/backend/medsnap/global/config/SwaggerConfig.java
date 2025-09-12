@@ -25,12 +25,14 @@ public class SwaggerConfig {
         localServer.setUrl("http://localhost:8000");
         localServer.setDescription("MEDSNAP 로컬 서버");
 
-        if (httpsServerUrl != null && !httpsServerUrl.isEmpty() &&
-            !httpsServerUrl.equals("${HTTPS_SERVER_URL}") && httpsServerUrl.startsWith("https://")) {
+        if (httpsServerUrl != null
+                && !httpsServerUrl.isEmpty()
+                && !httpsServerUrl.equals("${HTTPS_SERVER_URL}")
+                && httpsServerUrl.startsWith("https://")) {
             Server httpsServer = new Server();
             httpsServer.setUrl(httpsServerUrl);
             httpsServer.setDescription("MEDSNAP Production 서버 (HTTPS)");
-            
+
             return new OpenAPI().info(info).servers(List.of(httpsServer, localServer));
         } else {
             return new OpenAPI().info(info).servers(List.of(localServer));

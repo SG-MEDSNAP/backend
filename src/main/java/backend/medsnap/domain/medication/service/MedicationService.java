@@ -3,10 +3,10 @@ package backend.medsnap.domain.medication.service;
 import java.time.LocalTime;
 import java.util.List;
 
-import backend.medsnap.infra.s3.S3Service;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
@@ -15,9 +15,9 @@ import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.domain.medication.entity.MedicationAlarm;
 import backend.medsnap.domain.medication.exception.InvalidMedicationDataException;
 import backend.medsnap.domain.medication.repository.MedicationRepository;
+import backend.medsnap.infra.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -28,7 +28,8 @@ public class MedicationService {
     private final S3Service s3Service;
 
     @Transactional
-    public MedicationResponse createMedication(MedicationCreateRequest request, MultipartFile image) {
+    public MedicationResponse createMedication(
+            MedicationCreateRequest request, MultipartFile image) {
 
         // 약 이름 중복 검증
         validateDuplicateName(request.getName());
@@ -80,10 +81,13 @@ public class MedicationService {
                         .flatMap(
                                 day ->
                                         request.getDoseTimes().stream()
-                                                .map(timeStr -> {
-                                                    LocalTime time = LocalTime.parse(timeStr);
-                                                    return createAlarm(medication, time, day);
-                                                }))
+                                                .map(
+                                                        timeStr -> {
+                                                            LocalTime time =
+                                                                    LocalTime.parse(timeStr);
+                                                            return createAlarm(
+                                                                    medication, time, day);
+                                                        }))
                         .toList();
 
         medication.getAlarms().addAll(alarms);

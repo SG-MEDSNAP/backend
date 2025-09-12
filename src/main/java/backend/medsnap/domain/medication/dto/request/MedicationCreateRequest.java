@@ -1,13 +1,10 @@
 package backend.medsnap.domain.medication.dto.request;
 
-import java.time.LocalTime;
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import backend.medsnap.domain.medication.entity.DayOfWeek;
 import io.swagger.v3.oas.annotations.media.Schema;
