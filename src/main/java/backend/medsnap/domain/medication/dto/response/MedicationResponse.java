@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import backend.medsnap.domain.alarm.entity.DayOfWeek;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import backend.medsnap.domain.medication.entity.DayOfWeek;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;

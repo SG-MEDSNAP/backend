@@ -1,8 +1,8 @@
 package backend.medsnap.domain.medication.service;
 
-import java.time.LocalTime;
-import java.util.List;
 
+import backend.medsnap.domain.alarm.entity.Alarm;
+import backend.medsnap.domain.alarm.service.AlarmService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,9 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
-import backend.medsnap.domain.medication.entity.DayOfWeek;
 import backend.medsnap.domain.medication.entity.Medication;
-import backend.medsnap.domain.medication.entity.MedicationAlarm;
 import backend.medsnap.domain.medication.exception.InvalidMedicationDataException;
 import backend.medsnap.domain.medication.repository.MedicationRepository;
 import backend.medsnap.infra.s3.S3Service;
@@ -26,6 +24,7 @@ public class MedicationService {
 
     private final MedicationRepository medicationRepository;
     private final S3Service s3Service;
+    private final AlarmService alarmService;
 
     @Transactional
     public MedicationResponse createMedication(
@@ -49,7 +48,7 @@ public class MedicationService {
                         .build();
 
         // Alarm 생성
-        createAlarms(medication, request);
+        alarmService.createAlarms(medication, request.getDoseTimes(), request.getDoseDays());
 
         // 저장
         Medication savedMedication;
@@ -72,36 +71,6 @@ public class MedicationService {
         }
     }
 
-    /** 알람 생성 및 연관관계 설정 */
-    private void createAlarms(Medication medication, MedicationCreateRequest request) {
-        List<DayOfWeek> expandedDays = DayOfWeek.expandDays(request.getDoseDays());
-
-        List<MedicationAlarm> alarms =
-                expandedDays.stream()
-                        .flatMap(
-                                day ->
-                                        request.getDoseTimes().stream()
-                                                .map(
-                                                        timeStr -> {
-                                                            LocalTime time =
-                                                                    LocalTime.parse(timeStr);
-                                                            return createAlarm(
-                                                                    medication, time, day);
-                                                        }))
-                        .toList();
-
-        medication.getAlarms().addAll(alarms);
-    }
-
-    /** 단일 알람 생성 */
-    private MedicationAlarm createAlarm(Medication medication, LocalTime time, DayOfWeek day) {
-        return MedicationAlarm.builder()
-                .doseTime(time)
-                .dayOfWeek(day)
-                .medication(medication)
-                .build();
-    }
-
     /** Response 객체 생성 */
     private MedicationResponse getMedicationResponse(
             Medication savedMedication, MedicationCreateRequest request) {
@@ -113,13 +82,13 @@ public class MedicationService {
                 .preNotify(savedMedication.getPreNotify())
                 .doseTimes(
                         savedMedication.getAlarms().stream()
-                                .map(MedicationAlarm::getDoseTime)
+                                .map(Alarm::getDoseTime)
                                 .distinct()
                                 .sorted()
                                 .toList())
                 .doseDays(
                         savedMedication.getAlarms().stream()
-                                .map(MedicationAlarm::getDayOfWeek)
+                                .map(Alarm::getDayOfWeek)
                                 .distinct()
                                 .sorted()
                                 .toList())

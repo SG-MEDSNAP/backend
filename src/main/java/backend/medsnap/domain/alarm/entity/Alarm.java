@@ -1,21 +1,20 @@
-package backend.medsnap.domain.medication.entity;
+package backend.medsnap.domain.alarm.entity;
 
-import java.time.LocalTime;
-
-import jakarta.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-
+import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.global.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MedicationAlarm extends BaseEntity {
+public class Alarm  extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +35,7 @@ public class MedicationAlarm extends BaseEntity {
     private Medication medication;
 
     @Builder
-    public MedicationAlarm(LocalTime doseTime, DayOfWeek dayOfWeek, Medication medication) {
+    public Alarm(LocalTime doseTime, DayOfWeek dayOfWeek, Medication medication) {
         this.doseTime = doseTime;
         this.dayOfWeek = dayOfWeek;
         this.medication = medication;

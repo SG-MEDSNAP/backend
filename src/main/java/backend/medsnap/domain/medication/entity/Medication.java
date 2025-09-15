@@ -3,6 +3,7 @@ package backend.medsnap.domain.medication.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import backend.medsnap.domain.alarm.entity.Alarm;
 import jakarta.persistence.*;
 
 import backend.medsnap.global.entity.BaseEntity;
@@ -38,7 +39,7 @@ public class Medication extends BaseEntity {
             cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.LAZY)
-    private List<MedicationAlarm> alarms = new ArrayList<>();
+    private List<Alarm> alarms = new ArrayList<>();
 
     @Builder
     public Medication(String name, String imageUrl, Boolean notifyCaregiver, Boolean preNotify) {
