@@ -221,7 +221,8 @@ public interface MedicationSwagger {
             """)))
             })
     ResponseEntity<backend.medsnap.global.dto.ApiResponse<AlarmDeleteResponse>> deleteMedication(
-            @Parameter(description = "삭제할 약의 ID", required = true, example = "1") @PathVariable("medicationId")
+            @Parameter(description = "삭제할 약의 ID", required = true, example = "1")
+                    @PathVariable("medicationId")
                     Long medicationId);
 
     @Operation(summary = "선택된 알람 삭제", description = "특정 약의 선택된 알람들을 삭제합니다.")
@@ -342,7 +343,8 @@ public interface MedicationSwagger {
             """)))
             })
     ResponseEntity<backend.medsnap.global.dto.ApiResponse<AlarmDeleteResponse>> deleteAlarms(
-            @Parameter(description = "약의 ID", required = true, example = "1") @PathVariable("medicationId")
+            @Parameter(description = "약의 ID", required = true, example = "1")
+                    @PathVariable("medicationId")
                     Long medicationId,
             @Parameter(description = "삭제할 알람 정보", required = true) @RequestBody @Valid
                     AlarmDeleteRequest request);

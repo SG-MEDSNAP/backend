@@ -123,7 +123,9 @@ public class S3Service {
 
             // 폴백: 첫 세그먼트를 제거하여 key 추정
             int slash = normalized.indexOf('/');
-            return (slash >= 0 && slash + 1 < normalized.length()) ? normalized.substring(slash + 1) : null;
+            return (slash >= 0 && slash + 1 < normalized.length())
+                    ? normalized.substring(slash + 1)
+                    : null;
         } catch (Exception e) {
             log.warn("URL 파싱 중 오류 발생: {}", fileUrl, e);
             return null;

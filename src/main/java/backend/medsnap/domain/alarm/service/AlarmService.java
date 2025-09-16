@@ -29,17 +29,25 @@ public class AlarmService {
         List<DayOfWeek> expandedDays = DayOfWeek.expandDays(doseDays);
 
         List<Alarm> alarms =
-                expandedDays.stream().distinct()
+                expandedDays.stream()
+                        .distinct()
                         .flatMap(
                                 day ->
-                                        doseTimes.stream().distinct()
+                                        doseTimes.stream()
+                                                .distinct()
                                                 .map(
                                                         timeStr -> {
                                                             try {
-                                                                LocalTime time = LocalTime.parse(timeStr);
-                                                                return createAlarm(medication, time, day);
-                                                            } catch (java.time.format.DateTimeParseException e) {
-                                                                throw new IllegalArgumentException("잘못된 시간 형식: " + timeStr);
+                                                                LocalTime time =
+                                                                        LocalTime.parse(timeStr);
+                                                                return createAlarm(
+                                                                        medication, time, day);
+                                                            } catch (
+                                                                    java.time.format
+                                                                                    .DateTimeParseException
+                                                                            e) {
+                                                                throw new IllegalArgumentException(
+                                                                        "잘못된 시간 형식: " + timeStr);
                                                             }
                                                         }))
                         .toList();

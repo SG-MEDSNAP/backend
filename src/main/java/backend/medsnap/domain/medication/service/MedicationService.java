@@ -2,7 +2,6 @@ package backend.medsnap.domain.medication.service;
 
 import java.util.List;
 
-import backend.medsnap.domain.alarm.repository.AlarmRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import backend.medsnap.domain.alarm.dto.response.AlarmDeleteResponse;
 import backend.medsnap.domain.alarm.entity.Alarm;
+import backend.medsnap.domain.alarm.repository.AlarmRepository;
 import backend.medsnap.domain.alarm.service.AlarmService;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
@@ -170,10 +170,16 @@ public class MedicationService {
 
         try {
             s3Service.deleteFile(medication.getImageUrl());
-            log.info("S3 이미지 삭제 완료 - 약 ID: {}, URL: {}", medication.getId(), medication.getImageUrl());
+            log.info(
+                    "S3 이미지 삭제 완료 - 약 ID: {}, URL: {}",
+                    medication.getId(),
+                    medication.getImageUrl());
         } catch (Exception e) {
-            log.warn("S3 이미지 삭제 실패 - 약 ID: {}, URL: {}, 오류: {}",
-                    medication.getId(), medication.getImageUrl(), e.getMessage());
+            log.warn(
+                    "S3 이미지 삭제 실패 - 약 ID: {}, URL: {}, 오류: {}",
+                    medication.getId(),
+                    medication.getImageUrl(),
+                    e.getMessage());
         }
     }
 
