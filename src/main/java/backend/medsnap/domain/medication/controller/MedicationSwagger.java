@@ -1,7 +1,5 @@
 package backend.medsnap.domain.medication.controller;
 
-import backend.medsnap.domain.alarm.dto.request.AlarmDeleteRequest;
-import backend.medsnap.domain.alarm.dto.response.AlarmDeleteResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -10,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
+import backend.medsnap.domain.alarm.dto.request.AlarmDeleteRequest;
+import backend.medsnap.domain.alarm.dto.response.AlarmDeleteResponse;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -139,21 +139,21 @@ public interface MedicationSwagger {
     @Operation(summary = "약 삭제", description = "등록된 약과 관련된 모든 알람을 삭제합니다.")
     @ApiResponses(
             value = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "200",
-                            description = "약 삭제 성공",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(
-                                            implementation =
-                                                    backend.medsnap.global.dto
-                                                            .ApiResponse.class),
-                                    examples =
-                                    @ExampleObject(
-                                            value =
-                                                    """
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "200",
+                        description = "약 삭제 성공",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
             {
               "code": "SUCCESS",
               "httpStatus": 200,
@@ -164,21 +164,21 @@ public interface MedicationSwagger {
               }
             }
             """))),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "404",
-                            description = "약을 찾을 수 없음",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(
-                                            implementation =
-                                                    backend.medsnap.global.dto
-                                                            .ApiResponse.class),
-                                    examples =
-                                    @ExampleObject(
-                                            value =
-                                                    """
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "404",
+                        description = "약을 찾을 수 없음",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
             {
               "code": "M001",
               "httpStatus": 404,
@@ -186,21 +186,21 @@ public interface MedicationSwagger {
               "data": null
             }
             """))),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "500",
-                            description = "서버 오류",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(
-                                            implementation =
-                                                    backend.medsnap.global.dto
-                                                            .ApiResponse.class),
-                                    examples =
-                                    @ExampleObject(
-                                            value =
-                                                    """
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "500",
+                        description = "서버 오류",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
             {
               "code": "C003",
               "httpStatus": 500,
@@ -210,40 +210,41 @@ public interface MedicationSwagger {
             """)))
             })
     ResponseEntity<backend.medsnap.global.dto.ApiResponse<AlarmDeleteResponse>> deleteMedication(
-            @Parameter(description = "삭제할 약의 ID", required = true, example = "1")
-            @PathVariable Long medicationId);
+            @Parameter(description = "삭제할 약의 ID", required = true, example = "1") @PathVariable
+                    Long medicationId);
 
     @Operation(summary = "선택된 알람 삭제", description = "특정 약의 선택된 알람들을 삭제합니다.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "삭제할 알람 ID 목록",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = AlarmDeleteRequest.class),
-                    examples = @ExampleObject(
-                            value = """
-                    {
-                      "alarmIds": [1, 2, 3]
-                    }
-                    """
-                    )
-            ))
-    @ApiResponses(
-            value = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "200",
-                            description = "선택된 알람 삭제 성공",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(
-                                            implementation =
-                                                    backend.medsnap.global.dto
-                                                            .ApiResponse.class),
-                                    examples =
+            content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = AlarmDeleteRequest.class),
+                            examples =
                                     @ExampleObject(
                                             value =
                                                     """
+                    {
+                      "alarmIds": [1, 2, 3]
+                    }
+                    """)))
+    @ApiResponses(
+            value = {
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "200",
+                        description = "선택된 알람 삭제 성공",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
             {
               "code": "SUCCESS",
               "httpStatus": 200,
@@ -254,21 +255,21 @@ public interface MedicationSwagger {
               }
             }
             """))),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "400",
-                            description = "잘못된 요청 (빈 알람 ID 목록, 중복 ID 등)",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(
-                                            implementation =
-                                                    backend.medsnap.global.dto
-                                                            .ApiResponse.class),
-                                    examples =
-                                    @ExampleObject(
-                                            value =
-                                                    """
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "400",
+                        description = "잘못된 요청 (빈 알람 ID 목록, 중복 ID 등)",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
             {
               "code": "C005",
               "httpStatus": 400,
@@ -276,21 +277,21 @@ public interface MedicationSwagger {
               "data": null
             }
             """))),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "404",
-                            description = "약을 찾을 수 없음 또는 알람을 찾을 수 없음",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(
-                                            implementation =
-                                                    backend.medsnap.global.dto
-                                                            .ApiResponse.class),
-                                    examples =
-                                    @ExampleObject(
-                                            value =
-                                                    """
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "404",
+                        description = "약을 찾을 수 없음 또는 알람을 찾을 수 없음",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
             {
               "code": "M001",
               "httpStatus": 404,
@@ -298,21 +299,21 @@ public interface MedicationSwagger {
               "data": null
             }
             """))),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "500",
-                            description = "서버 오류",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(
-                                            implementation =
-                                                    backend.medsnap.global.dto
-                                                            .ApiResponse.class),
-                                    examples =
-                                    @ExampleObject(
-                                            value =
-                                                    """
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "500",
+                        description = "서버 오류",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
             {
               "code": "C003",
               "httpStatus": 500,
@@ -322,9 +323,8 @@ public interface MedicationSwagger {
             """)))
             })
     ResponseEntity<backend.medsnap.global.dto.ApiResponse<AlarmDeleteResponse>> deleteAlarms(
-            @Parameter(description = "약의 ID", required = true, example = "1")
-            @PathVariable Long medicationId,
-            @Parameter(description = "삭제할 알람 정보", required = true)
-            @RequestBody @Valid AlarmDeleteRequest request);
-
+            @Parameter(description = "약의 ID", required = true, example = "1") @PathVariable
+                    Long medicationId,
+            @Parameter(description = "삭제할 알람 정보", required = true) @RequestBody @Valid
+                    AlarmDeleteRequest request);
 }

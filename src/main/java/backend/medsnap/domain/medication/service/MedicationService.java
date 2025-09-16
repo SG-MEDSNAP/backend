@@ -1,25 +1,24 @@
 package backend.medsnap.domain.medication.service;
 
+import java.util.List;
 
-import backend.medsnap.domain.alarm.dto.response.AlarmDeleteResponse;
-import backend.medsnap.domain.alarm.entity.Alarm;
-import backend.medsnap.domain.alarm.service.AlarmService;
-import backend.medsnap.domain.medication.exception.MedicationNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import backend.medsnap.domain.alarm.dto.response.AlarmDeleteResponse;
+import backend.medsnap.domain.alarm.entity.Alarm;
+import backend.medsnap.domain.alarm.service.AlarmService;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.domain.medication.exception.InvalidMedicationDataException;
+import backend.medsnap.domain.medication.exception.MedicationNotFoundException;
 import backend.medsnap.domain.medication.repository.MedicationRepository;
 import backend.medsnap.infra.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -67,16 +66,16 @@ public class MedicationService {
         return getMedicationResponse(savedMedication, request);
     }
 
-    /**
-     * 약 삭제
-     */
+    /** 약 삭제 */
     @Transactional
     public AlarmDeleteResponse deleteMedication(Long medicationId) {
         log.info("약 삭제 시작 - ID: {}", medicationId);
 
         // 약 존재 여부 확인
-        Medication medication = medicationRepository.findById(medicationId)
-                .orElseThrow(() -> new MedicationNotFoundException(medicationId));
+        Medication medication =
+                medicationRepository
+                        .findById(medicationId)
+                        .orElseThrow(() -> new MedicationNotFoundException(medicationId));
 
         // 알람 개수 확인
         int alarmCount = medication.getAlarms().size();
@@ -92,16 +91,15 @@ public class MedicationService {
                 s3Service.deleteFile(medication.getImageUrl());
                 log.info("S3 이미지 삭제 완료 - URL: {}", medication.getImageUrl());
             } catch (Exception e) {
-                log.warn("S3 이미지 삭제 실패 - URL: {}, 오류: {}", medication.getImageUrl(), e.getMessage());
+                log.warn(
+                        "S3 이미지 삭제 실패 - URL: {}, 오류: {}", medication.getImageUrl(), e.getMessage());
             }
         }
 
         return alarmService.createDeleteAllResponse(medication, alarmCount);
     }
 
-    /**
-     * 선택된 알람들 삭제
-     */
+    /** 선택된 알람들 삭제 */
     @Transactional
     public AlarmDeleteResponse deleteSelectedAlarms(Long medicationId, List<Long> alarmIds) {
         log.info("선택된 알람 삭제 시작 - 약 ID: {}, 알람 IDs: {}", medicationId, alarmIds);
@@ -110,8 +108,10 @@ public class MedicationService {
         validateAlarmDeleteRequest(alarmIds);
 
         // 약 존재 여부 확인
-        Medication medication = medicationRepository.findById(medicationId)
-                .orElseThrow(() -> new MedicationNotFoundException(medicationId));
+        Medication medication =
+                medicationRepository
+                        .findById(medicationId)
+                        .orElseThrow(() -> new MedicationNotFoundException(medicationId));
 
         // 알람 삭제 수행
         return alarmService.deleteAlarm(medication, alarmIds);
@@ -125,9 +125,7 @@ public class MedicationService {
         }
     }
 
-    /**
-     * 알람 삭제 요청 검증
-     */
+    /** 알람 삭제 요청 검증 */
     private void validateAlarmDeleteRequest(List<Long> alarmIds) {
         if (alarmIds == null || alarmIds.isEmpty()) {
             throw new IllegalArgumentException("삭제할 알람 ID 목록은 비어있을 수 없습니다.");

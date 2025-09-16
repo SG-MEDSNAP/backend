@@ -3,14 +3,14 @@ package backend.medsnap.infra.s3;
 import java.time.Instant;
 import java.util.UUID;
 
-import backend.medsnap.infra.s3.exception.S3DeleteFailException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import backend.medsnap.infra.s3.exception.S3DeleteFailException;
 import backend.medsnap.infra.s3.exception.S3UploadFailException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -58,9 +58,7 @@ public class S3Service {
         }
     }
 
-    /**
-     * S3에서 파일 삭제 (URL 기반)
-     */
+    /** S3에서 파일 삭제 (URL 기반) */
     public void deleteFile(String fileUrl) {
         if (fileUrl == null || fileUrl.isEmpty()) {
             log.warn("삭제할 파일 URL이 비어있습니다.");
@@ -89,10 +87,7 @@ public class S3Service {
 
         try {
             DeleteObjectRequest deleteObjectRequest =
-                    DeleteObjectRequest.builder()
-                            .bucket(bucketName)
-                            .key(key)
-                            .build();
+                    DeleteObjectRequest.builder().bucket(bucketName).key(key).build();
 
             s3Client.deleteObject(deleteObjectRequest);
             log.info("S3 파일 삭제 성공 - Key: {}", key);
@@ -129,7 +124,6 @@ public class S3Service {
             log.warn("URL 파싱 중 오류 발생: {}", fileUrl, e);
             return null;
         }
-
     }
 
     /** 파일 확장자 추출 */

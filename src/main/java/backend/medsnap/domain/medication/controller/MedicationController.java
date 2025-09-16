@@ -1,7 +1,5 @@
 package backend.medsnap.domain.medication.controller;
 
-import backend.medsnap.domain.alarm.dto.request.AlarmDeleteRequest;
-import backend.medsnap.domain.alarm.dto.response.AlarmDeleteResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -10,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import backend.medsnap.domain.alarm.dto.request.AlarmDeleteRequest;
+import backend.medsnap.domain.alarm.dto.response.AlarmDeleteResponse;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.service.MedicationService;
@@ -38,8 +38,7 @@ public class MedicationController implements MedicationSwagger {
     @Override
     @DeleteMapping("/{medicationId}")
     public ResponseEntity<ApiResponse<AlarmDeleteResponse>> deleteMedication(
-            @PathVariable Long medicationId
-    ) {
+            @PathVariable Long medicationId) {
         AlarmDeleteResponse response = medicationService.deleteMedication(medicationId);
 
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, response));
@@ -48,13 +47,10 @@ public class MedicationController implements MedicationSwagger {
     @Override
     @DeleteMapping("/{medicationId}/alarms")
     public ResponseEntity<ApiResponse<AlarmDeleteResponse>> deleteAlarms(
-        @PathVariable Long medicationId,
-        @RequestBody @Valid AlarmDeleteRequest request) {
+            @PathVariable Long medicationId, @RequestBody @Valid AlarmDeleteRequest request) {
 
-        AlarmDeleteResponse response = medicationService.deleteSelectedAlarms(
-                medicationId,
-                request.getAlarmIds()
-        );
+        AlarmDeleteResponse response =
+                medicationService.deleteSelectedAlarms(medicationId, request.getAlarmIds());
 
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, response));
     }

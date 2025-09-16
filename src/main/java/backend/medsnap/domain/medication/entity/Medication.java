@@ -3,9 +3,9 @@ package backend.medsnap.domain.medication.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import backend.medsnap.domain.alarm.entity.Alarm;
 import jakarta.persistence.*;
 
+import backend.medsnap.domain.alarm.entity.Alarm;
 import backend.medsnap.global.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;

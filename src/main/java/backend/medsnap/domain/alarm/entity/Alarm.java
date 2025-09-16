@@ -1,21 +1,23 @@
 package backend.medsnap.domain.alarm.entity;
 
+import java.time.LocalTime;
+
+import jakarta.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.global.entity.BaseEntity;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalTime;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "medication_alarms")
-public class Alarm  extends BaseEntity {
+public class Alarm extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
