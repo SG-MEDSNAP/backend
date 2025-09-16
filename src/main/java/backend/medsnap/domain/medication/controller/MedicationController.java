@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import backend.medsnap.domain.alarm.dto.request.AlarmDeleteRequest;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.service.MedicationService;
@@ -31,5 +32,23 @@ public class MedicationController implements MedicationSwagger {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(HttpStatus.CREATED, response));
+    }
+
+    @Override
+    @DeleteMapping("/{medicationId}")
+    public ResponseEntity<Void> deleteMedication(@PathVariable Long medicationId) {
+        medicationService.deleteMedication(medicationId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @DeleteMapping("/{medicationId}/alarms")
+    public ResponseEntity<Void> deleteAlarms(
+            @PathVariable Long medicationId, @RequestBody @Valid AlarmDeleteRequest request) {
+
+        medicationService.deleteSelectedAlarms(medicationId, request.getAlarmIds());
+
+        return ResponseEntity.noContent().build();
     }
 }

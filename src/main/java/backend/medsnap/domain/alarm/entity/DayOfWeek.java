@@ -1,4 +1,4 @@
-package backend.medsnap.domain.medication.entity;
+package backend.medsnap.domain.alarm.entity;
 
 import java.util.List;
 

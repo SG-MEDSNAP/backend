@@ -8,4 +8,9 @@ public class MedicationNotFoundException extends MedicationException {
     public MedicationNotFoundException() {
         super(ErrorCode.MED_NOT_FOUND);
     }
+
+    /** 약 ID를 포함한 예외 생성 */
+    public MedicationNotFoundException(Long medicationId) {
+        super(ErrorCode.MED_NOT_FOUND);
+    }
 }

@@ -55,6 +55,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getStatus()).body(response);
     }
 
+    /** IllegalArgumentException 처리 (400 Bad Request) */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.warn("IllegalArgumentException: {}", e.getMessage());
+
+        ApiResponse<Object> response = ApiResponse.error(ErrorCode.COMMON_VALIDATION_ERROR, e.getMessage());
+
+        return ResponseEntity.status(ErrorCode.COMMON_VALIDATION_ERROR.getStatus()).body(response);
+    }
+
     /** 기타 모든 예외 처리 */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleException(

@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import backend.medsnap.domain.medication.entity.DayOfWeek;
+import backend.medsnap.domain.alarm.entity.DayOfWeek;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
