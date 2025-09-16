@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import backend.medsnap.domain.alarm.dto.response.AlarmDeleteResponse;
 import backend.medsnap.domain.alarm.entity.Alarm;
 import backend.medsnap.domain.alarm.entity.DayOfWeek;
 import backend.medsnap.domain.alarm.repository.AlarmRepository;

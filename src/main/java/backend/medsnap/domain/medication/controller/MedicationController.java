@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import backend.medsnap.domain.alarm.dto.request.AlarmDeleteRequest;
-import backend.medsnap.domain.alarm.dto.response.AlarmDeleteResponse;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.service.MedicationService;

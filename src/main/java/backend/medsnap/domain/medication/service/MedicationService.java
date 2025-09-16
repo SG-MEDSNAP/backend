@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import backend.medsnap.domain.alarm.dto.response.AlarmDeleteResponse;
 import backend.medsnap.domain.alarm.entity.Alarm;
 import backend.medsnap.domain.alarm.repository.AlarmRepository;
 import backend.medsnap.domain.alarm.service.AlarmService;
