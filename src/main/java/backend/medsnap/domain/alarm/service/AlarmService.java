@@ -10,6 +10,8 @@ import backend.medsnap.domain.alarm.entity.Alarm;
 import backend.medsnap.domain.alarm.entity.DayOfWeek;
 import backend.medsnap.domain.alarm.repository.AlarmRepository;
 import backend.medsnap.domain.medication.entity.Medication;
+import backend.medsnap.global.exception.BusinessException;
+import backend.medsnap.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +45,8 @@ public class AlarmService {
                                                                     java.time.format
                                                                                     .DateTimeParseException
                                                                             e) {
-                                                                throw new IllegalArgumentException(
+                                                                throw new BusinessException(
+                                                                        ErrorCode.COMMON_VALIDATION_ERROR,
                                                                         "잘못된 시간 형식: " + timeStr);
                                                             }
                                                         }))

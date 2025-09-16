@@ -76,7 +76,7 @@ public interface MedicationSwagger {
                                                         value =
                                                                 """
                         {
-                          "code": "C005",
+                          "code": "C002",
                           "httpStatus": 400,
                           "message": "입력값 검증에 실패했습니다.",
                           "data": null
@@ -98,7 +98,7 @@ public interface MedicationSwagger {
                                                         value =
                                                                 """
                         {
-                          "code": "M006",
+                          "code": "M002",
                           "httpStatus": 409,
                           "message": "이미 등록된 약 이름입니다.",
                           "data": null
@@ -120,7 +120,7 @@ public interface MedicationSwagger {
                                                         value =
                                                                 """
                         {
-                          "code": "C003",
+                          "code": "C001",
                           "httpStatus": 500,
                           "message": "내부 서버 오류가 발생했습니다.",
                           "data": null
@@ -180,7 +180,7 @@ public interface MedicationSwagger {
                                                         value =
                                                                 """
             {
-              "code": "C003",
+              "code": "C001",
               "httpStatus": 500,
               "message": "내부 서버 오류가 발생했습니다.",
               "data": null,
@@ -229,7 +229,7 @@ public interface MedicationSwagger {
                                                         value =
                                                                 """
             {
-              "code": "C005",
+              "code": "C002",
               "httpStatus": 400,
               "message": "삭제할 알람 ID 목록은 비어있을 수 없습니다.",
               "data": null,
@@ -275,7 +275,7 @@ public interface MedicationSwagger {
                                                         value =
                                                                 """
             {
-              "code": "C003",
+              "code": "C001",
               "httpStatus": 500,
               "message": "내부 서버 오류가 발생했습니다.",
               "data": null,
