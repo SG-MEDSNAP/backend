@@ -2,8 +2,6 @@ package backend.medsnap.domain.alarm.service;
 
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +75,4 @@ public class AlarmService {
             log.info("약 ID: {}의 {}개 알람이 삭제되었습니다.", medication.getId(), deletedCount);
         }
     }
-
-
 }

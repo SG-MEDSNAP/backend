@@ -36,8 +36,7 @@ public class MedicationController implements MedicationSwagger {
 
     @Override
     @DeleteMapping("/{medicationId}")
-    public ResponseEntity<Void> deleteMedication(
-            @PathVariable Long medicationId) {
+    public ResponseEntity<Void> deleteMedication(@PathVariable Long medicationId) {
         medicationService.deleteMedication(medicationId);
 
         return ResponseEntity.noContent().build();
