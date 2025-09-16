@@ -1,5 +1,7 @@
 package backend.medsnap.domain.medication.controller;
 
+import backend.medsnap.domain.alarm.dto.request.AlarmDeleteRequest;
+import backend.medsnap.domain.alarm.dto.response.AlarmDeleteResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -31,5 +33,29 @@ public class MedicationController implements MedicationSwagger {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(HttpStatus.CREATED, response));
+    }
+
+    @Override
+    @DeleteMapping("/{medicationId}")
+    public ResponseEntity<ApiResponse<AlarmDeleteResponse>> deleteMedication(
+            @PathVariable Long medicationId
+    ) {
+        AlarmDeleteResponse response = medicationService.deleteMedication(medicationId);
+
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, response));
+    }
+
+    @Override
+    @DeleteMapping("/{medicationId}/alarms")
+    public ResponseEntity<ApiResponse<AlarmDeleteResponse>> deleteAlarms(
+        @PathVariable Long medicationId,
+        @RequestBody @Valid AlarmDeleteRequest request) {
+
+        AlarmDeleteResponse response = medicationService.deleteSelectedAlarms(
+                medicationId,
+                request.getAlarmIds()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, response));
     }
 }
