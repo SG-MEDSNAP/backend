@@ -159,8 +159,19 @@ public interface MedicationSwagger {
               "httpStatus": 200,
               "message": "요청이 성공적으로 처리되었습니다.",
               "data": {
-                "deletedCount": 6,
-                "message": "타이레놀 약물과 관련된 6개의 알람이 삭제되었습니다."
+                "medicationId": 1,
+                "medicationName": "타이레놀",
+                "deletedAlarmCount": 6,
+                "failedAlarmCount": 0,
+                "message": "타이레놀 약물과 관련된 6개의 알람이 삭제되었습니다.",
+                "details": [
+                  {"alarmId": 10, "status": "DELETED"},
+                  {"alarmId": 11, "status": "DELETED"},
+                  {"alarmId": 12, "status": "DELETED"},
+                  {"alarmId": 13, "status": "DELETED"},
+                  {"alarmId": 14, "status": "DELETED"},
+                  {"alarmId": 15, "status": "DELETED"}
+                ]
               }
             }
             """))),
@@ -182,7 +193,7 @@ public interface MedicationSwagger {
             {
               "code": "M001",
               "httpStatus": 404,
-              "message": "ID가 1인 약을 찾을 수 없습니다.",
+              "message": "약 정보를 찾을 수 없습니다.",
               "data": null
             }
             """))),
@@ -210,7 +221,7 @@ public interface MedicationSwagger {
             """)))
             })
     ResponseEntity<backend.medsnap.global.dto.ApiResponse<AlarmDeleteResponse>> deleteMedication(
-            @Parameter(description = "삭제할 약의 ID", required = true, example = "1") @PathVariable
+            @Parameter(description = "삭제할 약의 ID", required = true, example = "1") @PathVariable("medicationId")
                     Long medicationId);
 
     @Operation(summary = "선택된 알람 삭제", description = "특정 약의 선택된 알람들을 삭제합니다.")
@@ -250,8 +261,16 @@ public interface MedicationSwagger {
               "httpStatus": 200,
               "message": "요청이 성공적으로 처리되었습니다.",
               "data": {
-                "deletedCount": 3,
-                "message": "타이레놀 약물의 3개 알람이 삭제되었습니다."
+                "medicationId": 1,
+                "medicationName": "타이레놀",
+                "deletedAlarmCount": 3,
+                "failedAlarmCount": 0,
+                "message": "타이레놀 약물의 3개 알람이 삭제되었습니다.",
+                "details": [
+                  {"alarmId": 1, "status": "DELETED"},
+                  {"alarmId": 2, "status": "DELETED"},
+                  {"alarmId": 3, "status": "DELETED"}
+                ]
               }
             }
             """))),
@@ -295,7 +314,7 @@ public interface MedicationSwagger {
             {
               "code": "M001",
               "httpStatus": 404,
-              "message": "ID가 1인 약을 찾을 수 없습니다.",
+              "message": "약 정보를 찾을 수 없습니다.",
               "data": null
             }
             """))),
@@ -323,7 +342,7 @@ public interface MedicationSwagger {
             """)))
             })
     ResponseEntity<backend.medsnap.global.dto.ApiResponse<AlarmDeleteResponse>> deleteAlarms(
-            @Parameter(description = "약의 ID", required = true, example = "1") @PathVariable
+            @Parameter(description = "약의 ID", required = true, example = "1") @PathVariable("medicationId")
                     Long medicationId,
             @Parameter(description = "삭제할 알람 정보", required = true) @RequestBody @Valid
                     AlarmDeleteRequest request);
