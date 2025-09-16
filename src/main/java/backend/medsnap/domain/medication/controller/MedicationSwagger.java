@@ -140,41 +140,8 @@ public interface MedicationSwagger {
     @ApiResponses(
             value = {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                        responseCode = "200",
-                        description = "약 삭제 성공",
-                        content =
-                                @Content(
-                                        mediaType = "application/json",
-                                        schema =
-                                                @Schema(
-                                                        implementation =
-                                                                backend.medsnap.global.dto
-                                                                        .ApiResponse.class),
-                                        examples =
-                                                @ExampleObject(
-                                                        value =
-                                                                """
-            {
-              "code": "SUCCESS",
-              "httpStatus": 200,
-              "message": "요청이 성공적으로 처리되었습니다.",
-              "data": {
-                "medicationId": 1,
-                "medicationName": "타이레놀",
-                "deletedAlarmCount": 6,
-                "failedAlarmCount": 0,
-                "message": "타이레놀 약물과 관련된 6개의 알람이 삭제되었습니다.",
-                "details": [
-                  {"alarmId": 10, "status": "DELETED"},
-                  {"alarmId": 11, "status": "DELETED"},
-                  {"alarmId": 12, "status": "DELETED"},
-                  {"alarmId": 13, "status": "DELETED"},
-                  {"alarmId": 14, "status": "DELETED"},
-                  {"alarmId": 15, "status": "DELETED"}
-                ]
-              }
-            }
-            """))),
+                        responseCode = "204",
+                        description = "약 삭제 성공"),
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
                         responseCode = "404",
                         description = "약을 찾을 수 없음",
@@ -194,7 +161,8 @@ public interface MedicationSwagger {
               "code": "M001",
               "httpStatus": 404,
               "message": "약 정보를 찾을 수 없습니다.",
-              "data": null
+              "data": null,
+              "error": null
             }
             """))),
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -216,11 +184,12 @@ public interface MedicationSwagger {
               "code": "C003",
               "httpStatus": 500,
               "message": "내부 서버 오류가 발생했습니다.",
-              "data": null
+              "data": null,
+              "error": null
             }
             """)))
             })
-    ResponseEntity<backend.medsnap.global.dto.ApiResponse<AlarmDeleteResponse>> deleteMedication(
+    ResponseEntity<Void> deleteMedication(
             @Parameter(description = "삭제할 약의 ID", required = true, example = "1")
                     @PathVariable("medicationId")
                     Long medicationId);
@@ -243,38 +212,8 @@ public interface MedicationSwagger {
     @ApiResponses(
             value = {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                        responseCode = "200",
-                        description = "선택된 알람 삭제 성공",
-                        content =
-                                @Content(
-                                        mediaType = "application/json",
-                                        schema =
-                                                @Schema(
-                                                        implementation =
-                                                                backend.medsnap.global.dto
-                                                                        .ApiResponse.class),
-                                        examples =
-                                                @ExampleObject(
-                                                        value =
-                                                                """
-            {
-              "code": "SUCCESS",
-              "httpStatus": 200,
-              "message": "요청이 성공적으로 처리되었습니다.",
-              "data": {
-                "medicationId": 1,
-                "medicationName": "타이레놀",
-                "deletedAlarmCount": 3,
-                "failedAlarmCount": 0,
-                "message": "타이레놀 약물의 3개 알람이 삭제되었습니다.",
-                "details": [
-                  {"alarmId": 1, "status": "DELETED"},
-                  {"alarmId": 2, "status": "DELETED"},
-                  {"alarmId": 3, "status": "DELETED"}
-                ]
-              }
-            }
-            """))),
+                        responseCode = "204",
+                        description = "선택된 알람 삭제 성공"),
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
                         responseCode = "400",
                         description = "잘못된 요청 (빈 알람 ID 목록, 중복 ID 등)",
@@ -294,7 +233,8 @@ public interface MedicationSwagger {
               "code": "C005",
               "httpStatus": 400,
               "message": "삭제할 알람 ID 목록은 비어있을 수 없습니다.",
-              "data": null
+              "data": null,
+              "error": null
             }
             """))),
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -316,7 +256,8 @@ public interface MedicationSwagger {
               "code": "M001",
               "httpStatus": 404,
               "message": "약 정보를 찾을 수 없습니다.",
-              "data": null
+              "data": null,
+              "error": null
             }
             """))),
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -338,11 +279,12 @@ public interface MedicationSwagger {
               "code": "C003",
               "httpStatus": 500,
               "message": "내부 서버 오류가 발생했습니다.",
-              "data": null
+              "data": null,
+              "error": null
             }
             """)))
             })
-    ResponseEntity<backend.medsnap.global.dto.ApiResponse<AlarmDeleteResponse>> deleteAlarms(
+    ResponseEntity<Void> deleteAlarms(
             @Parameter(description = "약의 ID", required = true, example = "1")
                     @PathVariable("medicationId")
                     Long medicationId,

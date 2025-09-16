@@ -70,7 +70,7 @@ public class MedicationService {
 
     /** 약 삭제 */
     @Transactional
-    public AlarmDeleteResponse deleteMedication(Long medicationId) {
+    public void deleteMedication(Long medicationId) {
         log.info("약 삭제 시작 - ID: {}", medicationId);
 
         // 약 존재 여부 확인
@@ -89,13 +89,11 @@ public class MedicationService {
 
         // S3 이미지 삭제
         deleteMedicationImage(medication);
-
-        return alarmService.createDeleteAllResponse(medication, alarmCount);
     }
 
     /** 선택된 알람들 삭제 */
     @Transactional
-    public AlarmDeleteResponse deleteSelectedAlarms(Long medicationId, List<Long> alarmIds) {
+    public void deleteSelectedAlarms(Long medicationId, List<Long> alarmIds) {
         log.info("선택된 알람 삭제 시작 - 약 ID: {}, 알람 IDs: {}", medicationId, alarmIds);
 
         // 알람 삭제 요청 검증
@@ -108,7 +106,7 @@ public class MedicationService {
                         .orElseThrow(() -> new MedicationNotFoundException(medicationId));
 
         // 알람 삭제 수행
-        AlarmDeleteResponse response = alarmService.deleteAlarm(medication, alarmIds);
+        alarmService.deleteAlarm(medication, alarmIds);
 
         // 남은 알람 개수 확인
         int remainingAlarmCount = alarmRepository.countByMedicationId(medicationId);
@@ -121,19 +119,7 @@ public class MedicationService {
             log.info("약 ID: {} 삭제 완료", medication.getId());
 
             deleteMedicationImage(medication);
-
-            // 응답 메시지 업데이트
-            return AlarmDeleteResponse.builder()
-                    .medicationId(response.getMedicationId())
-                    .medicationName(response.getMedicationName())
-                    .deletedAlarmCount(response.getDeletedAlarmCount())
-                    .failedAlarmCount(response.getFailedAlarmCount())
-                    .message("모든 알람이 삭제되어 약도 함께 삭제되었습니다.")
-                    .details(response.getDetails())
-                    .build();
         }
-
-        return response;
     }
 
     /** 약 이름 중복 검증 */

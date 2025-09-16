@@ -37,21 +37,20 @@ public class MedicationController implements MedicationSwagger {
 
     @Override
     @DeleteMapping("/{medicationId}")
-    public ResponseEntity<ApiResponse<AlarmDeleteResponse>> deleteMedication(
+    public ResponseEntity<Void> deleteMedication(
             @PathVariable Long medicationId) {
-        AlarmDeleteResponse response = medicationService.deleteMedication(medicationId);
+        medicationService.deleteMedication(medicationId);
 
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, response));
+        return ResponseEntity.noContent().build();
     }
 
     @Override
     @DeleteMapping("/{medicationId}/alarms")
-    public ResponseEntity<ApiResponse<AlarmDeleteResponse>> deleteAlarms(
+    public ResponseEntity<Void> deleteAlarms(
             @PathVariable Long medicationId, @RequestBody @Valid AlarmDeleteRequest request) {
 
-        AlarmDeleteResponse response =
-                medicationService.deleteSelectedAlarms(medicationId, request.getAlarmIds());
+        medicationService.deleteSelectedAlarms(medicationId, request.getAlarmIds());
 
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, response));
+        return ResponseEntity.noContent().build();
     }
 }
