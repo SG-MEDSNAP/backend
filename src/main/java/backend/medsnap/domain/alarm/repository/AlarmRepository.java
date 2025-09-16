@@ -13,6 +13,9 @@ import backend.medsnap.domain.alarm.entity.Alarm;
 @Repository
 public interface AlarmRepository extends JpaRepository<Alarm, Long> {
 
+    /** 특정 약의 남은 알람 개수 조회 */
+    int countByMedicationId(Long medicationId);
+
     /** 특정 약의 선택된 알람들 삭제 (개별 알람 삭제용) */
     @Modifying
     @Query("DELETE FROM Alarm a WHERE a.id IN :alarmIds AND a.medication.id = :medicationId")

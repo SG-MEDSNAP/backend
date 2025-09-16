@@ -2,6 +2,7 @@ package backend.medsnap.domain.medication.service;
 
 import java.util.List;
 
+import backend.medsnap.domain.alarm.repository.AlarmRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ public class MedicationService {
     private final MedicationRepository medicationRepository;
     private final S3Service s3Service;
     private final AlarmService alarmService;
+    private final AlarmRepository alarmRepository;
 
     @Transactional
     public MedicationResponse createMedication(
@@ -86,15 +88,7 @@ public class MedicationService {
         log.info("약 ID: {} 및 관련 알람 {}개가 삭제되었습니다.", medicationId, alarmCount);
 
         // S3 이미지 삭제
-        if (medication.getImageUrl() != null && !medication.getImageUrl().isEmpty()) {
-            try {
-                s3Service.deleteFile(medication.getImageUrl());
-                log.info("S3 이미지 삭제 완료 - URL: {}", medication.getImageUrl());
-            } catch (Exception e) {
-                log.warn(
-                        "S3 이미지 삭제 실패 - URL: {}, 오류: {}", medication.getImageUrl(), e.getMessage());
-            }
-        }
+        deleteMedicationImage(medication);
 
         return alarmService.createDeleteAllResponse(medication, alarmCount);
     }
@@ -114,7 +108,32 @@ public class MedicationService {
                         .orElseThrow(() -> new MedicationNotFoundException(medicationId));
 
         // 알람 삭제 수행
-        return alarmService.deleteAlarm(medication, alarmIds);
+        AlarmDeleteResponse response = alarmService.deleteAlarm(medication, alarmIds);
+
+        // 남은 알람 개수 확인
+        int remainingAlarmCount = alarmRepository.countByMedicationId(medicationId);
+
+        if (remainingAlarmCount == 0) {
+            log.info("약 ID: {}의 모든 알람이 삭제되어 약도 함께 삭제합니다.", medicationId);
+
+            // 약 삭제
+            medicationRepository.delete(medication);
+            log.info("약 ID: {} 삭제 완료", medication.getId());
+
+            deleteMedicationImage(medication);
+
+            // 응답 메시지 업데이트
+            return AlarmDeleteResponse.builder()
+                    .medicationId(response.getMedicationId())
+                    .medicationName(response.getMedicationName())
+                    .deletedAlarmCount(response.getDeletedAlarmCount())
+                    .failedAlarmCount(response.getFailedAlarmCount())
+                    .message("모든 알람이 삭제되어 약도 함께 삭제되었습니다.")
+                    .details(response.getDetails())
+                    .build();
+        }
+
+        return response;
     }
 
     /** 약 이름 중복 검증 */
@@ -139,6 +158,22 @@ public class MedicationService {
         // null 값 검증
         if (alarmIds.stream().anyMatch(java.util.Objects::isNull)) {
             throw new IllegalArgumentException("알람 ID에 null 값이 포함되어 있습니다.");
+        }
+    }
+
+    /** 약 이미지 S3에서 삭제 */
+    private void deleteMedicationImage(Medication medication) {
+        if (medication.getImageUrl() == null || medication.getImageUrl().isEmpty()) {
+            log.debug("약 ID: {}에 삭제할 이미지가 없습니다.", medication.getId());
+            return;
+        }
+
+        try {
+            s3Service.deleteFile(medication.getImageUrl());
+            log.info("S3 이미지 삭제 완료 - 약 ID: {}, URL: {}", medication.getId(), medication.getImageUrl());
+        } catch (Exception e) {
+            log.warn("S3 이미지 삭제 실패 - 약 ID: {}, URL: {}, 오류: {}",
+                    medication.getId(), medication.getImageUrl(), e.getMessage());
         }
     }
 
