@@ -104,22 +104,26 @@ public class S3Service {
         }
 
         try {
-            // URL을 '/'로 분할하여 도메인 부분을 제외한 path 추출
-            String[] parts = fileUrl.split("/");
-            if (parts.length < 4) {
-                log.warn("잘못된 URL 형식: {}", fileUrl);
-                return null;
+            java.net.URI uri = java.net.URI.create(fileUrl);
+            String host = uri.getHost();
+            String path = uri.getPath(); // leading '/'
+            if (path == null) return null;
+            String normalized = path.startsWith("/") ? path.substring(1) : path;
+
+            // 가상 호스팅 방식: https://{bucket}.s3.{region}.amazonaws.com/{key}
+            if (host != null && host.startsWith(bucketName + ".")) {
+                return normalized.isEmpty() ? null : normalized;
             }
 
-            // https://domain/key 형태에서 key 부분만 추출
-            StringBuilder keyBuilder = new StringBuilder();
-            for (int i = 1; i < parts.length; i++) {
-                if (i > 3) keyBuilder.append("/");
-                keyBuilder.append(parts[i]);
+            // 경로 방식: https://s3.{region}.amazonaws.com/{bucket}/{key} (or 커스텀 엔드포인트)
+            String prefix = bucketName + "/";
+            if (normalized.startsWith(prefix)) {
+                return normalized.substring(prefix.length());
             }
 
-            String key = keyBuilder.toString();
-            return key.isEmpty() ? null : key;
+            // 폴백: 첫 세그먼트를 제거하여 key 추정
+            int slash = normalized.indexOf('/');
+            return (slash >= 0 && slash + 1 < normalized.length()) ? normalized.substring(slash + 1) : null;
         } catch (Exception e) {
             log.warn("URL 파싱 중 오류 발생: {}", fileUrl, e);
             return null;
