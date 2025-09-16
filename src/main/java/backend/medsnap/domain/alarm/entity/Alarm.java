@@ -14,6 +14,7 @@ import java.time.LocalTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "medication_alarms")
 public class Alarm  extends BaseEntity {
 
     @Id
