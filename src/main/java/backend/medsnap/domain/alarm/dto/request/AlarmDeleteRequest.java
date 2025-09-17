@@ -16,8 +16,4 @@ public class AlarmDeleteRequest {
     @NotNull(message = "삭제할 알람 ID 목록은 필수입니다.")
     @NotEmpty(message = "삭제할 알람 ID 목록은 비어있을 수 없습니다.")
     private List<Long> alarmIds;
-
-    public AlarmDeleteRequest(List<Long> alarmIds) {
-        this.alarmIds = alarmIds;
-    }
 }
