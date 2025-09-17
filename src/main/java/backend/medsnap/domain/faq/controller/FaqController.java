@@ -40,7 +40,7 @@ public class FaqController implements FaqSwagger {
 
     @Override
     @DeleteMapping("/{faqId}")
-    public ResponseEntity<Void> deleteFaq(@PathVariable Long faqId) {
+    public ResponseEntity<Void> deleteFaq(@PathVariable("faqId") Long faqId) {
         faqService.deleteFaq(faqId);
 
         return ResponseEntity.noContent().build();
