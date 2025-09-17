@@ -34,4 +34,10 @@ public class Faq extends BaseEntity {
         this.answer = answer;
         this.category = category;
     }
+
+    public void update(String question, String answer, FaqCategory category) {
+        this.question = question;
+        this.answer = answer;
+        this.category = category;
+    }
 }

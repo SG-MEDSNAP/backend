@@ -5,11 +5,6 @@ import backend.medsnap.global.exception.ErrorCode;
 /** 약 정보를 찾을 수 없을 때 발생하는 예외 */
 public class MedicationNotFoundException extends MedicationException {
 
-    public MedicationNotFoundException() {
-        super(ErrorCode.MED_NOT_FOUND);
-    }
-
-    /** 약 ID를 포함한 예외 생성 */
     public MedicationNotFoundException(Long medicationId) {
         super(ErrorCode.MED_NOT_FOUND);
     }

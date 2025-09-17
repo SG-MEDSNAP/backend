@@ -4,10 +4,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import backend.medsnap.domain.faq.dto.request.FaqRequest;
 import backend.medsnap.domain.faq.dto.response.FaqResponse;
@@ -30,5 +27,22 @@ public class FaqController implements FaqSwagger {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(HttpStatus.CREATED, response));
+    }
+
+    @Override
+    @PutMapping("/{faqId}")
+    public ResponseEntity<ApiResponse<FaqResponse>> updateFaq(
+            @PathVariable Long faqId, @Valid @RequestBody FaqRequest request) {
+        FaqResponse response = faqService.updateFaq(faqId, request);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Override
+    @DeleteMapping("/{faqId}")
+    public ResponseEntity<Void> deleteFaq(@PathVariable("faqId") Long faqId) {
+        faqService.deleteFaq(faqId);
+
+        return ResponseEntity.noContent().build();
     }
 }
