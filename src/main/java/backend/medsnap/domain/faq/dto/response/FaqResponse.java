@@ -1,11 +1,11 @@
 package backend.medsnap.domain.faq.dto.response;
 
+import java.time.LocalDateTime;
+
 import backend.medsnap.domain.faq.entity.FaqCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder

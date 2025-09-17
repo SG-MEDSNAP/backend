@@ -134,7 +134,8 @@ public class MedicationService {
     /** 알람 삭제 요청 검증 */
     private void validateAlarmDeleteRequest(List<Long> alarmIds) {
         if (alarmIds == null || alarmIds.isEmpty()) {
-            throw new BusinessException(ErrorCode.COMMON_VALIDATION_ERROR, "삭제할 알람 ID 목록은 비어있을 수 없습니다.");
+            throw new BusinessException(
+                    ErrorCode.COMMON_VALIDATION_ERROR, "삭제할 알람 ID 목록은 비어있을 수 없습니다.");
         }
 
         // 중복 ID 검증
@@ -144,7 +145,8 @@ public class MedicationService {
 
         // null 값 검증
         if (alarmIds.stream().anyMatch(java.util.Objects::isNull)) {
-            throw new BusinessException(ErrorCode.COMMON_VALIDATION_ERROR, "알람 ID에 null 값이 포함되어 있습니다.");
+            throw new BusinessException(
+                    ErrorCode.COMMON_VALIDATION_ERROR, "알람 ID에 null 값이 포함되어 있습니다.");
         }
     }
 

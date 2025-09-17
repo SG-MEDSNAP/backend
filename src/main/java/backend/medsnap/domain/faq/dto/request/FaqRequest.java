@@ -1,8 +1,9 @@
 package backend.medsnap.domain.faq.dto.request;
 
-import backend.medsnap.domain.faq.entity.FaqCategory;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
+import backend.medsnap.domain.faq.entity.FaqCategory;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

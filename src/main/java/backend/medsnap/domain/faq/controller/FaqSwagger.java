@@ -1,5 +1,10 @@
 package backend.medsnap.domain.faq.controller;
 
+import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+
 import backend.medsnap.domain.faq.dto.request.FaqRequest;
 import backend.medsnap.domain.faq.dto.response.FaqResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,10 +13,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import jakarta.validation.Valid;
 
 @Tag(name = "faqs", description = "FAQ API")
 public interface FaqSwagger {
@@ -97,8 +98,8 @@ public interface FaqSwagger {
                         """)))
             })
     ResponseEntity<backend.medsnap.global.dto.ApiResponse<FaqResponse>> createFaq(
-            @io.swagger.v3.oas.annotations.Parameter(
-                    description = "FAQ 등록 요청 데이터", 
-                    required = true) 
-            @RequestBody @Valid FaqRequest request);
+            @io.swagger.v3.oas.annotations.Parameter(description = "FAQ 등록 요청 데이터", required = true)
+                    @RequestBody
+                    @Valid
+                    FaqRequest request);
 }

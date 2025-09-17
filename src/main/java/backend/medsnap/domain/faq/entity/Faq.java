@@ -1,7 +1,8 @@
 package backend.medsnap.domain.faq.entity;
 
-import backend.medsnap.global.entity.BaseEntity;
 import jakarta.persistence.*;
+
+import backend.medsnap.global.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

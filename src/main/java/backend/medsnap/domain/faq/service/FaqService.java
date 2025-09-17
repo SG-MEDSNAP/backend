@@ -1,12 +1,13 @@
 package backend.medsnap.domain.faq.service;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import backend.medsnap.domain.faq.dto.request.FaqRequest;
 import backend.medsnap.domain.faq.dto.response.FaqResponse;
 import backend.medsnap.domain.faq.entity.Faq;
 import backend.medsnap.domain.faq.repository.FaqRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,11 +17,12 @@ public class FaqService {
 
     @Transactional
     public FaqResponse createFaq(FaqRequest request) {
-        Faq faq = Faq.builder()
-                .question(request.getQuestion())
-                .answer(request.getAnswer())
-                .category(request.getCategory())
-                .build();
+        Faq faq =
+                Faq.builder()
+                        .question(request.getQuestion())
+                        .answer(request.getAnswer())
+                        .category(request.getCategory())
+                        .build();
 
         Faq savedFaq = faqRepository.save(faq);
 
