@@ -1,15 +1,15 @@
 package backend.medsnap.domain.faq.service;
 
-import backend.medsnap.domain.faq.exception.FaqNotFoundException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.medsnap.domain.faq.dto.request.FaqRequest;
 import backend.medsnap.domain.faq.dto.response.FaqResponse;
 import backend.medsnap.domain.faq.entity.Faq;
+import backend.medsnap.domain.faq.exception.FaqNotFoundException;
 import backend.medsnap.domain.faq.repository.FaqRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -46,8 +46,7 @@ public class FaqService {
         log.info("FAQ 수정 시작 - ID: {}", faqId);
 
         // FAQ 존재 여부 확인
-        Faq faq = faqRepository.findById(faqId)
-                .orElseThrow(() -> new FaqNotFoundException(faqId));
+        Faq faq = faqRepository.findById(faqId).orElseThrow(() -> new FaqNotFoundException(faqId));
 
         faq.update(request.getQuestion(), request.getAnswer(), request.getCategory());
 
@@ -59,7 +58,6 @@ public class FaqService {
                 .createdAt(faq.getCreatedAt())
                 .updatedAt(faq.getUpdatedAt())
                 .build();
-
     }
 
     @Transactional
@@ -67,8 +65,7 @@ public class FaqService {
         log.info("FAQ 삭제 시작 - ID: {}", faqId);
 
         // FAQ 존재 여부 확인
-        Faq faq = faqRepository.findById(faqId)
-                .orElseThrow(() -> new FaqNotFoundException(faqId));
+        Faq faq = faqRepository.findById(faqId).orElseThrow(() -> new FaqNotFoundException(faqId));
 
         faqRepository.delete(faq);
         log.info("FAQ ID: {}가 삭제되었습니다.", faqId);

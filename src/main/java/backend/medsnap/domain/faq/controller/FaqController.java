@@ -32,9 +32,7 @@ public class FaqController implements FaqSwagger {
     @Override
     @PutMapping("/{faqId}")
     public ResponseEntity<ApiResponse<FaqResponse>> updateFaq(
-            @PathVariable Long faqId,
-            @Valid @RequestBody FaqRequest request
-    ) {
+            @PathVariable Long faqId, @Valid @RequestBody FaqRequest request) {
         FaqResponse response = faqService.updateFaq(faqId, request);
 
         return ResponseEntity.ok(ApiResponse.success(response));

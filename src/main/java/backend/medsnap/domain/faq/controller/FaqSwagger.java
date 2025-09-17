@@ -207,7 +207,10 @@ public interface FaqSwagger {
                         """)))
             })
     ResponseEntity<backend.medsnap.global.dto.ApiResponse<FaqResponse>> updateFaq(
-            @io.swagger.v3.oas.annotations.Parameter(description = "수정할 FAQ의 ID", required = true, example = "1")
+            @io.swagger.v3.oas.annotations.Parameter(
+                            description = "수정할 FAQ의 ID",
+                            required = true,
+                            example = "1")
                     @PathVariable("faqId")
                     Long faqId,
             @io.swagger.v3.oas.annotations.Parameter(description = "FAQ 수정 요청 데이터", required = true)
@@ -267,7 +270,10 @@ public interface FaqSwagger {
                         """)))
             })
     ResponseEntity<backend.medsnap.global.dto.ApiResponse<Void>> deleteFaq(
-            @io.swagger.v3.oas.annotations.Parameter(description = "삭제할 FAQ의 ID", required = true, example = "1")
+            @io.swagger.v3.oas.annotations.Parameter(
+                            description = "삭제할 FAQ의 ID",
+                            required = true,
+                            example = "1")
                     @PathVariable("faqId")
                     Long faqId);
 }
