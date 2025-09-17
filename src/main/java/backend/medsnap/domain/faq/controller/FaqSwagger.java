@@ -46,7 +46,7 @@ public interface FaqSwagger {
                             "id": 1,
                             "question": "약을 복용하는 시간을 변경할 수 있나요?",
                             "answer": "네, 언제든지 약 복용 시간을 변경할 수 있습니다. 앱에서 알람 설정을 수정하시면 됩니다.",
-                            "category": "MEDICATION",
+                            "category": "MEDICATION_STATUS",
                             "createdAt": "2024-01-01T10:00:00",
                             "updatedAt": "2024-01-01T10:00:00"
                           }
