@@ -269,7 +269,7 @@ public interface FaqSwagger {
                         }
                         """)))
             })
-    ResponseEntity<backend.medsnap.global.dto.ApiResponse<Void>> deleteFaq(
+    ResponseEntity<Void> deleteFaq(
             @io.swagger.v3.oas.annotations.Parameter(
                             description = "삭제할 FAQ의 ID",
                             required = true,
