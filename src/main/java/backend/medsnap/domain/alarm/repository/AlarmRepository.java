@@ -26,9 +26,4 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
     @Query("SELECT a.id FROM Alarm a WHERE a.id IN :alarmIds AND a.medication.id = :medicationId")
     List<Long> findExistingAlarmIds(
             @Param("alarmIds") List<Long> alarmIds, @Param("medicationId") Long medicationId);
-
-    /** 특정 약의 알람들을 ID 목록으로 조회 (개별 알람 삭제용) */
-    @Query("SELECT a FROM Alarm a WHERE a.id IN :alarmIds AND a.medication.id = :medicationId")
-    List<Alarm> findByIdsAndMedicationId(
-            @Param("alarmIds") List<Long> alarmIds, @Param("medicationId") Long medicationId);
 }

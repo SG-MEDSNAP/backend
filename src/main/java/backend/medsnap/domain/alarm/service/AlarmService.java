@@ -46,7 +46,8 @@ public class AlarmService {
                                                                                     .DateTimeParseException
                                                                             e) {
                                                                 throw new BusinessException(
-                                                                        ErrorCode.COMMON_VALIDATION_ERROR,
+                                                                        ErrorCode
+                                                                                .COMMON_VALIDATION_ERROR,
                                                                         "잘못된 시간 형식: " + timeStr);
                                                             }
                                                         }))
