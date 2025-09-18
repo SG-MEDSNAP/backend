@@ -12,6 +12,8 @@ import backend.medsnap.domain.faq.service.FaqService;
 import backend.medsnap.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/v1/faq")
 @RequiredArgsConstructor
@@ -27,6 +29,14 @@ public class FaqController implements FaqSwagger {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(HttpStatus.CREATED, response));
+    }
+
+    @Override
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<FaqResponse>>> getAllFaq() {
+        List<FaqResponse> response = faqService.getAllFaq();
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @Override

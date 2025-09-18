@@ -11,6 +11,9 @@ import backend.medsnap.domain.faq.repository.FaqRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -31,14 +34,16 @@ public class FaqService {
 
         Faq savedFaq = faqRepository.save(faq);
 
-        return FaqResponse.builder()
-                .id(savedFaq.getId())
-                .question(savedFaq.getQuestion())
-                .answer(savedFaq.getAnswer())
-                .category(savedFaq.getCategory())
-                .createdAt(savedFaq.getCreatedAt())
-                .updatedAt(savedFaq.getUpdatedAt())
-                .build();
+        return getFaqResponse(savedFaq);
+    }
+
+    @Transactional(readOnly = true)
+    public List<FaqResponse> getAllFaq() {
+        log.info("전체 FAQ 목록 조회 시작");
+
+        return faqRepository.findAll().stream()
+                .map(this::getFaqResponse)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -50,14 +55,7 @@ public class FaqService {
 
         faq.update(request.getQuestion(), request.getAnswer(), request.getCategory());
 
-        return FaqResponse.builder()
-                .id(faq.getId())
-                .question(faq.getQuestion())
-                .answer(faq.getAnswer())
-                .category(faq.getCategory())
-                .createdAt(faq.getCreatedAt())
-                .updatedAt(faq.getUpdatedAt())
-                .build();
+        return getFaqResponse(faq);
     }
 
     @Transactional
@@ -69,5 +67,16 @@ public class FaqService {
 
         faqRepository.delete(faq);
         log.info("FAQ ID: {}가 삭제되었습니다.", faqId);
+    }
+
+    private FaqResponse getFaqResponse(Faq faq) {
+        return FaqResponse.builder()
+                .id(faq.getId())
+                .question(faq.getQuestion())
+                .answer(faq.getAnswer())
+                .category(faq.getCategory())
+                .createdAt(faq.getCreatedAt())
+                .updatedAt(faq.getUpdatedAt())
+                .build();
     }
 }

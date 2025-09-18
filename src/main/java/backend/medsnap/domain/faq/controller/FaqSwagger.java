@@ -104,6 +104,73 @@ public interface FaqSwagger {
                     @Valid
                     FaqRequest request);
 
+    @Operation(summary = "FAQ 전체 조회", description = "모든 FAQ 목록을 조회합니다.")
+    @ApiResponses(
+            value = {
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "200",
+                        description = "FAQ 목록 조회 성공",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "SUCCESS",
+                          "httpStatus": 200,
+                          "message": "요청이 성공적으로 처리되었습니다.",
+                          "data": [
+                            {
+                              "id": 1,
+                              "question": "약을 복용하는 시간을 변경할 수 있나요?",
+                              "answer": "네, 언제든지 약 복용 시간을 변경할 수 있습니다. 앱에서 알람 설정을 수정하시면 됩니다.",
+                              "category": "MEDICATION_STATUS",
+                              "createdAt": "2024-01-01T10:00:00",
+                              "updatedAt": "2024-01-01T10:00:00"
+                            },
+                            {
+                              "id": 2,
+                              "question": "알람이 울리지 않을 때는 어떻게 하나요?",
+                              "answer": "알람이 울리지 않는 경우, 디바이스의 알림 설정을 확인하고 앱의 알림 권한이 허용되어 있는지 확인해주세요.",
+                              "category": "ALARM",
+                              "createdAt": "2024-01-01T11:00:00",
+                              "updatedAt": "2024-01-01T11:00:00"
+                            }
+                          ]
+                        }
+                        """))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "500",
+                        description = "서버 오류",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "C001",
+                          "httpStatus": 500,
+                          "message": "내부 서버 오류가 발생했습니다.",
+                          "data": null
+                        }
+                        """)))
+            })
+    ResponseEntity<backend.medsnap.global.dto.ApiResponse<java.util.List<FaqResponse>>> getAllFaq();
+
     @Operation(summary = "FAQ 수정", description = "기존 FAQ를 수정합니다.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "FAQ 수정 요청",
