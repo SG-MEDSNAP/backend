@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
-import backend.medsnap.domain.auth.service.AuthService;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -34,7 +34,6 @@ public class SecurityConfig {
     @Value("${security.require-ssl}")
     private boolean requireSsl;
 
-    private final AuthService authService;
     
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -55,9 +54,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false));
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http
                 .formLogin((login) -> login.disable());
@@ -83,10 +80,8 @@ public class SecurityConfig {
                                             .contentTypeOptions(contentType -> {}));
         }
 
-        http
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .oidcUserService(authService)));
+        // JWT 인증 필터 추가 (향후 구현 예정)
+        // http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 권한 설정
         http
@@ -101,9 +96,7 @@ public class SecurityConfig {
                                                 "/swagger-ui.html")
                                         .hasRole("DOCS")
                                         .requestMatchers(
-                                                "/login**",
-                                                "/api/v1/login**",
-                                                "/oauth2/**",
+                                                "/api/v1/auth/**",
                                                 "/error**")
                                         .permitAll()
                                         .anyRequest()
@@ -115,9 +108,7 @@ public class SecurityConfig {
                                                 "/api/v1/api-docs/**",
                                                 "/swagger-ui/**",
                                                 "/swagger-ui.html",
-                                                "/login**",
-                                                "/api/v1/login**",
-                                                "/oauth2/**",
+                                                "/api/v1/auth/**",
                                                 "/error**")
                                         .permitAll()
                                         .anyRequest()
