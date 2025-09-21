@@ -28,4 +28,10 @@ public abstract class BaseEntity {
     @CreatedBy private String createdBy;
 
     @LastModifiedBy private String updatedBy;
+
+    private LocalDateTime deletedAt;
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
 }
