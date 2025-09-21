@@ -24,7 +24,9 @@ public enum ErrorCode {
     FAQ_NOT_FOUND(HttpStatus.NOT_FOUND, "F001", "FAQ 정보를 찾을 수 없습니다."),
 
     // Authentication
-    AUTH_OIDC_INVALID(HttpStatus.UNAUTHORIZED, "A001", "유효하지 않은 아이디 토큰입니다.");
+    AUTH_OIDC_INVALID(HttpStatus.UNAUTHORIZED, "A001", "유효하지 않은 아이디 토큰입니다."),
+    AUTH_SOCIAL_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "A002", "가입되지 않은 소셜 계정입니다."),
+    AUTH_SOCIAL_ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "A003", "이미 가입된 소셜 계정입니다.");
 
     private final HttpStatus status;
     private final String code;
@@ -34,9 +36,5 @@ public enum ErrorCode {
         this.status = status;
         this.code = code;
         this.message = message;
-    }
-
-    public HttpStatus getHttpStatus() {
-        return status;
     }
 }
