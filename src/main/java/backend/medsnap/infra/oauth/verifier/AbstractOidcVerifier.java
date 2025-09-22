@@ -85,7 +85,7 @@ public abstract class AbstractOidcVerifier {
                 if (audienceOk) break;
             }
             if (!audienceOk) {
-                throw new OidcVerificationException("aud 불일치: " + audList, null);
+                throw new OidcVerificationException("aud 불일치", null);
             }
 
             // azp 존재 시 허용 clientId와 일치
@@ -98,7 +98,7 @@ public abstract class AbstractOidcVerifier {
                     }
                 }
                 if (!azpOk) {
-                    throw new OidcVerificationException("azp 불일치: " + azp, null);
+                    throw new OidcVerificationException("azp 불일치", null);
                 }
             }
 
