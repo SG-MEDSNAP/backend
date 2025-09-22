@@ -7,13 +7,11 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import lombok.RequiredArgsConstructor;
 
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Objects;
 
-@RequiredArgsConstructor
 public abstract class AbstractOidcVerifier {
 
     protected abstract String[] getIssuers();
@@ -23,11 +21,22 @@ public abstract class AbstractOidcVerifier {
         return new String[]{"RS256"};
     }
 
-    private final String clientId;
+    protected final String[] clientId;
+
+    public AbstractOidcVerifier(String[] clientId) {
+        this.clientId = clientId;
+    }
 
     public DecodedJWT verify(String idToken) {
         try {
             DecodedJWT jwt = JWT.decode(idToken);
+
+            // 🔎 디버그 로그 (임시)
+            System.out.println("[OIDC] alg=" + jwt.getAlgorithm()
+                    + " kid=" + jwt.getKeyId()
+                    + " iss=" + jwt.getIssuer()
+                    + " aud=" + jwt.getAudience()
+                    + " azp=" + jwt.getClaim("azp").asString());
 
             // alg 방어
             String alg = jwt.getAlgorithm();
@@ -49,21 +58,49 @@ public abstract class AbstractOidcVerifier {
                 throw new OidcVerificationException("ID 토큰 헤더에 kid가 없습니다.", null);
             }
 
-            // JWK로 공개키 가져오기
+            // JWK 공개키 조회
             PublicKey pk = getJwkProvider().get(kid).getPublicKey();
             if (!(pk instanceof RSAPublicKey)) {
                 throw new OidcVerificationException("지원하지 않는 공개키 타입: " + pk.getAlgorithm(), null);
             }
 
-            // 검증기 구성
+            // 1차 검증: 서명 + issuer
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) pk, null);
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer(getIssuers())
-                    .withAudience(clientId)
                     .acceptLeeway(60) //  서버 간 시계 오차 허용 (초)
                     .build();
 
             DecodedJWT verified = verifier.verify(idToken);
+
+            // 2차 커스텀 체크: audience 허용 목록 중 하나라도 일치
+            var audList = verified.getAudience(); // List<String>
+            boolean audienceOk = false;
+            for (String aud : audList) {
+                for (String allowedClient : clientId) {
+                    if (allowedClient != null && !allowedClient.isBlank() && allowedClient.equals(aud)) {
+                        audienceOk = true; break;
+                    }
+                }
+                if (audienceOk) break;
+            }
+            if (!audienceOk) {
+                throw new OidcVerificationException("aud 불일치: " + audList, null);
+            }
+
+            // azp 존재 시 허용 clientId와 일치
+            String azp = verified.getClaim("azp").asString();
+            if (azp != null && !azp.isBlank()) {
+                boolean azpOk = false;
+                for (String allowedClient : clientId) {
+                    if (allowedClient != null && !allowedClient.isBlank() && allowedClient.equals(azp)) {
+                        azpOk = true; break;
+                    }
+                }
+                if (!azpOk) {
+                    throw new OidcVerificationException("azp 불일치: " + azp, null);
+                }
+            }
 
             return verified;
 
