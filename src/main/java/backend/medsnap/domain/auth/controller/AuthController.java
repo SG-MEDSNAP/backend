@@ -16,16 +16,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController implements AuthSwagger{
 
     private final AuthService authService;
 
+    @Override
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<TokenPair>> login(@Valid @RequestBody LoginRequest request) {
 
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @Override
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<TokenPair>> signup(@Valid @RequestBody SignupRequest request) {
 
