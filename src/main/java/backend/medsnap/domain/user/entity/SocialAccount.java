@@ -17,6 +17,7 @@ public class SocialAccount extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String providerUserId; // sub
 
     @Enumerated(EnumType.STRING)
