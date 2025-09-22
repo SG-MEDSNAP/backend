@@ -31,13 +31,6 @@ public abstract class AbstractOidcVerifier {
         try {
             DecodedJWT jwt = JWT.decode(idToken);
 
-            // 🔎 디버그 로그 (임시)
-            System.out.println("[OIDC] alg=" + jwt.getAlgorithm()
-                    + " kid=" + jwt.getKeyId()
-                    + " iss=" + jwt.getIssuer()
-                    + " aud=" + jwt.getAudience()
-                    + " azp=" + jwt.getClaim("azp").asString());
-
             // alg 방어
             String alg = jwt.getAlgorithm();
             boolean algAllowed = false;
