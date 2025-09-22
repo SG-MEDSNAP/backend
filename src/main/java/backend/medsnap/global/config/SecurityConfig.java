@@ -97,7 +97,8 @@ public class SecurityConfig {
                                         .hasRole("DOCS")
                                         .requestMatchers(
                                                 "/api/v1/auth/**",
-                                                "/error**")
+                                                "/error",
+                                                "/error/**")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated();
@@ -109,7 +110,8 @@ public class SecurityConfig {
                                                 "/swagger-ui/**",
                                                 "/swagger-ui.html",
                                                 "/api/v1/auth/**",
-                                                "/error**")
+                                                "/error",
+                                                "/error/**")
                                         .permitAll()
                                         .anyRequest()
                                         .permitAll();
