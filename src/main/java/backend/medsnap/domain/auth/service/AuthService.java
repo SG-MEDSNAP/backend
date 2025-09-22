@@ -85,7 +85,7 @@ public class AuthService {
     }
 
     private DecodedJWT verifyIdToken(Provider provider, String idToken) {
-        AbstractOidcVerifier verifier = oidcVerifiers.get(provider.name().toLowerCase() + "OidcVerifier");
+        AbstractOidcVerifier verifier = oidcVerifiers.get(provider);
 
         if (verifier == null) {
             throw new OidcVerificationException("지원하지 않는 OIDC Provider입니다: " + provider, null);
