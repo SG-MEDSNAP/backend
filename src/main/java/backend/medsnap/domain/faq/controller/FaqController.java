@@ -1,5 +1,7 @@
 package backend.medsnap.domain.faq.controller;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -11,8 +13,6 @@ import backend.medsnap.domain.faq.dto.response.FaqResponse;
 import backend.medsnap.domain.faq.service.FaqService;
 import backend.medsnap.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/faqs")

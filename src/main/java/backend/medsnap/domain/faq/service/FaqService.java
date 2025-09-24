@@ -1,5 +1,8 @@
 package backend.medsnap.domain.faq.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,9 +13,6 @@ import backend.medsnap.domain.faq.exception.FaqNotFoundException;
 import backend.medsnap.domain.faq.repository.FaqRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service

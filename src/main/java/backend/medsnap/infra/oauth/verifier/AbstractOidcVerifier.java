@@ -1,6 +1,9 @@
 package backend.medsnap.infra.oauth.verifier;
 
-import backend.medsnap.infra.oauth.exception.OidcVerificationException;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Objects;
+
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -8,17 +11,16 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 
-import java.security.PublicKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.Objects;
+import backend.medsnap.infra.oauth.exception.OidcVerificationException;
 
 public abstract class AbstractOidcVerifier {
 
     protected abstract String[] getIssuers();
+
     protected abstract JwkProvider getJwkProvider();
 
     protected String[] getAllowedAlgs() {
-        return new String[]{"RS256"};
+        return new String[] {"RS256"};
     }
 
     protected final String[] clientId;
@@ -59,10 +61,11 @@ public abstract class AbstractOidcVerifier {
 
             // 1차 검증: 서명 + issuer
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) pk, null);
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer(getIssuers())
-                    .acceptLeeway(60) //  서버 간 시계 오차 허용 (초)
-                    .build();
+            JWTVerifier verifier =
+                    JWT.require(algorithm)
+                            .withIssuer(getIssuers())
+                            .acceptLeeway(60) //  서버 간 시계 오차 허용 (초)
+                            .build();
 
             DecodedJWT verified = verifier.verify(idToken);
 
@@ -71,8 +74,11 @@ public abstract class AbstractOidcVerifier {
             boolean audienceOk = false;
             for (String aud : audList) {
                 for (String allowedClient : clientId) {
-                    if (allowedClient != null && !allowedClient.isBlank() && allowedClient.equals(aud)) {
-                        audienceOk = true; break;
+                    if (allowedClient != null
+                            && !allowedClient.isBlank()
+                            && allowedClient.equals(aud)) {
+                        audienceOk = true;
+                        break;
                     }
                 }
                 if (audienceOk) break;
@@ -86,8 +92,11 @@ public abstract class AbstractOidcVerifier {
             if (azp != null && !azp.isBlank()) {
                 boolean azpOk = false;
                 for (String allowedClient : clientId) {
-                    if (allowedClient != null && !allowedClient.isBlank() && allowedClient.equals(azp)) {
-                        azpOk = true; break;
+                    if (allowedClient != null
+                            && !allowedClient.isBlank()
+                            && allowedClient.equals(azp)) {
+                        azpOk = true;
+                        break;
                     }
                 }
                 if (!azpOk) {

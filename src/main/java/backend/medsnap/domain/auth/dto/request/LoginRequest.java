@@ -1,8 +1,9 @@
 package backend.medsnap.domain.auth.dto.request;
 
-import backend.medsnap.domain.user.entity.Provider;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
+import backend.medsnap.domain.user.entity.Provider;
 import lombok.Getter;
 
 @Getter

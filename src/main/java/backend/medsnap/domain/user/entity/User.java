@@ -1,15 +1,16 @@
 package backend.medsnap.domain.user.entity;
 
-import backend.medsnap.global.entity.BaseEntity;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
+
+import backend.medsnap.global.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -32,8 +33,6 @@ public class User extends BaseEntity {
 
     private String caregiverPhone;
 
-    private String accessToken;
-
     private String refreshToken;
 
     private Boolean isPushConsent;
@@ -50,9 +49,8 @@ public class User extends BaseEntity {
         this.isPushConsent = isPushConsent;
     }
 
-    // 자체 JWT 업데이트
-    public void updateTokens(String accessToken, String refreshToken) {
-        this.accessToken = accessToken;
+    // Refresh Token 업데이트 (Access Token은 DB에 저장하지 않음)
+    public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
 }

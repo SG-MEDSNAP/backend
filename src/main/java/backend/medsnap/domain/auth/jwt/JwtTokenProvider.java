@@ -1,15 +1,17 @@
 package backend.medsnap.domain.auth.jwt;
 
-import backend.medsnap.domain.auth.dto.token.TokenPair;
-import backend.medsnap.domain.user.entity.User;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+
+import backend.medsnap.domain.auth.dto.token.TokenPair;
+import backend.medsnap.domain.user.entity.User;
 
 @Component
 public class JwtTokenProvider {
@@ -23,8 +25,7 @@ public class JwtTokenProvider {
             @Value("${jwt.secret}") String secretKey,
             @Value("${jwt.issuer}") String issuer,
             @Value("${jwt.access-token-validity-hours}") long accessTokenValidityHours,
-            @Value("${jwt.refresh-token-validity-days}") long refreshTokenValidityDays
-    ) {
+            @Value("${jwt.refresh-token-validity-days}") long refreshTokenValidityDays) {
         this.algorithm = Algorithm.HMAC256(secretKey);
         this.issuer = issuer;
         this.accessTokenValidityHours = accessTokenValidityHours;

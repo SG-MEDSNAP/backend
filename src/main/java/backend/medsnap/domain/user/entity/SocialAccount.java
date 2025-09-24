@@ -1,7 +1,8 @@
 package backend.medsnap.domain.user.entity;
 
-import backend.medsnap.global.entity.BaseEntity;
 import jakarta.persistence.*;
+
+import backend.medsnap.global.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,12 +12,10 @@ import lombok.NoArgsConstructor;
 @Table(
         name = "social_accounts",
         uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_social_provider_user",
-                        columnNames = {"provider", "provider_user_id"}
-                )
-        }
-)
+            @UniqueConstraint(
+                    name = "uk_social_provider_user",
+                    columnNames = {"provider", "provider_user_id"})
+        })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SocialAccount extends BaseEntity {
