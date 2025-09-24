@@ -49,8 +49,9 @@ public class AuthService {
         // 자체 JWT 발급
         TokenPair tokenPair = jwtTokenProvider.createTokenPair(user);
 
+        // Refresh Token만 암호화하여 DB에 저장
         String encryptedRefreshToken = aesGcmEncryptor.encrypt(tokenPair.getRefreshToken());
-        user.updateTokens(tokenPair.getAccessToken(), encryptedRefreshToken);
+        user.updateRefreshToken(encryptedRefreshToken);
 
         return ApiResponse.success(tokenPair);
     }
@@ -84,8 +85,9 @@ public class AuthService {
         // 자체 JWT 발급
         TokenPair tokenPair = jwtTokenProvider.createTokenPair(newUser);
 
+        // Refresh Token만 암호화하여 DB에 저장
         String encryptedRefreshToken = aesGcmEncryptor.encrypt(tokenPair.getRefreshToken());
-        newUser.updateTokens(tokenPair.getAccessToken(), encryptedRefreshToken);
+        newUser.updateRefreshToken(encryptedRefreshToken);
 
         return ApiResponse.success(tokenPair);
     }

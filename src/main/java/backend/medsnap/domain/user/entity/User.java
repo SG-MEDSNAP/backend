@@ -32,8 +32,6 @@ public class User extends BaseEntity {
 
     private String caregiverPhone;
 
-    private String accessToken;
-
     private String refreshToken;
 
     private Boolean isPushConsent;
@@ -50,9 +48,8 @@ public class User extends BaseEntity {
         this.isPushConsent = isPushConsent;
     }
 
-    // 자체 JWT 업데이트
-    public void updateTokens(String accessToken, String refreshToken) {
-        this.accessToken = accessToken;
+    // Refresh Token 업데이트 (Access Token은 DB에 저장하지 않음)
+    public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
 }
