@@ -19,6 +19,9 @@ public class NaverOidcVerifier extends AbstractOidcVerifier {
 
     public NaverOidcVerifier(@Value("${naver.client-id}") String clientId) {
         super(new String[]{clientId});
+        if (clientId == null || clientId.isBlank()) {
+            throw new IllegalStateException("naver.client-id가 설정되지 않았습니다.");
+        }
         try {
             this.jwkProvider = new JwkProviderBuilder(new URL(JWKS_URL))
                     .cached(10, 1, TimeUnit.HOURS)

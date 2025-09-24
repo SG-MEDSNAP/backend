@@ -24,6 +24,9 @@ public class AppleOidcVerifier extends AbstractOidcVerifier {
             OidcDiscoveryClient discoveryClient
     ) {
         super(new String[]{clientId});
+        if (clientId == null || clientId.isBlank()) {
+            throw new IllegalStateException("kakao.client-id가 설정되지 않았습니다.");
+        }
 
         String discoveryUrl = "https://appleid.apple.com/.well-known/openid-configuration";
         OidcDiscoveryProperties props = discoveryClient.fetch(discoveryUrl);

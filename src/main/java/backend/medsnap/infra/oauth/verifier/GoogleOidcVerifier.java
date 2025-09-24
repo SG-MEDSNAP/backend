@@ -26,6 +26,15 @@ public class GoogleOidcVerifier extends AbstractOidcVerifier {
             OidcDiscoveryClient discoveryClient
     ) {
         super(new String[]{iosClientId, androidClientId, clientId});
+        if (iosClientId == null || iosClientId.isBlank()) {
+            throw new IllegalStateException("google.ios.client-id가 설정되지 않았습니다.");
+        }
+        if (androidClientId == null || androidClientId.isBlank()) {
+            throw new IllegalStateException("google.android.client-id가 설정되지 않았습니다.");
+        }
+        if (clientId == null || clientId.isBlank()) {
+            throw new IllegalStateException("google.client-id가 설정되지 않았습니다.");
+        }
 
         // 디스커버리 조회
         String discoveryUrl = "https://accounts.google.com/.well-known/openid-configuration";
