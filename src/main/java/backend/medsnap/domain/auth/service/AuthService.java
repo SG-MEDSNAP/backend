@@ -11,6 +11,7 @@ import backend.medsnap.domain.user.entity.SocialAccount;
 import backend.medsnap.domain.user.entity.User;
 import backend.medsnap.domain.user.repository.SocialAccountRepository;
 import backend.medsnap.domain.user.repository.UserRepository;
+import backend.medsnap.global.crypto.AesGcmEncryptor;
 import backend.medsnap.global.dto.ApiResponse;
 import backend.medsnap.infra.oauth.exception.OidcVerificationException;
 import backend.medsnap.infra.oauth.verifier.AbstractOidcVerifier;
@@ -30,6 +31,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final SocialAccountRepository socialAccountRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AesGcmEncryptor aesGcmEncryptor;
 
     public ApiResponse<TokenPair> login(LoginRequest request) {
 
@@ -46,7 +48,9 @@ public class AuthService {
 
         // 자체 JWT 발급
         TokenPair tokenPair = jwtTokenProvider.createTokenPair(user);
-        user.updateTokens(tokenPair.getAccessToken(), tokenPair.getRefreshToken());
+
+        String encryptedRefreshToken = aesGcmEncryptor.encrypt(tokenPair.getRefreshToken());
+        user.updateTokens(tokenPair.getAccessToken(), encryptedRefreshToken);
 
         return ApiResponse.success(tokenPair);
     }
@@ -79,7 +83,9 @@ public class AuthService {
 
         // 자체 JWT 발급
         TokenPair tokenPair = jwtTokenProvider.createTokenPair(newUser);
-        newUser.updateTokens(tokenPair.getAccessToken(), tokenPair.getRefreshToken());
+
+        String encryptedRefreshToken = aesGcmEncryptor.encrypt(tokenPair.getRefreshToken());
+        newUser.updateTokens(tokenPair.getAccessToken(), encryptedRefreshToken);
 
         return ApiResponse.success(tokenPair);
     }
