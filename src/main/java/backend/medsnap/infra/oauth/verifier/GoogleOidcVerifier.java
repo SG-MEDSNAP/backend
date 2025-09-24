@@ -1,16 +1,18 @@
 package backend.medsnap.infra.oauth.verifier;
 
-import backend.medsnap.infra.oauth.discovery.OidcDiscoveryClient;
-import backend.medsnap.infra.oauth.discovery.OidcDiscoveryProperties;
-import backend.medsnap.infra.oauth.exception.JwkProviderInitializationException;
-import com.auth0.jwk.JwkProvider;
-import com.auth0.jwk.JwkProviderBuilder;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.JwkProviderBuilder;
+
+import backend.medsnap.infra.oauth.discovery.OidcDiscoveryClient;
+import backend.medsnap.infra.oauth.discovery.OidcDiscoveryProperties;
+import backend.medsnap.infra.oauth.exception.JwkProviderInitializationException;
 
 @Component("googleOidcVerifier")
 public class GoogleOidcVerifier extends AbstractOidcVerifier {
@@ -23,9 +25,8 @@ public class GoogleOidcVerifier extends AbstractOidcVerifier {
             @Value("${google.ios.client-id}") String iosClientId,
             @Value("${google.android.client-id}") String androidClientId,
             @Value("${google.client-id}") String clientId,
-            OidcDiscoveryClient discoveryClient
-    ) {
-        super(new String[]{iosClientId, androidClientId, clientId});
+            OidcDiscoveryClient discoveryClient) {
+        super(new String[] {iosClientId, androidClientId, clientId});
         if (iosClientId == null || iosClientId.isBlank()) {
             throw new IllegalStateException("google.ios.client-id가 설정되지 않았습니다.");
         }
@@ -41,20 +42,22 @@ public class GoogleOidcVerifier extends AbstractOidcVerifier {
         OidcDiscoveryProperties props = discoveryClient.fetch(discoveryUrl);
 
         // issuer
-        this.issuers = new String[] { props.getIssuer(), "accounts.google.com" };
+        this.issuers = new String[] {props.getIssuer(), "accounts.google.com"};
 
         // 허용 알고리즘 목록
         List<String> algs = props.getId_token_signing_alg_values_supported();
-        this.allowedAlgs = (algs == null || algs.isEmpty())
-                ? new String[] { "RS256" }
-                : algs.toArray(new String[0]);
+        this.allowedAlgs =
+                (algs == null || algs.isEmpty())
+                        ? new String[] {"RS256"}
+                        : algs.toArray(new String[0]);
 
         // JWK Provider 초기화
         try {
-            this.jwkProvider = new JwkProviderBuilder(new URL(props.getJwks_uri()))
-                    .cached(10, 1, TimeUnit.HOURS)
-                    .rateLimited(10, 1, TimeUnit.MINUTES)
-                    .build();
+            this.jwkProvider =
+                    new JwkProviderBuilder(new URL(props.getJwks_uri()))
+                            .cached(10, 1, TimeUnit.HOURS)
+                            .rateLimited(10, 1, TimeUnit.MINUTES)
+                            .build();
         } catch (Exception e) {
             throw new JwkProviderInitializationException(e);
         }

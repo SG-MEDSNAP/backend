@@ -1,6 +1,5 @@
 package backend.medsnap.global.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -34,7 +34,6 @@ public class SecurityConfig {
     @Value("${security.require-ssl}")
     private boolean requireSsl;
 
-    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -51,18 +50,14 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(sm -> sm
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http
-                .formLogin((login) -> login.disable());
+        http.formLogin((login) -> login.disable());
 
         // HTTPS 강제 설정
         if (requireSsl) {
-            http
-                    .requiresChannel(channel -> channel.anyRequest().requiresSecure())
+            http.requiresChannel(channel -> channel.anyRequest().requiresSecure())
                     .headers(
                             headers ->
                                     headers.httpStrictTransportSecurity(
@@ -81,11 +76,11 @@ public class SecurityConfig {
         }
 
         // JWT 인증 필터 추가 (향후 구현 예정)
-        // http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        // http.addFilterBefore(jwtAuthenticationFilter,
+        // UsernamePasswordAuthenticationFilter.class);
 
         // 권한 설정
-        http
-                .authorizeHttpRequests(
+        http.authorizeHttpRequests(
                         authz -> {
                             if (swaggerAuthEnabled) {
                                 // 배포 환경: Swagger에 인증 필요
@@ -95,10 +90,7 @@ public class SecurityConfig {
                                                 "/swagger-ui/**",
                                                 "/swagger-ui.html")
                                         .hasRole("DOCS")
-                                        .requestMatchers(
-                                                "/api/v1/auth/**",
-                                                "/error",
-                                                "/error/**")
+                                        .requestMatchers("/api/v1/auth/**", "/error", "/error/**")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated();

@@ -1,12 +1,14 @@
 package backend.medsnap.domain.auth.dto.request;
 
-import backend.medsnap.domain.user.entity.Provider;
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
+import backend.medsnap.domain.user.entity.Provider;
+import lombok.Getter;
 
 @Getter
 public class SignupRequest {

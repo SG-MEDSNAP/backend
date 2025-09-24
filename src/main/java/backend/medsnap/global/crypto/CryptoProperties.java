@@ -1,7 +1,8 @@
 package backend.medsnap.global.crypto;
 
-import backend.medsnap.domain.auth.exception.CryptoKeyInvalidException;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import backend.medsnap.domain.auth.exception.CryptoKeyInvalidException;
 
 @ConfigurationProperties(prefix = "app.crypto")
 public class CryptoProperties {

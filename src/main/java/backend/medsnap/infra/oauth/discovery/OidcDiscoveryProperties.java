@@ -1,8 +1,8 @@
 package backend.medsnap.infra.oauth.discovery;
 
-import lombok.Getter;
-
 import java.util.List;
+
+import lombok.Getter;
 
 @Getter
 public class OidcDiscoveryProperties {

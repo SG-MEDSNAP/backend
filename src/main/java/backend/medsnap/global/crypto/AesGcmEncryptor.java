@@ -1,30 +1,31 @@
 package backend.medsnap.global.crypto;
 
-import backend.medsnap.domain.auth.exception.CryptoDecryptFailedException;
-import backend.medsnap.domain.auth.exception.CryptoEncryptFailedException;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.stereotype.Component;
+
+import backend.medsnap.domain.auth.exception.CryptoDecryptFailedException;
+import backend.medsnap.domain.auth.exception.CryptoEncryptFailedException;
+
 @Component
 public class AesGcmEncryptor {
 
     private final Key key;
-    private static final int GCM_IV_LENGTH = 12;  // 96 bits
+    private static final int GCM_IV_LENGTH = 12; // 96 bits
     private static final int GCM_TAG_LENGTH = 16; // 128 bits
 
     public AesGcmEncryptor(CryptoProperties properties) {
-        this.key = new SecretKeySpec(
-                properties.getAesSecretKey().getBytes(StandardCharsets.UTF_8),
-                "AES"
-        );
+        this.key =
+                new SecretKeySpec(
+                        properties.getAesSecretKey().getBytes(StandardCharsets.UTF_8), "AES");
     }
 
     public String encrypt(String plainText) {
