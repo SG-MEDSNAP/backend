@@ -3,6 +3,7 @@ package backend.medsnap.domain.medication.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import backend.medsnap.domain.user.entity.User;
 import jakarta.persistence.*;
 
 import backend.medsnap.domain.alarm.entity.Alarm;
@@ -34,6 +35,10 @@ public class Medication extends BaseEntity {
     @Column(nullable = false)
     private Boolean preNotify;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @OneToMany(
             mappedBy = "medication",
             cascade = CascadeType.ALL,
@@ -42,11 +47,12 @@ public class Medication extends BaseEntity {
     private List<Alarm> alarms = new ArrayList<>();
 
     @Builder
-    public Medication(String name, String imageUrl, Boolean notifyCaregiver, Boolean preNotify) {
+    public Medication(String name, String imageUrl, Boolean notifyCaregiver, Boolean preNotify, User user) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.notifyCaregiver = notifyCaregiver;
         this.preNotify = preNotify;
+        this.user = user;
     }
 
     public void updateMedicationDetails(

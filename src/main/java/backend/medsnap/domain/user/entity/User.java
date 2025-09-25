@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import backend.medsnap.domain.medication.entity.Medication;
 import jakarta.persistence.*;
 
 import backend.medsnap.global.entity.BaseEntity;
@@ -40,6 +41,9 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SocialAccount> socialAccounts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Medication> medications = new ArrayList<>();
+
     @Builder
     public User(LocalDate birthday, String phone, String caregiverPhone, Boolean isPushConsent) {
         this.role = Role.USER;
@@ -49,7 +53,7 @@ public class User extends BaseEntity {
         this.isPushConsent = isPushConsent;
     }
 
-    // Refresh Token 업데이트 (Access Token은 DB에 저장하지 않음)
+    // Refresh Token 업데이트
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }

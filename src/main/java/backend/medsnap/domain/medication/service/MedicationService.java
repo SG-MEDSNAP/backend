@@ -2,6 +2,9 @@ package backend.medsnap.domain.medication.service;
 
 import java.util.List;
 
+import backend.medsnap.domain.user.entity.User;
+import backend.medsnap.domain.user.exception.UserNotFoundException;
+import backend.medsnap.domain.user.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,16 +32,21 @@ import lombok.extern.slf4j.Slf4j;
 public class MedicationService {
 
     private final MedicationRepository medicationRepository;
+    private final UserRepository userRepository;
     private final S3Service s3Service;
     private final AlarmService alarmService;
 
     @Transactional
     public MedicationResponse createMedication(
-            MedicationCreateRequest request, MultipartFile image) {
+            Long userId, MedicationCreateRequest request, MultipartFile image) {
+
+        // 사용자 존재 확인
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         // 약 이름 중복 검증
-        validateDuplicateName(request.getName());
-        log.info("약 등록 시작 - 이름: {}", request.getName());
+        validateDuplicateName(request.getName(), userId);
+        log.info("사용자 ID: {}의 약 등록 시작 - 이름: {}", userId, request.getName());
 
         // 이미지 업로드
         String imageUrl = s3Service.uploadFile(image, "medications");
@@ -51,6 +59,7 @@ public class MedicationService {
                         .imageUrl(imageUrl)
                         .notifyCaregiver(request.getNotifyCaregiver())
                         .preNotify(request.getPreNotify())
+                        .user(user)
                         .build();
 
         // Alarm 생성
@@ -71,17 +80,16 @@ public class MedicationService {
 
     @Transactional
     public MedicationResponse updateMedication(
-            Long medicationId, MedicationUpdateRequest request, MultipartFile image) {
-        log.info("약 수정 시작 - ID: {}", medicationId);
+            Long userId, Long medicationId, MedicationUpdateRequest request, MultipartFile image) {
+        log.info("사용자 ID: {}의 약 수정 시작 - 약 ID: {}", userId, medicationId);
 
-        // 약 존재 여부 확인
-        Medication medication =
-                medicationRepository
-                        .findById(medicationId)
-                        .orElseThrow(() -> new MedicationNotFoundException(medicationId));
+        // 약 존재 여부 및 소유권 확인
+        Medication medication = medicationRepository
+                .findByIdAndUserId(medicationId, userId)
+                .orElseThrow(() -> new MedicationNotFoundException(medicationId));
 
         // 약 이름 중복 검증
-        validateDuplicateNameForUpdate(medicationId, request.getName());
+        validateDuplicateNameForUpdate(medicationId, request.getName(), userId);
 
         String newImageUrl = null;
         String oldImageUrl = medication.getImageUrl();
@@ -132,14 +140,13 @@ public class MedicationService {
 
     /** 약 삭제 */
     @Transactional
-    public void deleteMedication(Long medicationId) {
-        log.info("약 삭제 시작 - ID: {}", medicationId);
+    public void deleteMedication(Long userId, Long medicationId) {
+        log.info("사용자 ID: {}의 약 삭제 시작 - 약 ID: {}", userId, medicationId);
 
         // 약 존재 여부 확인
-        Medication medication =
-                medicationRepository
-                        .findById(medicationId)
-                        .orElseThrow(() -> new MedicationNotFoundException(medicationId));
+        Medication medication = medicationRepository
+                .findByIdAndUserId(medicationId, userId)
+                .orElseThrow(() -> new MedicationNotFoundException(medicationId));
 
         // 알람 개수 확인
         int alarmCount = medication.getAlarms().size();
@@ -155,17 +162,16 @@ public class MedicationService {
 
     /** 선택된 알람들 삭제 */
     @Transactional
-    public void deleteSelectedAlarms(Long medicationId, List<Long> alarmIds) {
-        log.info("선택된 알람 삭제 시작 - 약 ID: {}, 알람 IDs: {}", medicationId, alarmIds);
+    public void deleteSelectedAlarms(Long userId, Long medicationId, List<Long> alarmIds) {
+        log.info("사용자 ID: {}의 선택된 알람 삭제 시작 - 약 ID: {}, 알람 IDs: {}", userId, medicationId, alarmIds);
 
         // 알람 삭제 요청 검증
         validateAlarmDeleteRequest(alarmIds);
 
         // 약 존재 여부 확인
-        Medication medication =
-                medicationRepository
-                        .findById(medicationId)
-                        .orElseThrow(() -> new MedicationNotFoundException(medicationId));
+        Medication medication = medicationRepository
+                .findByIdAndUserId(medicationId, userId)
+                .orElseThrow(() -> new MedicationNotFoundException(medicationId));
 
         // 알람 삭제 수행
         alarmService.deleteAlarm(medication, alarmIds);
@@ -185,17 +191,17 @@ public class MedicationService {
     }
 
     /** 약 이름 중복 검증 */
-    private void validateDuplicateName(String name) {
+    private void validateDuplicateName(String name, Long userId) {
         String trimmedName = name.trim();
-        if (medicationRepository.existsByName(trimmedName)) {
+        if (medicationRepository.existsByNameAndUserId(trimmedName, userId)) {
             throw InvalidMedicationDataException.duplicateName(trimmedName);
         }
     }
 
     /** 약 이름 중복 검증 (수정용) */
-    private void validateDuplicateNameForUpdate(Long medicationId, String name) {
+    private void validateDuplicateNameForUpdate(Long medicationId, String name, Long userId) {
         String trimmedName = name.trim();
-        if (medicationRepository.existsByNameAndIdNot(trimmedName, medicationId)) {
+        if (medicationRepository.existsByNameAndUserIdAndIdNot(trimmedName, userId, medicationId)) {
             throw InvalidMedicationDataException.duplicateName(trimmedName);
         }
     }
