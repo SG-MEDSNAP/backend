@@ -8,11 +8,13 @@ import jakarta.validation.constraints.NotNull;
 
 import backend.medsnap.domain.alarm.entity.DayOfWeek;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(
         description = "약 정보 수정 요청",
         example =
