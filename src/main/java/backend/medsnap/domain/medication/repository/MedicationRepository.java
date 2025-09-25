@@ -1,8 +1,11 @@
 package backend.medsnap.domain.medication.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import backend.medsnap.domain.medication.entity.Medication;
@@ -18,4 +21,14 @@ public interface MedicationRepository extends JpaRepository<Medication, Long> {
 
     /** 사용자의 특정 약 조회 */
     Optional<Medication> findByIdAndUserId(Long medicationId, Long userId);
+
+    /** 사용자의 모든 약 목록 조회 */
+    @Query("""
+        SELECT DISTINCT m
+        FROM Medication m
+        LEFT JOIN FETCH m.alarms a
+        JOIN FETCH m.user u
+        WHERE m.user.id = :userId
+        """)
+    List<Medication> findByUserIdWithAlarms(@Param("userId") Long userId);
 }
