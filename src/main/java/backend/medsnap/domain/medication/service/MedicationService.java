@@ -31,7 +31,6 @@ public class MedicationService {
     private final MedicationRepository medicationRepository;
     private final S3Service s3Service;
     private final AlarmService alarmService;
-    private final AlarmRepository alarmRepository;
 
     @Transactional
     public MedicationResponse createMedication(
@@ -84,45 +83,41 @@ public class MedicationService {
         // 약 이름 중복 검증
         validateDuplicateNameForUpdate(medicationId, request.getName());
 
-        // 이미지 수정
         String newImageUrl = null;
         String oldImageUrl = medication.getImageUrl();
-
-        if (image != null && !image.isEmpty()) {
-            // 새 이미지 업로드
-            newImageUrl = s3Service.uploadFile(image, "medications");
-            log.info("새 이미지 업로드 완료 - URL: {}", newImageUrl);
-        }
-
-        // 약 엔티티 정보 업데이트
-        medication.updateMedicationDetails(
-                request.getName().trim(),
-                (newImageUrl != null) ? newImageUrl : oldImageUrl,
-                request.getNotifyCaregiver(),
-                request.getPreNotify());
-
-        // 알람 정보 수정
-        medication.getAlarms().clear();
-        alarmService.createAlarms(medication, request.getDoseTimes(), request.getDoseDays());
-
-        // 저장
         Medication updatedMedication;
+
         try {
-            updatedMedication = medicationRepository.save(medication);
-        } catch (DataIntegrityViolationException e) {
-            // DB 저장 실패 시 새 이미지 삭제
-            if (newImageUrl != null) {
-                try {
-                    s3Service.deleteFile(newImageUrl);
-                    log.info("롤백: 새 이미지 삭제 완료 - {}", newImageUrl);
-                } catch (Exception ex) {
-                    log.warn("롤백: 새 이미지 삭제 실패 - {}, 오류: {}", newImageUrl, ex.getMessage());
-                }
+            if (image != null && !image.isEmpty()) {
+                // 새 이미지 업로드
+                newImageUrl = s3Service.uploadFile(image, "medications");
+                log.info("새 이미지 업로드 완료 - URL: {}", newImageUrl);
             }
+
+            // 약 엔티티 정보 업데이트
+            medication.updateMedicationDetails(
+                    request.getName().trim(),
+                    (newImageUrl != null) ? newImageUrl : oldImageUrl,
+                    request.getNotifyCaregiver(),
+                    request.getPreNotify());
+
+            // 알람 정보 수정
+            alarmService.deleteAllAlarmsByMedicationId(medicationId);
+            medication.getAlarms().clear();
+            alarmService.createAlarms(medication, request.getDoseTimes(), request.getDoseDays());
+
+            // DB 저장
+            updatedMedication = medicationRepository.save(medication);
+
+        } catch (DataIntegrityViolationException e) {
+            cleanupNewImage(newImageUrl);
             throw InvalidMedicationDataException.duplicateName(request.getName().trim());
+        } catch (RuntimeException e) {
+            cleanupNewImage(newImageUrl);
+            throw e;
         }
 
-        // 3. DB 저장 성공 시 기존 이미지 정리
+        // DB 저장 성공 시 기존 이미지 정리
         if (newImageUrl != null && oldImageUrl != null && !oldImageUrl.equals(newImageUrl)) {
             try {
                 s3Service.deleteFile(oldImageUrl);
@@ -176,7 +171,7 @@ public class MedicationService {
         alarmService.deleteAlarm(medication, alarmIds);
 
         // 남은 알람 개수 확인
-        int remainingAlarmCount = alarmRepository.countByMedicationId(medicationId);
+        int remainingAlarmCount = alarmService.getRemainingAlarmCount(medicationId);
 
         if (remainingAlarmCount == 0) {
             log.info("약 ID: {}의 모든 알람이 삭제되어 약도 함께 삭제합니다.", medicationId);
@@ -202,6 +197,19 @@ public class MedicationService {
         String trimmedName = name.trim();
         if (medicationRepository.existsByNameAndIdNot(trimmedName, medicationId)) {
             throw InvalidMedicationDataException.duplicateName(trimmedName);
+        }
+    }
+
+    /** 새로운 이미지 업로드 후 롤백이 필요한 경우 호출 */
+    private void cleanupNewImage(String newImageUrl) {
+        if (newImageUrl == null) {
+            return;
+        }
+        try {
+            s3Service.deleteFile(newImageUrl);
+            log.info("롤백: 새 이미지 삭제 완료 - {}", newImageUrl);
+        } catch (Exception ex) {
+            log.warn("롤백: 새 이미지 삭제 실패 - {}, 오류: {}", newImageUrl, ex.getMessage());
         }
     }
 
