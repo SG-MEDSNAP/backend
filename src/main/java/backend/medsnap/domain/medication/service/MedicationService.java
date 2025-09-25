@@ -2,7 +2,6 @@ package backend.medsnap.domain.medication.service;
 
 import java.util.List;
 
-import backend.medsnap.domain.medication.dto.response.MedicationListResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +11,7 @@ import backend.medsnap.domain.alarm.entity.Alarm;
 import backend.medsnap.domain.alarm.service.AlarmService;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.request.MedicationUpdateRequest;
+import backend.medsnap.domain.medication.dto.response.MedicationListResponse;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.domain.medication.exception.InvalidMedicationDataException;
@@ -86,9 +86,7 @@ public class MedicationService {
 
         List<Medication> medications = medicationRepository.findByUserIdWithAlarms(userId);
 
-        return medications.stream()
-                .map(this::toMedicationListResponse)
-                .toList();
+        return medications.stream().map(this::toMedicationListResponse).toList();
     }
 
     @Transactional

@@ -1,5 +1,7 @@
 package backend.medsnap.domain.medication.controller;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -13,8 +15,8 @@ import backend.medsnap.domain.alarm.dto.request.AlarmDeleteRequest;
 import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.request.MedicationUpdateRequest;
-import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.dto.response.MedicationListResponse;
+import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,8 +24,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import java.util.List;
 
 @Tag(name = "medications", description = "약 API")
 public interface MedicationSwagger {
@@ -301,8 +301,10 @@ public interface MedicationSwagger {
                         }
                         """)))
             })
-    ResponseEntity<backend.medsnap.global.dto.ApiResponse<List<MedicationListResponse>>> getAllMedications(
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails);
+    ResponseEntity<backend.medsnap.global.dto.ApiResponse<List<MedicationListResponse>>>
+            getAllMedications(
+                    @Parameter(hidden = true) @AuthenticationPrincipal
+                            CustomUserDetails userDetails);
 
     @Operation(summary = "약 정보 수정", description = "기존 약의 정보를 수정합니다.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
