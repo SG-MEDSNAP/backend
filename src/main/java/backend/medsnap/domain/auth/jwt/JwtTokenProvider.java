@@ -22,11 +22,11 @@ public class JwtTokenProvider {
     private final long refreshTokenValidityDays;
 
     public JwtTokenProvider(
-            @Value("${jwt.secret}") String secretKey,
-            @Value("${jwt.issuer}") String issuer,
+            Algorithm algorithm,
+            String issuer,
             @Value("${jwt.access-token-validity-hours}") long accessTokenValidityHours,
             @Value("${jwt.refresh-token-validity-days}") long refreshTokenValidityDays) {
-        this.algorithm = Algorithm.HMAC256(secretKey);
+        this.algorithm = algorithm;
         this.issuer = issuer;
         this.accessTokenValidityHours = accessTokenValidityHours;
         this.refreshTokenValidityDays = refreshTokenValidityDays;
