@@ -1,18 +1,20 @@
 package backend.medsnap.domain.medication.dto.request;
 
-import backend.medsnap.domain.alarm.entity.DayOfWeek;
-import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+
+import backend.medsnap.domain.alarm.entity.DayOfWeek;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.List;
-
 @Getter
 @Builder
-@Schema(description = "약 정보 수정 요청",
+@Schema(
+        description = "약 정보 수정 요청",
         example =
                 """
     {

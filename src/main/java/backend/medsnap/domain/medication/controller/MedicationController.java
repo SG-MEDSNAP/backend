@@ -1,6 +1,5 @@
 package backend.medsnap.domain.medication.controller;
 
-import backend.medsnap.domain.medication.dto.request.MedicationUpdateRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -11,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import backend.medsnap.domain.alarm.dto.request.AlarmDeleteRequest;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
+import backend.medsnap.domain.medication.dto.request.MedicationUpdateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.service.MedicationService;
 import backend.medsnap.global.dto.ApiResponse;
@@ -42,10 +42,10 @@ public class MedicationController implements MedicationSwagger {
             @RequestPart("request") @Valid MedicationUpdateRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        MedicationResponse response = medicationService.updateMedication(medicationId, request, image);
+        MedicationResponse response =
+                medicationService.updateMedication(medicationId, request, image);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success(response));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 
     @Override

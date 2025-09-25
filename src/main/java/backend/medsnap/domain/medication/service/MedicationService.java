@@ -2,7 +2,6 @@ package backend.medsnap.domain.medication.service;
 
 import java.util.List;
 
-import backend.medsnap.domain.medication.dto.request.MedicationUpdateRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +11,7 @@ import backend.medsnap.domain.alarm.entity.Alarm;
 import backend.medsnap.domain.alarm.repository.AlarmRepository;
 import backend.medsnap.domain.alarm.service.AlarmService;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
+import backend.medsnap.domain.medication.dto.request.MedicationUpdateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.domain.medication.exception.InvalidMedicationDataException;
@@ -132,7 +132,7 @@ public class MedicationService {
         int alarmCount = medication.getAlarms().size();
         log.info("약 ID: {}에 연결된 알람 개수: {}", medicationId, alarmCount);
 
-        // 약 삭제 (cascade로 알람도 함께 삭제됨)
+        // 약 삭제
         medicationRepository.delete(medication);
         log.info("약 ID: {} 및 관련 알람 {}개가 삭제되었습니다.", medicationId, alarmCount);
 
