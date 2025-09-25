@@ -86,7 +86,7 @@ public class MedicationService {
 
         List<Medication> medications = medicationRepository.findByUserIdWithAlarms(userId);
 
-        return medications.stream().map(this::toMedicationListResponse).toList();
+        return medications.stream().distinct().map(this::toMedicationListResponse).toList();
     }
 
     @Transactional
