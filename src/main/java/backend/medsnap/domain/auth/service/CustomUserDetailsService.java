@@ -23,9 +23,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // username을 userId로 해석하여 처리
-        Long userId = Long.parseLong(username);
-        return loadUserById(userId);
+        try {
+            // username을 userId로 해석하여 처리
+            Long userId = Long.parseLong(username);
+            return loadUserById(userId);
+        } catch (NumberFormatException ex) {
+            throw new UsernameNotFoundException("유효하지 않은 사용자 식별자: " + username);
+        }
     }
 
     // 사용자 ID로 직접 사용자 정보 조회
