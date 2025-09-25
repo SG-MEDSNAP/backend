@@ -29,7 +29,8 @@ public enum ErrorCode {
     AUTH_SOCIAL_ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "A003", "이미 가입된 소셜 계정입니다."),
     AUTH_CRYPTO_KEY_INVALID(HttpStatus.INTERNAL_SERVER_ERROR, "A004", "암호화 키 설정이 잘못되었습니다."),
     AUTH_CRYPTO_ENCRYPT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "A005", "데이터 암호화에 실패했습니다."),
-    AUTH_CRYPTO_DECRYPT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "A006", "데이터 복호화에 실패했습니다.");
+    AUTH_CRYPTO_DECRYPT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "A006", "데이터 복호화에 실패했습니다."),
+    AUTH_INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "A007", "유효하지 않은 JWT 토큰입니다.");
 
     private final HttpStatus status;
     private final String code;
