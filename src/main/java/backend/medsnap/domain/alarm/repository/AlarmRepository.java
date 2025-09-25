@@ -26,4 +26,9 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
     @Query("SELECT a.id FROM Alarm a WHERE a.id IN :alarmIds AND a.medication.id = :medicationId")
     List<Long> findExistingAlarmIds(
             @Param("alarmIds") List<Long> alarmIds, @Param("medicationId") Long medicationId);
+
+    /** 특정 약에 연결된 모든 알람 삭제 */
+    @Modifying
+    @Query("DELETE FROM Alarm a WHERE a.medication.id = :medicationId")
+    void deleteByMedicationId(@Param("medicationId") Long medicationId);
 }

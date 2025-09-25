@@ -11,6 +11,7 @@ import backend.medsnap.domain.alarm.entity.Alarm;
 import backend.medsnap.domain.alarm.repository.AlarmRepository;
 import backend.medsnap.domain.alarm.service.AlarmService;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
+import backend.medsnap.domain.medication.dto.request.MedicationUpdateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.domain.medication.exception.InvalidMedicationDataException;
@@ -30,7 +31,6 @@ public class MedicationService {
     private final MedicationRepository medicationRepository;
     private final S3Service s3Service;
     private final AlarmService alarmService;
-    private final AlarmRepository alarmRepository;
 
     @Transactional
     public MedicationResponse createMedication(
@@ -66,7 +66,68 @@ public class MedicationService {
         }
 
         // response 반환
-        return getMedicationResponse(savedMedication, request);
+        return toResponse(savedMedication);
+    }
+
+    @Transactional
+    public MedicationResponse updateMedication(
+            Long medicationId, MedicationUpdateRequest request, MultipartFile image) {
+        log.info("약 수정 시작 - ID: {}", medicationId);
+
+        // 약 존재 여부 확인
+        Medication medication =
+                medicationRepository
+                        .findById(medicationId)
+                        .orElseThrow(() -> new MedicationNotFoundException(medicationId));
+
+        // 약 이름 중복 검증
+        validateDuplicateNameForUpdate(medicationId, request.getName());
+
+        String newImageUrl = null;
+        String oldImageUrl = medication.getImageUrl();
+        Medication updatedMedication;
+
+        try {
+            if (image != null && !image.isEmpty()) {
+                // 새 이미지 업로드
+                newImageUrl = s3Service.uploadFile(image, "medications");
+                log.info("새 이미지 업로드 완료 - URL: {}", newImageUrl);
+            }
+
+            // 약 엔티티 정보 업데이트
+            medication.updateMedicationDetails(
+                    request.getName().trim(),
+                    (newImageUrl != null) ? newImageUrl : oldImageUrl,
+                    request.getNotifyCaregiver(),
+                    request.getPreNotify());
+
+            // 알람 정보 수정
+            alarmService.deleteAllAlarmsByMedicationId(medicationId);
+            medication.getAlarms().clear();
+            alarmService.createAlarms(medication, request.getDoseTimes(), request.getDoseDays());
+
+            // DB 저장
+            updatedMedication = medicationRepository.save(medication);
+
+        } catch (DataIntegrityViolationException e) {
+            cleanupNewImage(newImageUrl);
+            throw InvalidMedicationDataException.duplicateName(request.getName().trim());
+        } catch (RuntimeException e) {
+            cleanupNewImage(newImageUrl);
+            throw e;
+        }
+
+        // DB 저장 성공 시 기존 이미지 정리
+        if (newImageUrl != null && oldImageUrl != null && !oldImageUrl.equals(newImageUrl)) {
+            try {
+                s3Service.deleteFile(oldImageUrl);
+                log.info("이전 이미지 삭제 완료 - {}", oldImageUrl);
+            } catch (Exception ex) {
+                log.warn("이전 이미지 삭제 실패 - {}, 오류: {}", oldImageUrl, ex.getMessage());
+            }
+        }
+
+        return toResponse(updatedMedication);
     }
 
     /** 약 삭제 */
@@ -84,7 +145,7 @@ public class MedicationService {
         int alarmCount = medication.getAlarms().size();
         log.info("약 ID: {}에 연결된 알람 개수: {}", medicationId, alarmCount);
 
-        // 약 삭제 (cascade로 알람도 함께 삭제됨)
+        // 약 삭제
         medicationRepository.delete(medication);
         log.info("약 ID: {} 및 관련 알람 {}개가 삭제되었습니다.", medicationId, alarmCount);
 
@@ -110,7 +171,7 @@ public class MedicationService {
         alarmService.deleteAlarm(medication, alarmIds);
 
         // 남은 알람 개수 확인
-        int remainingAlarmCount = alarmRepository.countByMedicationId(medicationId);
+        int remainingAlarmCount = alarmService.getRemainingAlarmCount(medicationId);
 
         if (remainingAlarmCount == 0) {
             log.info("약 ID: {}의 모든 알람이 삭제되어 약도 함께 삭제합니다.", medicationId);
@@ -128,6 +189,27 @@ public class MedicationService {
         String trimmedName = name.trim();
         if (medicationRepository.existsByName(trimmedName)) {
             throw InvalidMedicationDataException.duplicateName(trimmedName);
+        }
+    }
+
+    /** 약 이름 중복 검증 (수정용) */
+    private void validateDuplicateNameForUpdate(Long medicationId, String name) {
+        String trimmedName = name.trim();
+        if (medicationRepository.existsByNameAndIdNot(trimmedName, medicationId)) {
+            throw InvalidMedicationDataException.duplicateName(trimmedName);
+        }
+    }
+
+    /** 새로운 이미지 업로드 후 롤백이 필요한 경우 호출 */
+    private void cleanupNewImage(String newImageUrl) {
+        if (newImageUrl == null) {
+            return;
+        }
+        try {
+            s3Service.deleteFile(newImageUrl);
+            log.info("롤백: 새 이미지 삭제 완료 - {}", newImageUrl);
+        } catch (Exception ex) {
+            log.warn("롤백: 새 이미지 삭제 실패 - {}, 오류: {}", newImageUrl, ex.getMessage());
         }
     }
 
@@ -172,29 +254,28 @@ public class MedicationService {
         }
     }
 
-    /** Response 객체 생성 */
-    private MedicationResponse getMedicationResponse(
-            Medication savedMedication, MedicationCreateRequest request) {
+    /** 엔티티 -> Response DTO 변환 */
+    private MedicationResponse toResponse(Medication medication) {
         return MedicationResponse.builder()
-                .id(savedMedication.getId())
-                .name(savedMedication.getName())
-                .imageUrl(savedMedication.getImageUrl())
-                .notifyCaregiver(savedMedication.getNotifyCaregiver())
-                .preNotify(savedMedication.getPreNotify())
+                .id(medication.getId())
+                .name(medication.getName())
+                .imageUrl(medication.getImageUrl())
+                .notifyCaregiver(medication.getNotifyCaregiver())
+                .preNotify(medication.getPreNotify())
                 .doseTimes(
-                        savedMedication.getAlarms().stream()
+                        medication.getAlarms().stream()
                                 .map(Alarm::getDoseTime)
                                 .distinct()
                                 .sorted()
                                 .toList())
                 .doseDays(
-                        savedMedication.getAlarms().stream()
+                        medication.getAlarms().stream()
                                 .map(Alarm::getDayOfWeek)
                                 .distinct()
                                 .sorted()
                                 .toList())
-                .createdAt(savedMedication.getCreatedAt())
-                .updatedAt(savedMedication.getUpdatedAt())
+                .createdAt(medication.getCreatedAt())
+                .updatedAt(medication.getUpdatedAt())
                 .build();
     }
 }

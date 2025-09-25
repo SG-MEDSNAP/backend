@@ -79,4 +79,18 @@ public class AlarmService {
             log.info("약 ID: {}의 {}개 알람이 삭제되었습니다.", medication.getId(), deletedCount);
         }
     }
+
+    /** 특정 약의 전체 알람 삭제 */
+    @Transactional
+    public void deleteAllAlarmsByMedicationId(Long medicationId) {
+
+        alarmRepository.deleteByMedicationId(medicationId);
+        log.info("약 ID: {}에 연결된 모든 알람이 삭제되었습니다.", medicationId);
+    }
+
+    /** 특정 약의 남은 알람 개수 조회 */
+    @Transactional(readOnly = true)
+    public int getRemainingAlarmCount(Long medicationId) {
+        return alarmRepository.countByMedicationId(medicationId);
+    }
 }

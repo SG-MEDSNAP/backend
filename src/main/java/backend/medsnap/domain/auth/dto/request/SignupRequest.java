@@ -8,9 +8,13 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import backend.medsnap.domain.user.entity.Provider;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class SignupRequest {
 
     @NotBlank(message = "Id Token은 필수입니다.")

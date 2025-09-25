@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import backend.medsnap.domain.alarm.dto.request.AlarmDeleteRequest;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
+import backend.medsnap.domain.medication.dto.request.MedicationUpdateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -133,6 +134,145 @@ public interface MedicationSwagger {
                     @Valid
                     MedicationCreateRequest request,
             @Parameter(description = "약 이미지 파일", required = true) @RequestPart("image")
+                    MultipartFile image);
+
+    @Operation(summary = "약 정보 수정", description = "기존 약의 정보를 수정합니다. 이미지는 선택사항입니다.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "약 수정 요청 (multipart/form-data)",
+            content = @Content(mediaType = "multipart/form-data"))
+    @ApiResponses(
+            value = {
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "200",
+                        description = "약 수정 성공",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "SUCCESS",
+                          "httpStatus": 200,
+                          "message": "요청이 성공적으로 처리되었습니다.",
+                          "data": {
+                            "id": 1,
+                            "name": "수정된 타이레놀",
+                            "imageUrl": "https://s3.amazonaws.com/bucket/medications/new_uuid_timestamp.jpg",
+                            "notifyCaregiver": false,
+                            "preNotify": true,
+                            "doseTimes": ["08:00", "20:00"],
+                            "doseDays": ["MON", "TUE", "WED", "THU", "FRI"],
+                            "createdAt": "2024-01-01T10:00:00",
+                            "updatedAt": "2024-01-02T15:30:00"
+                          }
+                        }
+                        """))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "400",
+                        description = "입력값 검증 실패",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "C002",
+                          "httpStatus": 400,
+                          "message": "입력값 검증에 실패했습니다.",
+                          "data": null
+                        }
+                        """))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "404",
+                        description = "약을 찾을 수 없음",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "M001",
+                          "httpStatus": 404,
+                          "message": "약 정보를 찾을 수 없습니다.",
+                          "data": null
+                        }
+                        """))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "409",
+                        description = "중복된 약 이름",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "M002",
+                          "httpStatus": 409,
+                          "message": "이미 등록된 약 이름입니다.",
+                          "data": null
+                        }
+                        """))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "500",
+                        description = "서버 오류",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "C001",
+                          "httpStatus": 500,
+                          "message": "내부 서버 오류가 발생했습니다.",
+                          "data": null
+                        }
+                        """)))
+            })
+    ResponseEntity<backend.medsnap.global.dto.ApiResponse<MedicationResponse>> updateMedication(
+            @Parameter(description = "수정할 약의 ID", required = true, example = "1")
+                    @PathVariable("medicationId")
+                    Long medicationId,
+            @Parameter(description = "약 수정 JSON 데이터", required = true)
+                    @RequestPart("request")
+                    @Valid
+                    MedicationUpdateRequest request,
+            @Parameter(description = "약 이미지 파일 (선택사항)")
+                    @RequestPart(value = "image", required = false)
                     MultipartFile image);
 
     @Operation(summary = "약 삭제", description = "등록된 약과 관련된 모든 알람을 삭제합니다.")

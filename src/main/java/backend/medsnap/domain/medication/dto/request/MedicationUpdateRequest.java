@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(
-        description = "약 등록 요청",
+        description = "약 정보 수정 요청",
         example =
                 """
     {
@@ -31,7 +31,7 @@ import lombok.NoArgsConstructor;
       ]
     }
     """)
-public class MedicationCreateRequest {
+public class MedicationUpdateRequest {
 
     @Schema(description = "약 이름")
     @NotBlank(message = "약 이름은 필수입니다")

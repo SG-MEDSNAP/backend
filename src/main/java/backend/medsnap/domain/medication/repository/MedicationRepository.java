@@ -10,4 +10,7 @@ public interface MedicationRepository extends JpaRepository<Medication, Long> {
 
     /** 약 이름 중복 체크 */
     boolean existsByName(String name);
+
+    /** 특정 ID를 제외한 약 이름 중복 체크 */
+    boolean existsByNameAndIdNot(String name, Long id);
 }
