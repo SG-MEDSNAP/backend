@@ -36,7 +36,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         // 에러 응답 객체 생성
-        ApiResponse<Void> errorResponse = ApiResponse.error(ErrorCode.valueOf("인증이 필요합니다."));
+        ApiResponse<Void> errorResponse = ApiResponse.error(ErrorCode.AUTH_INVALID_JWT_TOKEN);
 
         // JSON 형태로 에러 응답 전송
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
