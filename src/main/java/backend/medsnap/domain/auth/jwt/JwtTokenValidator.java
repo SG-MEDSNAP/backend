@@ -1,13 +1,15 @@
 package backend.medsnap.domain.auth.jwt;
 
-import backend.medsnap.domain.auth.exception.InvalidJwtTokenException;
+import org.springframework.stereotype.Component;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+
+import backend.medsnap.domain.auth.exception.InvalidJwtTokenException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -18,10 +20,11 @@ public class JwtTokenValidator {
 
     public JwtTokenValidator(Algorithm algorithm, String issuer) {
         this.algorithm = algorithm;
-        this.verifier = JWT.require(algorithm)
-                .withIssuer(issuer)
-                .acceptLeeway(5) // 시계 오차 허용 (5초)
-                .build();
+        this.verifier =
+                JWT.require(algorithm)
+                        .withIssuer(issuer)
+                        .acceptLeeway(5) // 시계 오차 허용 (5초)
+                        .build();
     }
 
     // JWT 토큰 검증 및 디코딩

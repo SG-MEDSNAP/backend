@@ -2,16 +2,12 @@ package backend.medsnap.domain.medication.service;
 
 import java.util.List;
 
-import backend.medsnap.domain.user.entity.User;
-import backend.medsnap.domain.user.exception.UserNotFoundException;
-import backend.medsnap.domain.user.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import backend.medsnap.domain.alarm.entity.Alarm;
-import backend.medsnap.domain.alarm.repository.AlarmRepository;
 import backend.medsnap.domain.alarm.service.AlarmService;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.request.MedicationUpdateRequest;
@@ -20,6 +16,9 @@ import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.domain.medication.exception.InvalidMedicationDataException;
 import backend.medsnap.domain.medication.exception.MedicationNotFoundException;
 import backend.medsnap.domain.medication.repository.MedicationRepository;
+import backend.medsnap.domain.user.entity.User;
+import backend.medsnap.domain.user.exception.UserNotFoundException;
+import backend.medsnap.domain.user.repository.UserRepository;
 import backend.medsnap.global.exception.BusinessException;
 import backend.medsnap.global.exception.ErrorCode;
 import backend.medsnap.infra.s3.S3Service;
@@ -41,8 +40,10 @@ public class MedicationService {
             Long userId, MedicationCreateRequest request, MultipartFile image) {
 
         // 사용자 존재 확인
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        User user =
+                userRepository
+                        .findById(userId)
+                        .orElseThrow(() -> new UserNotFoundException(userId));
 
         // 약 이름 중복 검증
         validateDuplicateName(request.getName(), userId);
@@ -84,9 +85,10 @@ public class MedicationService {
         log.info("사용자 ID: {}의 약 수정 시작 - 약 ID: {}", userId, medicationId);
 
         // 약 존재 여부 및 소유권 확인
-        Medication medication = medicationRepository
-                .findByIdAndUserId(medicationId, userId)
-                .orElseThrow(() -> new MedicationNotFoundException(medicationId));
+        Medication medication =
+                medicationRepository
+                        .findByIdAndUserId(medicationId, userId)
+                        .orElseThrow(() -> new MedicationNotFoundException(medicationId));
 
         // 약 이름 중복 검증
         validateDuplicateNameForUpdate(medicationId, request.getName(), userId);
@@ -144,9 +146,10 @@ public class MedicationService {
         log.info("사용자 ID: {}의 약 삭제 시작 - 약 ID: {}", userId, medicationId);
 
         // 약 존재 여부 확인
-        Medication medication = medicationRepository
-                .findByIdAndUserId(medicationId, userId)
-                .orElseThrow(() -> new MedicationNotFoundException(medicationId));
+        Medication medication =
+                medicationRepository
+                        .findByIdAndUserId(medicationId, userId)
+                        .orElseThrow(() -> new MedicationNotFoundException(medicationId));
 
         // 알람 개수 확인
         int alarmCount = medication.getAlarms().size();
@@ -169,9 +172,10 @@ public class MedicationService {
         validateAlarmDeleteRequest(alarmIds);
 
         // 약 존재 여부 확인
-        Medication medication = medicationRepository
-                .findByIdAndUserId(medicationId, userId)
-                .orElseThrow(() -> new MedicationNotFoundException(medicationId));
+        Medication medication =
+                medicationRepository
+                        .findByIdAndUserId(medicationId, userId)
+                        .orElseThrow(() -> new MedicationNotFoundException(medicationId));
 
         // 알람 삭제 수행
         alarmService.deleteAlarm(medication, alarmIds);

@@ -1,14 +1,12 @@
 package backend.medsnap.domain.auth.jwt.filter;
 
-import backend.medsnap.domain.auth.jwt.JwtTokenValidator;
-import backend.medsnap.domain.auth.service.CustomUserDetailsService;
-import backend.medsnap.global.exception.ErrorCode;
+import java.io.IOException;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +15,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
+import backend.medsnap.domain.auth.jwt.JwtTokenValidator;
+import backend.medsnap.domain.auth.service.CustomUserDetailsService;
+import backend.medsnap.global.exception.ErrorCode;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -32,9 +34,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
         try {
             // JWT 토큰 추출
@@ -52,11 +53,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     // Spring Security 인증 객체 생성
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                                    userDetails, null, userDetails.getAuthorities());
+                    authenticationToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request));
 
                     // SecurityContext에 인증 정보 저장
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);

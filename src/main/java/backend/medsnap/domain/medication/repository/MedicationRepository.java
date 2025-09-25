@@ -1,12 +1,11 @@
 package backend.medsnap.domain.medication.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import backend.medsnap.domain.medication.entity.Medication;
-
-import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface MedicationRepository extends JpaRepository<Medication, Long> {

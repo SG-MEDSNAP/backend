@@ -1,9 +1,7 @@
 package backend.medsnap.domain.auth.service;
 
-import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
-import backend.medsnap.domain.user.entity.User;
-import backend.medsnap.domain.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.Collections;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,7 +9,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
+import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
+import backend.medsnap.domain.user.entity.User;
+import backend.medsnap.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -35,14 +36,17 @@ public class CustomUserDetailsService implements UserDetailsService {
     // 사용자 ID로 직접 사용자 정보 조회
     @Transactional(readOnly = true)
     public UserDetails loadUserById(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
+        User user =
+                userRepository
+                        .findById(userId)
+                        .orElseThrow(
+                                () -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
         return CustomUserDetails.builder()
                 .id(user.getId())
-                .authorities(Collections.singletonList(
-                        new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
-                ))
+                .authorities(
+                        Collections.singletonList(
+                                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())))
                 .build();
     }
 }

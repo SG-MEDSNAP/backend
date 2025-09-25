@@ -1,8 +1,5 @@
 package backend.medsnap.global.config;
 
-import backend.medsnap.domain.auth.jwt.filter.JwtAuthenticationFilter;
-import backend.medsnap.domain.auth.jwt.handler.JwtAccessDeniedHandler;
-import backend.medsnap.domain.auth.jwt.handler.JwtAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +16,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
+import backend.medsnap.domain.auth.jwt.filter.JwtAuthenticationFilter;
+import backend.medsnap.domain.auth.jwt.handler.JwtAccessDeniedHandler;
+import backend.medsnap.domain.auth.jwt.handler.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -61,40 +61,45 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) throws Exception {
-        HttpSecurity swaggerHttp = http.securityMatcher(
-                "/api/v1/docs/**",
-                "/api/v1/api-docs/**",
-                "/api/v1/swagger-ui/**",
-                "/api/v1/swagger-ui.html"
-        );
+        HttpSecurity swaggerHttp =
+                http.securityMatcher(
+                        "/api/v1/docs/**",
+                        "/api/v1/api-docs/**",
+                        "/api/v1/swagger-ui/**",
+                        "/api/v1/swagger-ui.html");
 
         if (swaggerAuthEnabled) {
-            swaggerHttp.authorizeHttpRequests(auth -> auth.anyRequest().hasRole("DOCS"))
+            swaggerHttp
+                    .authorizeHttpRequests(auth -> auth.anyRequest().hasRole("DOCS"))
                     .httpBasic(httpBasic -> httpBasic.realmName("Swagger API Documentation"));
         } else {
             swaggerHttp.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         }
 
-        swaggerHttp.csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        swaggerHttp
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // HTTPS 설정
         if (requireSsl) {
-            swaggerHttp.requiresChannel(channel -> channel.anyRequest().requiresSecure())
-                    .headers(headers ->
-                            headers.httpStrictTransportSecurity(
-                                            hstsConfig ->
-                                                    hstsConfig
-                                                            .maxAgeInSeconds(31536000)
-                                                            .includeSubDomains(true))
-                                    .referrerPolicy(
-                                            referrer ->
-                                                    referrer.policy(
-                                                            ReferrerPolicyHeaderWriter
-                                                                    .ReferrerPolicy
-                                                                    .STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                                    .frameOptions(frame -> frame.deny())
-                                    .contentTypeOptions(contentType -> {}));
+            swaggerHttp
+                    .requiresChannel(channel -> channel.anyRequest().requiresSecure())
+                    .headers(
+                            headers ->
+                                    headers.httpStrictTransportSecurity(
+                                                    hstsConfig ->
+                                                            hstsConfig
+                                                                    .maxAgeInSeconds(31536000)
+                                                                    .includeSubDomains(true))
+                                            .referrerPolicy(
+                                                    referrer ->
+                                                            referrer.policy(
+                                                                    ReferrerPolicyHeaderWriter
+                                                                            .ReferrerPolicy
+                                                                            .STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                                            .frameOptions(frame -> frame.deny())
+                                            .contentTypeOptions(contentType -> {}));
         }
 
         return swaggerHttp.build();
@@ -104,41 +109,42 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth ->
-                        auth.requestMatchers(
-                                        "/api/v1/auth/**",
-                                        "/error",
-                                        "/error/**"
-                                ).permitAll()
-                                .anyRequest().authenticated()
-                )
+        http.authorizeHttpRequests(
+                        auth ->
+                                auth.requestMatchers("/api/v1/auth/**", "/error", "/error/**")
+                                        .permitAll()
+                                        .anyRequest()
+                                        .authenticated())
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(login -> login.disable())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exception ->
-                        exception
-                                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                                .accessDeniedHandler(jwtAccessDeniedHandler)
-                );
+                .addFilterBefore(
+                        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(
+                        exception ->
+                                exception
+                                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                                        .accessDeniedHandler(jwtAccessDeniedHandler));
 
         // HTTPS 설정
         if (requireSsl) {
             http.requiresChannel(channel -> channel.anyRequest().requiresSecure())
-                    .headers(headers ->
-                            headers.httpStrictTransportSecurity(
-                                            hstsConfig ->
-                                                    hstsConfig
-                                                            .maxAgeInSeconds(31536000)
-                                                            .includeSubDomains(true))
-                                    .referrerPolicy(
-                                            referrer ->
-                                                    referrer.policy(
-                                                            ReferrerPolicyHeaderWriter
-                                                                    .ReferrerPolicy
-                                                                    .STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                                    .frameOptions(frame -> frame.deny())
-                                    .contentTypeOptions(contentType -> {}));
+                    .headers(
+                            headers ->
+                                    headers.httpStrictTransportSecurity(
+                                                    hstsConfig ->
+                                                            hstsConfig
+                                                                    .maxAgeInSeconds(31536000)
+                                                                    .includeSubDomains(true))
+                                            .referrerPolicy(
+                                                    referrer ->
+                                                            referrer.policy(
+                                                                    ReferrerPolicyHeaderWriter
+                                                                            .ReferrerPolicy
+                                                                            .STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                                            .frameOptions(frame -> frame.deny())
+                                            .contentTypeOptions(contentType -> {}));
         }
 
         return http.build();

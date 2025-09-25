@@ -1,23 +1,24 @@
 package backend.medsnap.domain.auth.dto.token;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NonNull;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Collections;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NonNull;
 
 @Getter
 @Builder
 public class CustomUserDetails implements UserDetails {
 
-    @NonNull
-    private final Long id;
-    @Builder.Default
-    @NonNull
-    private final Collection<? extends GrantedAuthority> authorities = Collections.emptyList(); // 권한 정보
+    @NonNull private final Long id;
+
+    @Builder.Default @NonNull
+    private final Collection<? extends GrantedAuthority> authorities =
+            Collections.emptyList(); // 권한 정보
 
     @Override
     public String getPassword() {
