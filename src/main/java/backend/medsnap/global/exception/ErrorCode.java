@@ -19,7 +19,8 @@ public enum ErrorCode {
     AUTH_CRYPTO_ENCRYPT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "A005", "데이터 암호화에 실패했습니다."),
     AUTH_CRYPTO_DECRYPT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "A006", "데이터 복호화에 실패했습니다."),
     AUTH_INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "A007", "유효하지 않은 JWT 토큰입니다."),
-    AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "A008", "접근 권한이 없습니다."),
+    AUTH_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A008", "인증이 필요합니다."),
+    AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "A009", "접근 권한이 없습니다."),
 
     // User
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),

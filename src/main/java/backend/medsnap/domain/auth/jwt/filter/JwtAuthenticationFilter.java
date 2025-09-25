@@ -2,6 +2,7 @@ package backend.medsnap.domain.auth.jwt.filter;
 
 import backend.medsnap.domain.auth.jwt.JwtTokenValidator;
 import backend.medsnap.domain.auth.service.CustomUserDetailsService;
+import backend.medsnap.global.exception.ErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -66,6 +67,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.error("사용자 인증 처리 중 오류 발생: {}", e.getMessage());
             // 예외 발생 시 SecurityContext 초기화
             SecurityContextHolder.clearContext();
+            // JWT 토큰 관련 에러 코드를 request attribute에 설정
+            request.setAttribute("exception", ErrorCode.AUTH_INVALID_JWT_TOKEN);
         }
 
         // 다음 필터로 요청 전달

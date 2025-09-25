@@ -14,6 +14,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -35,8 +36,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        // 에러 응답 객체 생성
-        ApiResponse<Void> errorResponse = ApiResponse.error(ErrorCode.AUTH_INVALID_JWT_TOKEN);
+        // 에러 응답 객체 생성 (필터에서 설정한 에러 코드 우선 사용)
+        ErrorCode errorCode = Optional.ofNullable((ErrorCode) request.getAttribute("exception"))
+                .orElse(ErrorCode.AUTH_UNAUTHORIZED);
+        ApiResponse<Void> errorResponse = ApiResponse.error(errorCode);
 
         // JSON 형태로 에러 응답 전송
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
