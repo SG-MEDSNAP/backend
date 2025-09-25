@@ -40,6 +40,12 @@ public class JwtTokenValidator {
     // 토큰에서 사용자 ID 추출
     public Long getUserIdFromToken(String token) {
         DecodedJWT decodedJWT = validateToken(token);
-        return Long.valueOf(decodedJWT.getSubject());
+        String sub = decodedJWT.getSubject();
+        try {
+            return Long.parseLong(sub);
+        } catch (RuntimeException ex) {
+            log.warn("JWT subject 파싱 실패. subject={}", sub);
+            throw new InvalidJwtTokenException();
+        }
     }
 }
