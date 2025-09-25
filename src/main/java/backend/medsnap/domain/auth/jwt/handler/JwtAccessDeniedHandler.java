@@ -36,7 +36,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
         // 에러 응답 객체 생성
-        ApiResponse<Void> errorResponse = ApiResponse.error(ErrorCode.valueOf("접근 권한이 없습니다."));
+        ApiResponse<Void> errorResponse = ApiResponse.error(ErrorCode.AUTH_ACCESS_DENIED);
 
         // 에러 응답 전송
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
