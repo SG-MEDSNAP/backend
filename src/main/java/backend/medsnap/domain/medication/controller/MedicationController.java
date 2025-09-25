@@ -1,5 +1,6 @@
 package backend.medsnap.domain.medication.controller;
 
+import backend.medsnap.domain.medication.dto.request.MedicationUpdateRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,19 @@ public class MedicationController implements MedicationSwagger {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(HttpStatus.CREATED, response));
+    }
+
+    @Override
+    @PutMapping(value = "/{medicationId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<MedicationResponse>> updateMedication(
+            @PathVariable Long medicationId,
+            @RequestPart("request") @Valid MedicationUpdateRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+
+        MedicationResponse response = medicationService.updateMedication(medicationId, request, image);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(response));
     }
 
     @Override

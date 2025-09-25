@@ -2,6 +2,7 @@ package backend.medsnap.domain.medication.service;
 
 import java.util.List;
 
+import backend.medsnap.domain.medication.dto.request.MedicationUpdateRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,7 +67,54 @@ public class MedicationService {
         }
 
         // response 반환
-        return getMedicationResponse(savedMedication, request);
+        return toResponse(savedMedication);
+    }
+
+    @Transactional
+    public MedicationResponse updateMedication(
+            Long medicationId, MedicationUpdateRequest request, MultipartFile image) {
+        log.info("약 수정 시작 - ID: {}", medicationId);
+
+        // 약 존재 여부 확인
+        Medication medication =
+                medicationRepository
+                        .findById(medicationId)
+                        .orElseThrow(() -> new MedicationNotFoundException(medicationId));
+
+        // 약 이름 중복 검증
+        validateDuplicateNameForUpdate(medicationId, request.getName());
+
+        // 이미지 수정
+        String newIamgeUrl = null;
+        String oldImageUrl = medication.getImageUrl();
+
+        if (image != null && !image.isEmpty()) {
+            // 새 이미지 업로드
+            newIamgeUrl = s3Service.uploadFile(image, "medications");
+            log.info("새 이미지 업로드 완료 - URL: {}", newIamgeUrl);
+        }
+
+        // 약 엔티티 정보 업데이트
+        medication.updateMedicationDetails(
+                request.getName().trim(),
+                (newIamgeUrl != null) ? newIamgeUrl : oldImageUrl,
+                request.getNotifyCaregiver(),
+                request.getPreNotify());
+
+        // 알람 정보 수정
+        medication.getAlarms().clear();
+        alarmService.createAlarms(medication, request.getDoseTimes(), request.getDoseDays());
+
+        // 저장
+        Medication updatedMedication;
+        try {
+            updatedMedication = medicationRepository.save(medication);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("약 이름 중복: id={}, name={}", medicationId, request.getName(), e);
+            throw InvalidMedicationDataException.duplicateName(request.getName().trim());
+        }
+
+        return toResponse(updatedMedication);
     }
 
     /** 약 삭제 */
@@ -131,6 +179,14 @@ public class MedicationService {
         }
     }
 
+    /** 약 이름 중복 검증 (수정용) */
+    private void validateDuplicateNameForUpdate(Long medicationId, String name) {
+        String trimmedName = name.trim();
+        if (medicationRepository.existsByNameAndIdNot(trimmedName, medicationId)) {
+            throw InvalidMedicationDataException.duplicateName(trimmedName);
+        }
+    }
+
     /** 알람 삭제 요청 검증 */
     private void validateAlarmDeleteRequest(List<Long> alarmIds) {
         if (alarmIds == null || alarmIds.isEmpty()) {
@@ -172,29 +228,28 @@ public class MedicationService {
         }
     }
 
-    /** Response 객체 생성 */
-    private MedicationResponse getMedicationResponse(
-            Medication savedMedication, MedicationCreateRequest request) {
+    /** 엔티티 -> Response DTO 변환 */
+    private MedicationResponse toResponse(Medication medication) {
         return MedicationResponse.builder()
-                .id(savedMedication.getId())
-                .name(savedMedication.getName())
-                .imageUrl(savedMedication.getImageUrl())
-                .notifyCaregiver(savedMedication.getNotifyCaregiver())
-                .preNotify(savedMedication.getPreNotify())
+                .id(medication.getId())
+                .name(medication.getName())
+                .imageUrl(medication.getImageUrl())
+                .notifyCaregiver(medication.getNotifyCaregiver())
+                .preNotify(medication.getPreNotify())
                 .doseTimes(
-                        savedMedication.getAlarms().stream()
+                        medication.getAlarms().stream()
                                 .map(Alarm::getDoseTime)
                                 .distinct()
                                 .sorted()
                                 .toList())
                 .doseDays(
-                        savedMedication.getAlarms().stream()
+                        medication.getAlarms().stream()
                                 .map(Alarm::getDayOfWeek)
                                 .distinct()
                                 .sorted()
                                 .toList())
-                .createdAt(savedMedication.getCreatedAt())
-                .updatedAt(savedMedication.getUpdatedAt())
+                .createdAt(medication.getCreatedAt())
+                .updatedAt(medication.getUpdatedAt())
                 .build();
     }
 }

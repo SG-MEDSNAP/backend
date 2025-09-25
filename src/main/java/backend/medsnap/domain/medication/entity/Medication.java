@@ -48,4 +48,12 @@ public class Medication extends BaseEntity {
         this.notifyCaregiver = notifyCaregiver;
         this.preNotify = preNotify;
     }
+
+    public void updateMedicationDetails(
+            String name, String imageUrl, Boolean notifyCaregiver, Boolean preNotify) {
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.notifyCaregiver = notifyCaregiver;
+        this.preNotify = preNotify;
+    }
 }
