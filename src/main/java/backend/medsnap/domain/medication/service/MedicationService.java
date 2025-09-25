@@ -85,19 +85,19 @@ public class MedicationService {
         validateDuplicateNameForUpdate(medicationId, request.getName());
 
         // 이미지 수정
-        String newIamgeUrl = null;
+        String newImageUrl = null;
         String oldImageUrl = medication.getImageUrl();
 
         if (image != null && !image.isEmpty()) {
             // 새 이미지 업로드
-            newIamgeUrl = s3Service.uploadFile(image, "medications");
-            log.info("새 이미지 업로드 완료 - URL: {}", newIamgeUrl);
+            newImageUrl = s3Service.uploadFile(image, "medications");
+            log.info("새 이미지 업로드 완료 - URL: {}", newImageUrl);
         }
 
         // 약 엔티티 정보 업데이트
         medication.updateMedicationDetails(
                 request.getName().trim(),
-                (newIamgeUrl != null) ? newIamgeUrl : oldImageUrl,
+                (newImageUrl != null) ? newImageUrl : oldImageUrl,
                 request.getNotifyCaregiver(),
                 request.getPreNotify());
 
@@ -110,8 +110,26 @@ public class MedicationService {
         try {
             updatedMedication = medicationRepository.save(medication);
         } catch (DataIntegrityViolationException e) {
-            log.warn("약 이름 중복: id={}, name={}", medicationId, request.getName(), e);
+            // DB 저장 실패 시 새 이미지 삭제
+            if (newImageUrl != null) {
+                try {
+                    s3Service.deleteFile(newImageUrl);
+                    log.info("롤백: 새 이미지 삭제 완료 - {}", newImageUrl);
+                } catch (Exception ex) {
+                    log.warn("롤백: 새 이미지 삭제 실패 - {}, 오류: {}", newImageUrl, ex.getMessage());
+                }
+            }
             throw InvalidMedicationDataException.duplicateName(request.getName().trim());
+        }
+
+        // 3. DB 저장 성공 시 기존 이미지 정리
+        if (newImageUrl != null && oldImageUrl != null && !oldImageUrl.equals(newImageUrl)) {
+            try {
+                s3Service.deleteFile(oldImageUrl);
+                log.info("이전 이미지 삭제 완료 - {}", oldImageUrl);
+            } catch (Exception ex) {
+                log.warn("이전 이미지 삭제 실패 - {}, 오류: {}", oldImageUrl, ex.getMessage());
+            }
         }
 
         return toResponse(updatedMedication);
