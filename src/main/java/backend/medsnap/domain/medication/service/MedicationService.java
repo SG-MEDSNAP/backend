@@ -2,6 +2,7 @@ package backend.medsnap.domain.medication.service;
 
 import java.util.List;
 
+import backend.medsnap.domain.medication.dto.response.MedicationListResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +78,17 @@ public class MedicationService {
 
         // response 반환
         return toResponse(savedMedication);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MedicationListResponse> getMedicationByUserId(Long userId) {
+        log.info("사용자 ID: {}의 약 목록 조회", userId);
+
+        List<Medication> medications = medicationRepository.findByUserIdWithAlarms(userId);
+
+        return medications.stream()
+                .map(this::toMedicationListResponse)
+                .toList();
     }
 
     @Transactional
@@ -278,6 +290,30 @@ public class MedicationService {
                 .imageUrl(medication.getImageUrl())
                 .notifyCaregiver(medication.getNotifyCaregiver())
                 .preNotify(medication.getPreNotify())
+                .doseTimes(
+                        medication.getAlarms().stream()
+                                .map(Alarm::getDoseTime)
+                                .distinct()
+                                .sorted()
+                                .toList())
+                .doseDays(
+                        medication.getAlarms().stream()
+                                .map(Alarm::getDayOfWeek)
+                                .distinct()
+                                .sorted()
+                                .toList())
+                .createdAt(medication.getCreatedAt())
+                .updatedAt(medication.getUpdatedAt())
+                .build();
+    }
+
+    private MedicationListResponse toMedicationListResponse(Medication medication) {
+        return MedicationListResponse.builder()
+                .id(medication.getId())
+                .name(medication.getName())
+                .notifyCaregiver(medication.getNotifyCaregiver())
+                .preNotify(medication.getPreNotify())
+                .caregiverPhone(medication.getUser().getCaregiverPhone())
                 .doseTimes(
                         medication.getAlarms().stream()
                                 .map(Alarm::getDoseTime)

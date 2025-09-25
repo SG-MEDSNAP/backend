@@ -1,5 +1,6 @@
 package backend.medsnap.domain.medication.controller;
 
+import backend.medsnap.domain.medication.dto.response.MedicationListResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,8 @@ import backend.medsnap.domain.medication.dto.response.MedicationResponse;
 import backend.medsnap.domain.medication.service.MedicationService;
 import backend.medsnap.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/medications")
@@ -37,6 +40,18 @@ public class MedicationController implements MedicationSwagger {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(HttpStatus.CREATED, response));
+    }
+
+    @Override
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<MedicationListResponse>>> getAllMedications(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        List<MedicationListResponse> response = medicationService.getMedicationByUserId(userDetails.getId());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(response));
+
     }
 
     @Override
