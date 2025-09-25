@@ -11,6 +11,20 @@ public enum ErrorCode {
     COMMON_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "내부 서버 오류가 발생했습니다."),
     COMMON_VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "C002", "입력값 검증에 실패했습니다."),
 
+    // Authentication
+    AUTH_OIDC_INVALID(HttpStatus.UNAUTHORIZED, "A001", "유효하지 않은 아이디 토큰입니다."),
+    AUTH_SOCIAL_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "A002", "가입되지 않은 소셜 계정입니다."),
+    AUTH_SOCIAL_ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "A003", "이미 가입된 소셜 계정입니다."),
+    AUTH_CRYPTO_KEY_INVALID(HttpStatus.INTERNAL_SERVER_ERROR, "A004", "암호화 키 설정이 잘못되었습니다."),
+    AUTH_CRYPTO_ENCRYPT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "A005", "데이터 암호화에 실패했습니다."),
+    AUTH_CRYPTO_DECRYPT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "A006", "데이터 복호화에 실패했습니다."),
+    AUTH_INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "A007", "유효하지 않은 JWT 토큰입니다."),
+    AUTH_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A008", "인증이 필요합니다."),
+    AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "A009", "접근 권한이 없습니다."),
+
+    // User
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),
+
     // Medication
     MED_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "약 정보를 찾을 수 없습니다."),
     MED_DUPLICATE_NAME(HttpStatus.CONFLICT, "M002", "이미 등록된 약 이름입니다."),
@@ -21,15 +35,7 @@ public enum ErrorCode {
     S3_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S002", "파일 삭제에 실패했습니다."),
 
     // FAQ
-    FAQ_NOT_FOUND(HttpStatus.NOT_FOUND, "F001", "FAQ 정보를 찾을 수 없습니다."),
-
-    // Authentication
-    AUTH_OIDC_INVALID(HttpStatus.UNAUTHORIZED, "A001", "유효하지 않은 아이디 토큰입니다."),
-    AUTH_SOCIAL_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "A002", "가입되지 않은 소셜 계정입니다."),
-    AUTH_SOCIAL_ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "A003", "이미 가입된 소셜 계정입니다."),
-    AUTH_CRYPTO_KEY_INVALID(HttpStatus.INTERNAL_SERVER_ERROR, "A004", "암호화 키 설정이 잘못되었습니다."),
-    AUTH_CRYPTO_ENCRYPT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "A005", "데이터 암호화에 실패했습니다."),
-    AUTH_CRYPTO_DECRYPT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "A006", "데이터 복호화에 실패했습니다.");
+    FAQ_NOT_FOUND(HttpStatus.NOT_FOUND, "F001", "FAQ 정보를 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String code;
