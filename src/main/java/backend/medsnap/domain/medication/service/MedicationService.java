@@ -192,6 +192,9 @@ public class MedicationService {
 
     /** 약 이름 중복 검증 */
     private void validateDuplicateName(String name, Long userId) {
+        if (name == null || name.isBlank()) {
+            throw new BusinessException(ErrorCode.COMMON_VALIDATION_ERROR, "약 이름은 비어있을 수 없습니다.");
+        }
         String trimmedName = name.trim();
         if (medicationRepository.existsByNameAndUserId(trimmedName, userId)) {
             throw InvalidMedicationDataException.duplicateName(trimmedName);
@@ -200,6 +203,9 @@ public class MedicationService {
 
     /** 약 이름 중복 검증 (수정용) */
     private void validateDuplicateNameForUpdate(Long medicationId, String name, Long userId) {
+        if (name == null || name.isBlank()) {
+            throw new BusinessException(ErrorCode.COMMON_VALIDATION_ERROR, "약 이름은 비어있을 수 없습니다.");
+        }
         String trimmedName = name.trim();
         if (medicationRepository.existsByNameAndUserIdAndIdNot(trimmedName, userId, medicationId)) {
             throw InvalidMedicationDataException.duplicateName(trimmedName);
