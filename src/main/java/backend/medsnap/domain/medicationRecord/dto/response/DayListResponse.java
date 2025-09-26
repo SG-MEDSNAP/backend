@@ -1,6 +1,7 @@
 package backend.medsnap.domain.medicationRecord.dto.response;
 
 import backend.medsnap.domain.medicationRecord.entity.MedicationRecordStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class DayListResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Item {
+        @JsonFormat(pattern = "HH:mm")
         private LocalTime alarmTime;
         private Long medicationId;
         private String medicationName;
