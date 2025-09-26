@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import backend.medsnap.domain.medicationRecord.exception.MedicationRecordException;
+import backend.medsnap.global.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,10 @@ public class MedicationRecordService {
     @Transactional(readOnly = true)
     public Set<LocalDate> getDatesWithRecordsByMonth(Long userId, int year, int month) {
         log.info("사용자 ID: {}의 {}년 {}월 복약 기록 날짜 조회 시작", userId, year, month);
+
+        if (year < 2000 || month < 1 || month > 12) {
+            throw new MedicationRecordException(ErrorCode.COMMON_VALIDATION_ERROR, "유효하지 않은 년도 또는 월 정보입니다.");
+        }
 
         // 조회 기간 설정
         LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
