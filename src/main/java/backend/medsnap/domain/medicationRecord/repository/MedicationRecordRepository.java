@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -34,6 +35,25 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
         """)
     List<MedicationRecord> findByUserAndDateRange(
             @Param("userId") Long userId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
+    /**
+     * [멱등성 체크용] 특정 약, 특정 복용 시간 조합이 오늘 날짜에 이미 존재하는지 확인
+     * PENDING 상태의 레코드를 createdAt 기준으로 확인
+     */
+    @Query("""
+        SELECT COUNT(mr) > 0 FROM MedicationRecord mr
+        JOIN mr.medication m
+        WHERE m.id = :medicationId
+          AND mr.doseTime = :doseTime
+          AND mr.status = 'PENDING'
+          AND mr.createdAt BETWEEN :start AND :end 
+    """)
+    boolean existsRecordForScheduledDay(
+            @Param("medicationId") Long medicationId,
+            @Param("doseTime") LocalTime doseTime,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );

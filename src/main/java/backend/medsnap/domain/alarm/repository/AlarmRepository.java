@@ -47,4 +47,9 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
             @Param("userId") Long userId,
             @Param("dayOfWeek") DayOfWeek dayOfWeek
     );
+
+    /**
+     * 스케줄러가 특정 요일의 모든 알람을 가져오는 메서드
+     */
+    List<Alarm> findAllByDayOfWeek(DayOfWeek dayOfWeek);
 }
