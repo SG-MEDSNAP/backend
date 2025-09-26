@@ -45,8 +45,9 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
             @Param("end") LocalDateTime end);
 
     /** [스케줄러용] 기존 기록 키 일괄 조회 */
-    @Query("""
-    SELECT CONCAT(m.id, '_', mr.doseTime) 
+    @Query(
+            """
+    SELECT CONCAT(m.id, '_', mr.doseTime)
     FROM MedicationRecord mr
     JOIN mr.medication m
     WHERE mr.createdAt >= :start AND mr.createdAt < :end
@@ -55,6 +56,5 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
     Set<String> findExistingRecordKeys(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
-            @Param("medicationIds") List<Long> medicationIds
-    );
+            @Param("medicationIds") List<Long> medicationIds);
 }

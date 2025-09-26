@@ -46,7 +46,8 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
             @Param("userId") Long userId, @Param("dayOfWeek") DayOfWeek dayOfWeek);
 
     /** 스케줄러용: 특정 요일의 모든 알람 조회 */
-    @Query("""
+    @Query(
+            """
         SELECT a FROM Alarm a
         JOIN FETCH a.medication m
         JOIN FETCH m.user u
