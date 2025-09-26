@@ -2,6 +2,7 @@ package backend.medsnap.scheduler;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 
@@ -45,7 +46,7 @@ public class MedicationRecordScheduler {
 
         // 멱등성 체크 및 등록일 필터링을 위한 시간 범위 설정
         LocalDateTime startOfDay = todayDate.atStartOfDay();
-        LocalDateTime endOfDay = todayDate.plusDays(1).atStartOfDay().minusNanos(1);
+        LocalDateTime endOfDay = todayDate.plusDays(1).atStartOfDay();
 
         // 등록일 필터링 (메모리에서 처리)
         List<Alarm> validAlarms =
@@ -86,11 +87,16 @@ public class MedicationRecordScheduler {
                 validAlarms.stream()
                         .filter(
                                 alarm -> {
+                                    String timeString = alarm.getDoseTime().format(
+                                            DateTimeFormatter.ofPattern("HH:mm:ss"));
+
                                     String key =
                                             alarm.getMedication().getId()
                                                     + "_"
-                                                    + alarm.getDoseTime();
+                                                    + timeString;
+
                                     boolean exists = existingKeys.contains(key);
+                                    
                                     if (exists) {
                                         log.debug(
                                                 "Skipping: MedicationId={}의 {} 시각에 이미 기록이 존재합니다.",
