@@ -1,6 +1,7 @@
 package backend.medsnap.domain.medicationRecord.controller;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,6 +22,20 @@ import lombok.RequiredArgsConstructor;
 public class MedicationRecordController implements MedicationRecordSwagger {
 
     private final MedicationRecordService medicationRecordService;
+
+    /**
+     * 달력 점 표시용 날짜 목록 조회
+     */
+    @Override
+    @GetMapping("/dates")
+    public ResponseEntity<ApiResponse<Set<LocalDate>>> getCalendarDots(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam int year,
+            @RequestParam int month) {
+
+        Set<LocalDate> datesWithRecords = medicationRecordService.getDatesWithRecordsByMonth(user.getId(), year, month);
+        return ResponseEntity.ok(ApiResponse.success(datesWithRecords));
+    }
 
     /** 특정 날짜의 복약 목록 조회 */
     @Override

@@ -4,11 +4,15 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import backend.medsnap.domain.medicationRecord.exception.MedicationRecordException;
+import backend.medsnap.global.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +37,29 @@ public class MedicationRecordService {
 
     private static final Duration GRACE_PERIOD = Duration.ofMinutes(45);
 
+    /**
+     * 특정 월에 복약 기록이 있는 모든 날짜를 조회 (달력 점 표시 기준)
+     */
+    @Transactional(readOnly = true)
+    public Set<LocalDate> getDatesWithRecordsByMonth(Long userId, int year, int month) {
+        log.info("사용자 ID: {}의 {}년 {}월 복약 기록 날짜 조회 시작", userId, year, month);
+
+        if (year < 2000 || month < 1 || month > 12) {
+            throw new MedicationRecordException(ErrorCode.COMMON_VALIDATION_ERROR, "유효하지 않은 년도 또는 월 정보입니다.");
+        }
+
+        // 조회 기간 설정
+        LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
+        LocalDate lastDayOfMonth = firstDayOfMonth.with(TemporalAdjusters.lastDayOfMonth());
+
+        Set<LocalDate> dates = medicationRecordRepository.findDatesByMonth(
+                userId, firstDayOfMonth, lastDayOfMonth);
+
+        log.info("조회 완료: 총 {}개의 복약 기록 날짜를 찾았습니다.", dates.size());
+
+        return dates;
+    }
+
     /** 약 등록 시 당일의 복약 기록 생성 (오늘 등록한 약만) */
     @Transactional
     public void createTodayRecordsForMedication(Medication medication) {
@@ -51,9 +78,6 @@ public class MedicationRecordService {
         }
 
         // 각 알람에 대해 복약 기록 생성
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
-
         List<MedicationRecord> records =
                 todayAlarms.stream()
                         .filter(
@@ -61,11 +85,10 @@ public class MedicationRecordService {
 
                                     // 이미 존재하는지 체크 (중복 방지)
                                     boolean exists =
-                                            medicationRecordRepository.existsRecordForScheduledDay(
+                                            medicationRecordRepository.existsByMedication_IdAndDoseTimeAndRecordDate(
                                                     medication.getId(),
                                                     alarm.getDoseTime(),
-                                                    startOfDay,
-                                                    endOfDay);
+                                                    today);
                                     if (exists) {
                                         log.debug(
                                                 "약 ID: {}, 시간: {} - 이미 기록이 존재하여 건너뜀",
@@ -109,12 +132,8 @@ public class MedicationRecordService {
         DayOfWeek dayOfWeek = convertJavaToDayOfWeek(date.getDayOfWeek());
         List<Alarm> alarms = alarmRepository.findByUserAndDay(userId, dayOfWeek);
 
-        // 해당 날짜의 모든 복용 기록 조회 (createdAt 기준)
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
-        List<MedicationRecord> records =
-                medicationRecordRepository.findByUserAndCreatedAtRange(
-                        userId, startOfDay, endOfDay);
+        // 해당 날짜의 모든 복용 기록 조회
+        List<MedicationRecord> records = medicationRecordRepository.findByUserRecord(userId, date);
 
         // (약 ID, 복용 시간) 조합 기록 매핑
         Map<String, MedicationRecord> recordMap =

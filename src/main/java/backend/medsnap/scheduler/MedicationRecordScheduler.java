@@ -80,7 +80,7 @@ public class MedicationRecordScheduler {
 
         Set<String> existingKeys =
                 medicationRecordRepository.findExistingRecordKeys(
-                        startOfDay, endOfDay, medicationIds);
+                        todayDate, todayDate, medicationIds);
 
         // 메모리에서 필터링 및 생성
         List<MedicationRecord> recordsToSave =
