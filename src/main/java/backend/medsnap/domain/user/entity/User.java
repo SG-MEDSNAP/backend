@@ -28,6 +28,9 @@ public class User extends BaseEntity {
     private Role role;
 
     @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
     private LocalDate birthday;
 
     private String phone;
@@ -45,8 +48,17 @@ public class User extends BaseEntity {
     private List<Medication> medications = new ArrayList<>();
 
     @Builder
-    public User(LocalDate birthday, String phone, String caregiverPhone, Boolean isPushConsent) {
+    public User(String name, LocalDate birthday, String phone, String caregiverPhone, Boolean isPushConsent) {
         this.role = Role.USER;
+        this.name = name;
+        this.birthday = birthday;
+        this.phone = phone;
+        this.caregiverPhone = caregiverPhone;
+        this.isPushConsent = isPushConsent;
+    }
+
+    public void updateProfile(String name, LocalDate birthday, String phone, String caregiverPhone, Boolean isPushConsent) {
+        this.name = name;
         this.birthday = birthday;
         this.phone = phone;
         this.caregiverPhone = caregiverPhone;
