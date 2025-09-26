@@ -111,6 +111,7 @@ public class MedicationRecordScheduler {
                                                 .medication(alarm.getMedication())
                                                 .status(MedicationRecordStatus.PENDING)
                                                 .doseTime(alarm.getDoseTime())
+                                                .recordDate(todayDate)
                                                 .build())
                         .toList();
 

@@ -1,5 +1,6 @@
 package backend.medsnap.domain.medicationRecord.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -20,7 +21,7 @@ import lombok.NoArgsConstructor;
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "UK_MEDICATION_SLOT_PER_DAY",
-                        columnNames = {"medication_id", "dose_time", "created_at"}
+                        columnNames = {"medication_id", "dose_time", "record_date"}
                 )
         })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -42,6 +43,9 @@ public class MedicationRecord extends BaseEntity {
     @Column(nullable = false)
     private LocalTime doseTime;
 
+    @Column(nullable = false)
+    private LocalDate recordDate;
+
     private String imageUrl;
 
     private LocalDateTime checkedAt;
@@ -57,6 +61,7 @@ public class MedicationRecord extends BaseEntity {
             Medication medication,
             MedicationRecordStatus status,
             LocalTime doseTime,
+            LocalDate recordDate,
             String imageUrl,
             LocalDateTime checkedAt,
             LocalDateTime caregiverNotifiedAt,
@@ -65,6 +70,7 @@ public class MedicationRecord extends BaseEntity {
         this.medication = medication;
         this.status = status != null ? status : MedicationRecordStatus.PENDING;
         this.doseTime = doseTime;
+        this.recordDate = recordDate;
         this.imageUrl = imageUrl;
         this.checkedAt = checkedAt;
         this.caregiverNotifiedAt = caregiverNotifiedAt;
