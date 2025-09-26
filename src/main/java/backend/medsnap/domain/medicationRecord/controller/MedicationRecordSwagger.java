@@ -40,7 +40,7 @@ public interface MedicationRecordSwagger {
                           "httpStatus": 200,
                           "message": "요청이 성공적으로 처리되었습니다.",
                           "data": {
-                            "date": "2024-01-15",
+                            "date": "2025-09-30",
                             "items": [
                               {
                                 "alarmTime": "09:00",
