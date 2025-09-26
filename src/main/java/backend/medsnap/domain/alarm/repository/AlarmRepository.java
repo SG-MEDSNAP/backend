@@ -51,5 +51,11 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
     /**
      * 스케줄러가 특정 요일의 모든 알람을 가져오는 메서드
      */
-    List<Alarm> findAllByDayOfWeek(DayOfWeek dayOfWeek);
+    @Query("""
+        SELECT a FROM Alarm a
+        JOIN FETCH a.medication m
+        WHERE a.dayOfWeek = :dayOfWeek
+        ORDER BY a.doseTime ASC
+        """)
+    List<Alarm> findAllByDayOfWeek(@Param("dayOfWeek") DayOfWeek dayOfWeek);
 }
