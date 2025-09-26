@@ -46,7 +46,7 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
         SELECT mr FROM MedicationRecord mr
         JOIN FETCH mr.medication m
         WHERE m.user.id = :userId
-        AND mr.createdAt BETWEEN :start AND :end
+        AND mr.createdAt >= :start AND mr.createdAt < :end
         ORDER BY mr.doseTime ASC
         """)
     List<MedicationRecord> findByUserAndCreatedAtRange(
