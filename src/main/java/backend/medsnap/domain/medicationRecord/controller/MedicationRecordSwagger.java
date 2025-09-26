@@ -44,10 +44,16 @@ public interface MedicationRecordSwagger {
                             "date": "2025-09-30",
                             "items": [
                               {
+                                "recordId": 123,
                                 "alarmTime": "09:00",
                                 "medicationId": 1,
                                 "medicationName": "타이레놀",
-                                "status": "TAKEN"
+                                "status": "TAKEN",
+                                "imageUrl": "https://s3.amazonaws.com/bucket/medication_photo.jpg",
+                                "checkedAt": "2025-09-30T09:15:00",
+                                "firstAlarmAt": "2025-09-30T09:00:00",
+                                "secondAlarmAt": "2025-09-30T09:10:00",
+                                "caregiverNotifiedAt": "2025-09-30T09:20:00"
                               },
                               {
                                 "alarmTime": "21:00",
