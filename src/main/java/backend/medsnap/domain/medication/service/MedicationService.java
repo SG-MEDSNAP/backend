@@ -17,6 +17,7 @@ import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.domain.medication.exception.InvalidMedicationDataException;
 import backend.medsnap.domain.medication.exception.MedicationNotFoundException;
 import backend.medsnap.domain.medication.repository.MedicationRepository;
+import backend.medsnap.domain.medicationRecord.service.MedicationRecordService;
 import backend.medsnap.domain.user.entity.User;
 import backend.medsnap.domain.user.exception.UserNotFoundException;
 import backend.medsnap.domain.user.repository.UserRepository;
@@ -35,6 +36,7 @@ public class MedicationService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
     private final AlarmService alarmService;
+    private final MedicationRecordService medicationRecordService;
 
     @Transactional
     public MedicationResponse createMedication(
@@ -75,6 +77,9 @@ public class MedicationService {
             // DB 레벨에서 중복 제약 위반 시 처리
             throw InvalidMedicationDataException.duplicateName(request.getName().trim());
         }
+
+        // 오늘 등록한 약의 경우 당일 복약 기록 생성
+        medicationRecordService.createTodayRecordsForMedication(savedMedication);
 
         // response 반환
         return toResponse(savedMedication);

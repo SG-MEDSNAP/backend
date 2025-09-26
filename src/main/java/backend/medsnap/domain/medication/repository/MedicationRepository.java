@@ -23,7 +23,8 @@ public interface MedicationRepository extends JpaRepository<Medication, Long> {
     Optional<Medication> findByIdAndUserId(Long medicationId, Long userId);
 
     /** 사용자의 모든 약 목록 조회 */
-    @Query("""
+    @Query(
+            """
         SELECT DISTINCT m
         FROM Medication m
         LEFT JOIN FETCH m.alarms a

@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import backend.medsnap.domain.alarm.entity.Alarm;
+import backend.medsnap.domain.alarm.entity.DayOfWeek;
 
 @Repository
 public interface AlarmRepository extends JpaRepository<Alarm, Long> {
@@ -31,4 +32,27 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
     @Modifying
     @Query("DELETE FROM Alarm a WHERE a.medication.id = :medicationId")
     void deleteByMedicationId(@Param("medicationId") Long medicationId);
+
+    /** 특정 사용자의 특정 요일 알람 조회 */
+    @Query(
+            """
+        SELECT a FROM Alarm a
+        JOIN FETCH a.medication m
+        WHERE m.user.id = :userId
+        AND a.dayOfWeek = :dayOfWeek
+        ORDER BY a.doseTime ASC
+        """)
+    List<Alarm> findByUserAndDay(
+            @Param("userId") Long userId, @Param("dayOfWeek") DayOfWeek dayOfWeek);
+
+    /** 스케줄러용: 특정 요일의 모든 알람 조회 */
+    @Query(
+            """
+        SELECT a FROM Alarm a
+        JOIN FETCH a.medication m
+        JOIN FETCH m.user u
+        WHERE a.dayOfWeek = :dayOfWeek
+        ORDER BY m.id, a.doseTime ASC
+        """)
+    List<Alarm> findAllByDayOfWeek(@Param("dayOfWeek") DayOfWeek dayOfWeek);
 }
