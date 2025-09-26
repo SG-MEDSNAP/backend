@@ -14,29 +14,6 @@ import backend.medsnap.domain.medicationRecord.entity.MedicationRecord;
 @Repository
 public interface MedicationRecordRepository extends JpaRepository<MedicationRecord, Long> {
 
-    /** 특정 사용자의 특정 요일 알람 조회 */
-    @Query(
-            """
-        SELECT mr FROM MedicationRecord mr
-        JOIN FETCH mr.medication m
-        WHERE m.user.id = :userId
-        AND (
-            (mr.firstAlarmAt BETWEEN :start AND :end)
-            OR (mr.secondAlarmAt BETWEEN :start AND :end)
-            OR (mr.checkedAt BETWEEN :start AND :end)
-        )
-        ORDER BY
-            CASE
-                WHEN mr.firstAlarmAt IS NOT NULL THEN mr.firstAlarmAt
-                WHEN mr.secondAlarmAt IS NOT NULL THEN mr.secondAlarmAt
-                ELSE mr.checkedAt
-            END ASC
-        """)
-    List<MedicationRecord> findByUserAndDateRange(
-            @Param("userId") Long userId,
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end);
-
     /** 특정 사용자의 특정 날짜 범위에 생성된 복약 기록 조회 (createdAt 기준) */
     @Query(
             """

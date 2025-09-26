@@ -159,7 +159,7 @@ public interface MedicationRecordSwagger {
             @Parameter(
                             description = "조회할 날짜 (YYYY-MM-DD 형식)",
                             required = true,
-                            example = "2024-01-15")
+                            example = "2025-09-30")
                     @org.springframework.web.bind.annotation.RequestParam
                     LocalDate date);
 }
