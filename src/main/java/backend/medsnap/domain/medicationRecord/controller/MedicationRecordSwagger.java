@@ -1,5 +1,10 @@
 package backend.medsnap.domain.medicationRecord.controller;
 
+import java.time.LocalDate;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
 import backend.medsnap.domain.medicationRecord.dto.response.DayListResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,10 +14,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-
-import java.time.LocalDate;
 
 @Tag(name = "medication-records", description = "복약 현황 API")
 public interface MedicationRecordSwagger {
@@ -155,7 +156,10 @@ public interface MedicationRecordSwagger {
             })
     ResponseEntity<backend.medsnap.global.dto.ApiResponse<DayListResponse>> getDayList(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
-            @Parameter(description = "조회할 날짜 (YYYY-MM-DD 형식)", required = true, example = "2024-01-15")
+            @Parameter(
+                            description = "조회할 날짜 (YYYY-MM-DD 형식)",
+                            required = true,
+                            example = "2024-01-15")
                     @org.springframework.web.bind.annotation.RequestParam
                     LocalDate date);
 }

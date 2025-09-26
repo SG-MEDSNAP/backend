@@ -9,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import backend.medsnap.domain.alarm.entity.Alarm;
 import backend.medsnap.domain.alarm.service.AlarmService;
-import backend.medsnap.domain.medicationRecord.service.MedicationRecordService;
 import backend.medsnap.domain.medication.dto.request.MedicationCreateRequest;
 import backend.medsnap.domain.medication.dto.request.MedicationUpdateRequest;
 import backend.medsnap.domain.medication.dto.response.MedicationListResponse;
@@ -18,6 +17,7 @@ import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.domain.medication.exception.InvalidMedicationDataException;
 import backend.medsnap.domain.medication.exception.MedicationNotFoundException;
 import backend.medsnap.domain.medication.repository.MedicationRepository;
+import backend.medsnap.domain.medicationRecord.service.MedicationRecordService;
 import backend.medsnap.domain.user.entity.User;
 import backend.medsnap.domain.user.exception.UserNotFoundException;
 import backend.medsnap.domain.user.repository.UserRepository;

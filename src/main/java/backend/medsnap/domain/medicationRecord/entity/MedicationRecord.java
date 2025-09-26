@@ -1,16 +1,18 @@
 package backend.medsnap.domain.medicationRecord.entity;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+import jakarta.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.global.entity.BaseEntity;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -45,14 +47,15 @@ public class MedicationRecord extends BaseEntity {
     private LocalDateTime secondAlarmAt;
 
     @Builder
-    private MedicationRecord(Medication medication,
-                             MedicationRecordStatus status,
-                             LocalTime doseTime,
-                             String imageUrl,
-                             LocalDateTime checkedAt,
-                             LocalDateTime caregiverNotifiedAt,
-                             LocalDateTime firstAlarmAt,
-                             LocalDateTime secondAlarmAt) {
+    private MedicationRecord(
+            Medication medication,
+            MedicationRecordStatus status,
+            LocalTime doseTime,
+            String imageUrl,
+            LocalDateTime checkedAt,
+            LocalDateTime caregiverNotifiedAt,
+            LocalDateTime firstAlarmAt,
+            LocalDateTime secondAlarmAt) {
         this.medication = medication;
         this.status = status != null ? status : MedicationRecordStatus.PENDING;
         this.doseTime = doseTime;

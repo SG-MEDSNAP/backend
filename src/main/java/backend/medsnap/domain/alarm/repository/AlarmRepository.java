@@ -2,7 +2,6 @@ package backend.medsnap.domain.alarm.repository;
 
 import java.util.List;
 
-import backend.medsnap.domain.alarm.entity.DayOfWeek;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import backend.medsnap.domain.alarm.entity.Alarm;
+import backend.medsnap.domain.alarm.entity.DayOfWeek;
 
 @Repository
 public interface AlarmRepository extends JpaRepository<Alarm, Long> {
@@ -33,10 +33,9 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
     @Query("DELETE FROM Alarm a WHERE a.medication.id = :medicationId")
     void deleteByMedicationId(@Param("medicationId") Long medicationId);
 
-    /**
-     * 특정 사용자의 특정 요일 알람 조회
-     */
-    @Query("""
+    /** 특정 사용자의 특정 요일 알람 조회 */
+    @Query(
+            """
         SELECT a FROM Alarm a
         JOIN FETCH a.medication m
         WHERE m.user.id = :userId
@@ -44,14 +43,11 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
         ORDER BY a.doseTime ASC
         """)
     List<Alarm> findByUserAndDay(
-            @Param("userId") Long userId,
-            @Param("dayOfWeek") DayOfWeek dayOfWeek
-    );
+            @Param("userId") Long userId, @Param("dayOfWeek") DayOfWeek dayOfWeek);
 
-    /**
-     * 스케줄러가 특정 요일의 모든 알람을 가져오는 메서드
-     */
-    @Query("""
+    /** 스케줄러가 특정 요일의 모든 알람을 가져오는 메서드 */
+    @Query(
+            """
         SELECT a FROM Alarm a
         JOIN FETCH a.medication m
         WHERE a.dayOfWeek = :dayOfWeek
