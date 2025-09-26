@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.medsnap.domain.auth.dto.request.LoginRequest;
+import backend.medsnap.domain.auth.dto.request.LogoutRequest;
+import backend.medsnap.domain.auth.dto.request.RefreshRequest;
 import backend.medsnap.domain.auth.dto.request.SignupRequest;
 import backend.medsnap.domain.auth.dto.token.TokenPair;
 import backend.medsnap.domain.auth.service.AuthService;
@@ -35,5 +37,20 @@ public class AuthController implements AuthSwagger {
             @Valid @RequestBody SignupRequest request) {
 
         return ResponseEntity.ok(authService.signup(request));
+    }
+
+    @Override
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(@Valid @RequestBody LogoutRequest request) {
+
+        return ResponseEntity.ok(authService.logout(request));
+    }
+
+    @Override
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<TokenPair>> refresh(
+            @Valid @RequestBody RefreshRequest request) {
+
+        return ResponseEntity.ok(authService.refresh(request));
     }
 }

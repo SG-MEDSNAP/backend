@@ -17,12 +17,12 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "medication_records",
+@Table(
+        name = "medication_records",
         uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "UK_MEDICATION_SLOT_PER_DAY",
-                        columnNames = {"medication_id", "dose_time", "record_date"}
-                )
+            @UniqueConstraint(
+                    name = "UK_MEDICATION_SLOT_PER_DAY",
+                    columnNames = {"medication_id", "dose_time", "record_date"})
         })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MedicationRecord extends BaseEntity {
