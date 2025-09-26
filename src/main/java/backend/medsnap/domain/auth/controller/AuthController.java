@@ -1,5 +1,6 @@
 package backend.medsnap.domain.auth.controller;
 
+import backend.medsnap.domain.auth.dto.request.LogoutRequest;
 import backend.medsnap.domain.auth.dto.request.RefreshRequest;
 import jakarta.validation.Valid;
 
@@ -39,8 +40,16 @@ public class AuthController implements AuthSwagger {
     }
 
     @Override
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(@Valid @RequestBody LogoutRequest request) {
+
+        return ResponseEntity.ok(authService.logout(request));
+    }
+
+    @Override
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<TokenPair>> refresh(@Valid @RequestBody RefreshRequest request) {
+
         return ResponseEntity.ok(authService.refresh(request));
     }
 }

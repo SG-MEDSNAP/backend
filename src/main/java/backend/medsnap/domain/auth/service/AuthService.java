@@ -2,6 +2,7 @@ package backend.medsnap.domain.auth.service;
 
 import java.util.Map;
 
+import backend.medsnap.domain.auth.dto.request.LogoutRequest;
 import backend.medsnap.domain.auth.dto.request.RefreshRequest;
 import backend.medsnap.domain.auth.exception.InvalidRefreshTokenException;
 import org.antlr.v4.runtime.Token;
@@ -100,6 +101,37 @@ public class AuthService {
         newUser.updateRefreshToken(encryptedRefreshToken);
 
         return ApiResponse.success(tokenPair);
+    }
+
+    public ApiResponse<Void> logout(LogoutRequest request) {
+        String provided = request.getRefreshToken();
+
+        // refresh 토큰 검증
+        DecodedJWT jwt = jwtTokenProvider.verifyRefreshToken(provided);
+        Long userId = Long.valueOf(jwt.getSubject());
+
+        // 사용자 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(InvalidRefreshTokenException::new);
+
+        // 저장된 refresh 토큰 확인
+        String storedEnc = user.getRefreshToken();
+        if (storedEnc == null) {
+            // 이미 로그아웃된 상태도 성공으로 처리
+            return ApiResponse.success(null);
+        }
+
+        String storedPlain = aesGcmEncryptor.decrypt(storedEnc);
+
+        // 상수시간 비교로 동일성 확인
+        if (!constantTimeEquals(provided, storedPlain)) {
+            throw new InvalidRefreshTokenException();
+        }
+
+        // 무효화: DB의 refreshToken 제거
+        user.updateRefreshToken(null);
+
+        return ApiResponse.success(null);
     }
 
     public ApiResponse<TokenPair> refresh(RefreshRequest request) {
