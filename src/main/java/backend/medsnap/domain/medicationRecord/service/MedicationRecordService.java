@@ -83,6 +83,7 @@ public class MedicationRecordService {
                                             .medication(medication)
                                             .status(status)
                                             .doseTime(alarm.getDoseTime())
+                                            .recordDate(today)
                                             .build();
                                 })
                         .toList();
