@@ -38,7 +38,7 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
                             + "FROM medication_records mr "
                             + "JOIN medications m ON mr.medication_id = m.id "
                             + "WHERE mr.record_date >= :start AND mr.record_date <= :end "
-                            + "AND m.id IN :medicationIds",
+                            + "AND m.id IN (:medicationIds)",
             nativeQuery = true)
     Set<String> findExistingRecordKeys(
             @Param("start") LocalDate start,
