@@ -5,6 +5,7 @@ import java.util.Map;
 import backend.medsnap.domain.auth.dto.request.LogoutRequest;
 import backend.medsnap.domain.auth.dto.request.RefreshRequest;
 import backend.medsnap.domain.auth.exception.InvalidRefreshTokenException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.antlr.v4.runtime.Token;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,7 +108,12 @@ public class AuthService {
         String provided = request.getRefreshToken();
 
         // refresh 토큰 검증
-        DecodedJWT jwt = jwtTokenProvider.verifyRefreshToken(provided);
+        DecodedJWT jwt;
+        try {
+            jwt = jwtTokenProvider.verifyRefreshToken(provided);
+        } catch (JWTVerificationException e) {
+            throw new InvalidRefreshTokenException();
+        }
         Long userId = Long.valueOf(jwt.getSubject());
 
         // 사용자 조회
@@ -138,7 +144,12 @@ public class AuthService {
         String provided = request.getRefreshToken();
 
         // refresh 토큰 검증
-        DecodedJWT jwt = jwtTokenProvider.verifyRefreshToken(provided);
+        DecodedJWT jwt;
+        try {
+            jwt = jwtTokenProvider.verifyRefreshToken(provided);
+        } catch (JWTVerificationException e) {
+            throw new InvalidRefreshTokenException();
+        }
         Long userId = Long.valueOf(jwt.getSubject());
 
         // 사용자 조회
