@@ -54,38 +54,46 @@ public class MedicationRecordService {
         LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
 
-        List<MedicationRecord> records = todayAlarms.stream()
-                .filter(alarm -> {
+        List<MedicationRecord> records =
+                todayAlarms.stream()
+                        .filter(
+                                alarm -> {
 
-                    // 이미 존재하는지 체크 (중복 방지)
-                    boolean exists = medicationRecordRepository.existsRecordForScheduledDay(
-                            medication.getId(),
-                            alarm.getDoseTime(),
-                            startOfDay,
-                            endOfDay
-                    );
-                    if (exists) {
-                        log.debug("약 ID: {}, 시간: {} - 이미 기록이 존재하여 건너뜀",
-                                medication.getId(), alarm.getDoseTime());
-                    }
-                    return !exists;
-                })
-                .map(alarm -> {
-                    MedicationRecordStatus status =
-                            determineStatus(null, today, alarm.getDoseTime());
+                                    // 이미 존재하는지 체크 (중복 방지)
+                                    boolean exists =
+                                            medicationRecordRepository.existsRecordForScheduledDay(
+                                                    medication.getId(),
+                                                    alarm.getDoseTime(),
+                                                    startOfDay,
+                                                    endOfDay);
+                                    if (exists) {
+                                        log.debug(
+                                                "약 ID: {}, 시간: {} - 이미 기록이 존재하여 건너뜀",
+                                                medication.getId(),
+                                                alarm.getDoseTime());
+                                    }
+                                    return !exists;
+                                })
+                        .map(
+                                alarm -> {
+                                    MedicationRecordStatus status =
+                                            determineStatus(null, today, alarm.getDoseTime());
 
-                    return MedicationRecord.builder()
-                            .medication(medication)
-                            .status(status)
-                            .doseTime(alarm.getDoseTime())
-                            .build();
-                })
-                .toList();
+                                    return MedicationRecord.builder()
+                                            .medication(medication)
+                                            .status(status)
+                                            .doseTime(alarm.getDoseTime())
+                                            .build();
+                                })
+                        .toList();
 
         if (!records.isEmpty()) {
             medicationRecordRepository.saveAll(records);
-            log.info("약 ID: {} - 오늘({})에 대한 {}개의 복약 기록이 생성되었습니다.",
-                    medication.getId(), today, records.size());
+            log.info(
+                    "약 ID: {} - 오늘({})에 대한 {}개의 복약 기록이 생성되었습니다.",
+                    medication.getId(),
+                    today,
+                    records.size());
         } else {
             log.info("약 ID: {} - 오늘({})에 생성할 새로운 기록이 없습니다.", medication.getId(), today);
         }
@@ -150,11 +158,12 @@ public class MedicationRecordService {
                                     MedicationRecordStatus status =
                                             determineStatus(record, date, alarm.getDoseTime());
 
-                                    DayListResponse.Item.ItemBuilder itemBuilder = DayListResponse.Item.builder()
-                                            .alarmTime(alarm.getDoseTime())
-                                            .medicationId(alarm.getMedication().getId())
-                                            .medicationName(alarm.getMedication().getName())
-                                            .status(status);
+                                    DayListResponse.Item.ItemBuilder itemBuilder =
+                                            DayListResponse.Item.builder()
+                                                    .alarmTime(alarm.getDoseTime())
+                                                    .medicationId(alarm.getMedication().getId())
+                                                    .medicationName(alarm.getMedication().getName())
+                                                    .status(status);
 
                                     if (record != null) {
                                         itemBuilder
@@ -163,7 +172,8 @@ public class MedicationRecordService {
                                                 .checkedAt(record.getCheckedAt())
                                                 .firstAlarmAt(record.getFirstAlarmAt())
                                                 .secondAlarmAt(record.getSecondAlarmAt())
-                                                .caregiverNotifiedAt(record.getCaregiverNotifiedAt());
+                                                .caregiverNotifiedAt(
+                                                        record.getCaregiverNotifiedAt());
                                     }
 
                                     return itemBuilder.build();
