@@ -40,6 +40,22 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
     );
 
     /**
+     * 특정 사용자의 특정 날짜 범위에 생성된 복약 기록 조회 (createdAt 기준)
+     */
+    @Query("""
+        SELECT mr FROM MedicationRecord mr
+        JOIN FETCH mr.medication m
+        WHERE m.user.id = :userId
+        AND mr.createdAt BETWEEN :start AND :end
+        ORDER BY mr.doseTime ASC
+        """)
+    List<MedicationRecord> findByUserAndCreatedAtRange(
+            @Param("userId") Long userId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
+    /**
      * [멱등성 체크용] 특정 약, 특정 복용 시간 조합이 오늘 날짜에 이미 존재하는지 확인
      * PENDING 상태의 레코드를 createdAt 기준으로 확인
      */

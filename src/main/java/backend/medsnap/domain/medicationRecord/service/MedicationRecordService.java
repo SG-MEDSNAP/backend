@@ -3,6 +3,7 @@ package backend.medsnap.domain.medicationRecord.service;
 import backend.medsnap.domain.alarm.entity.Alarm;
 import backend.medsnap.domain.alarm.entity.DayOfWeek;
 import backend.medsnap.domain.alarm.repository.AlarmRepository;
+import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.domain.medicationRecord.dto.response.DayListResponse;
 import backend.medsnap.domain.medicationRecord.entity.MedicationRecord;
 import backend.medsnap.domain.medicationRecord.entity.MedicationRecordStatus;
@@ -31,6 +32,43 @@ public class MedicationRecordService {
 
     private static final Duration GRACE_PERIOD = Duration.ofMinutes(45);
 
+    /**
+     * 약 등록 시 당일의 복약 기록 생성 (오늘 등록한 약만)
+     */
+    @Transactional
+    public void createTodayRecordsForMedication(Medication medication) {
+        LocalDate today = LocalDate.now();
+        DayOfWeek todayDayOfWeek = convertJavaToDayOfWeek(today.getDayOfWeek());
+        
+        // 오늘 요일에 해당하는 알람들만 조회
+        List<Alarm> todayAlarms = medication.getAlarms().stream()
+                .filter(alarm -> alarm.getDayOfWeek() == todayDayOfWeek)
+                .toList();
+        
+        if (todayAlarms.isEmpty()) {
+            log.info("약 ID: {} - 오늘({})에 해당하는 알람이 없어 복약 기록을 생성하지 않습니다.", 
+                    medication.getId(), today);
+            return;
+        }
+        
+        // 각 알람에 대해 복약 기록 생성
+        List<MedicationRecord> records = todayAlarms.stream()
+                .map(alarm -> {
+                    MedicationRecordStatus status = determineStatus(null, today, alarm.getDoseTime());
+
+                    return MedicationRecord.builder()
+                            .medication(medication)
+                            .status(status)
+                            .doseTime(alarm.getDoseTime())
+                            .build();
+                })
+                .toList();
+        
+        medicationRecordRepository.saveAll(records);
+        log.info("약 ID: {} - 오늘({})에 대한 {}개의 복약 기록이 생성되었습니다.", 
+                medication.getId(), today, records.size());
+    }
+
     @Transactional(readOnly = true)
     public DayListResponse getDayList(Long userId, LocalDate date) {
 
@@ -40,11 +78,11 @@ public class MedicationRecordService {
         DayOfWeek dayOfWeek = convertJavaToDayOfWeek(date.getDayOfWeek());
         List<Alarm> alarms = alarmRepository.findByUserAndDay(userId, dayOfWeek);
 
-        // 해당 날짜의 모든 복용 기록 조회
+        // 해당 날짜의 모든 복용 기록 조회 (createdAt 기준)
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
         List<MedicationRecord> records = medicationRecordRepository
-                .findByUserAndDateRange(userId, startOfDay, endOfDay);
+                .findByUserAndCreatedAtRange(userId, startOfDay, endOfDay);
 
         // (약 ID, 복용 시간) 조합 기록 매핑
         Map<String, MedicationRecord> recordMap = records.stream()
