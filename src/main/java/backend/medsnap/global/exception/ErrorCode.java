@@ -21,6 +21,7 @@ public enum ErrorCode {
     AUTH_INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "A007", "유효하지 않은 JWT 토큰입니다."),
     AUTH_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A008", "인증이 필요합니다."),
     AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "A009", "접근 권한이 없습니다."),
+    AUTH_INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A010", "유효하지 않거나 만료된 리프레시 토큰입니다."),
 
     // User
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),

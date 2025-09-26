@@ -4,6 +4,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +47,7 @@ public class JwtTokenProvider {
         return JWT.create()
                 .withIssuer(issuer)
                 .withSubject(String.valueOf(userId))
+                .withClaim("typ", "access")
                 .withExpiresAt(expiresAt)
                 .sign(algorithm);
     }
@@ -54,7 +58,23 @@ public class JwtTokenProvider {
         return JWT.create()
                 .withIssuer(issuer)
                 .withSubject(String.valueOf(userId))
+                .withClaim("typ", "refresh")
                 .withExpiresAt(expiresAt)
                 .sign(algorithm);
+    }
+
+    private JWTVerifier baseVerifier() {
+        return JWT.require(algorithm).withIssuer(issuer).build();
+    }
+
+    /** refresh 전용 검증 */
+    public DecodedJWT verifyRefreshToken(String token) {
+        DecodedJWT jwt = baseVerifier().verify(token);
+        String typ = jwt.getClaim("typ").asString();
+
+        if (!"refresh".equals(typ)) {
+            throw new JWTVerificationException("Not a refresh token");
+        }
+        return jwt;
     }
 }

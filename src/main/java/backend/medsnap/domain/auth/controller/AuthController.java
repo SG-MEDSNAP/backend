@@ -1,5 +1,6 @@
 package backend.medsnap.domain.auth.controller;
 
+import backend.medsnap.domain.auth.dto.request.RefreshRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -35,5 +36,11 @@ public class AuthController implements AuthSwagger {
             @Valid @RequestBody SignupRequest request) {
 
         return ResponseEntity.ok(authService.signup(request));
+    }
+
+    @Override
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<TokenPair>> refresh(@Valid @RequestBody RefreshRequest request) {
+        return ResponseEntity.ok(authService.refresh(request));
     }
 }
