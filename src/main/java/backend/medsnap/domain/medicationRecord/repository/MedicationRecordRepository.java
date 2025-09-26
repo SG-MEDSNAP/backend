@@ -3,6 +3,7 @@ package backend.medsnap.domain.medicationRecord.repository;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -42,4 +43,18 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
             @Param("doseTime") LocalTime doseTime,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
+
+    /** [스케줄러용] 기존 기록 키 일괄 조회 */
+    @Query("""
+    SELECT CONCAT(m.id, '_', mr.doseTime) 
+    FROM MedicationRecord mr
+    JOIN mr.medication m
+    WHERE mr.createdAt >= :start AND mr.createdAt < :end
+    AND m.id IN :medicationIds
+    """)
+    Set<String> findExistingRecordKeys(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            @Param("medicationIds") List<Long> medicationIds
+    );
 }

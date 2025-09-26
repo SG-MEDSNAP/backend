@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -47,49 +48,50 @@ public class MedicationRecordScheduler {
         LocalDateTime startOfDay = todayDate.atStartOfDay();
         LocalDateTime endOfDay = todayDate.plusDays(1).atStartOfDay().minusNanos(1);
 
-        List<MedicationRecord> recordsToSave =
-                todayAlarms.stream()
-                        .filter(
-                                alarm -> {
-                                    Long medicationId = alarm.getMedication().getId();
-                                    LocalTime doseTime = alarm.getDoseTime();
+        // 등록일 필터링 (메모리에서 처리)
+        List<Alarm> validAlarms = todayAlarms.stream()
+                .filter(alarm -> {
+                    LocalDate medicationCreatedDate = alarm.getMedication().getCreatedAt().toLocalDate();
+                    if (todayDate.isBefore(medicationCreatedDate)) {
+                        log.debug("Skipping: 약 등록일 {}이 오늘 {}보다 미래입니다.",
+                                medicationCreatedDate, todayDate);
+                        return false;
+                    }
+                    return true;
+                })
+                .toList();
 
-                                    // [멱등성 체크] (약ID + doseTime) 조합으로 오늘 이미 기록이 있는지 확인
-                                    boolean exists =
-                                            medicationRecordRepository.existsRecordForScheduledDay(
-                                                    medicationId, doseTime, startOfDay, endOfDay);
+        if (validAlarms.isEmpty()) {
+            log.info("등록일 필터링 후 생성할 알람이 없습니다.");
+            return;
+        }
 
-                                    if (exists) {
-                                        log.debug(
-                                                "Skipping: MedicationId={}의 {} 시각에 이미 기록이 존재합니다.",
-                                                medicationId,
-                                                doseTime);
-                                        return false;
-                                    }
+        // 기존 기록 일괄 조회 (N+1 문제 해결)
+        List<Long> medicationIds = validAlarms.stream()
+                .map(alarm -> alarm.getMedication().getId())
+                .distinct()
+                .toList();
 
-                                    // [등록일 필터링] 약 등록일이 오늘 이후이면 건너뜀
-                                    LocalDate medicationCreatedDate =
-                                            alarm.getMedication().getCreatedAt().toLocalDate();
-                                    if (todayDate.isBefore(medicationCreatedDate)) {
-                                        log.debug(
-                                                "Skipping: 약 등록일 {}이 오늘 {}보다 미래입니다.",
-                                                medicationCreatedDate,
-                                                todayDate);
-                                        return false;
-                                    }
+        Set<String> existingKeys = medicationRecordRepository.findExistingRecordKeys(
+                startOfDay, endOfDay, medicationIds);
 
-                                    return true;
-                                })
-                        .map(
-                                alarm -> {
-                                    // 3. MedicationRecord 엔티티 생성
-                                    return MedicationRecord.builder()
-                                            .medication(alarm.getMedication())
-                                            .status(MedicationRecordStatus.PENDING)
-                                            .doseTime(alarm.getDoseTime())
-                                            .build();
-                                })
-                        .toList();
+        // 메모리에서 필터링 및 생성
+        List<MedicationRecord> recordsToSave = validAlarms.stream()
+                .filter(alarm -> {
+                    String key = alarm.getMedication().getId() + "_" + alarm.getDoseTime();
+                    boolean exists = existingKeys.contains(key);
+                    if (exists) {
+                        log.debug("Skipping: MedicationId={}의 {} 시각에 이미 기록이 존재합니다.",
+                                alarm.getMedication().getId(), alarm.getDoseTime());
+                    }
+                    return !exists;
+                })
+                .map(alarm -> MedicationRecord.builder()
+                        .medication(alarm.getMedication())
+                        .status(MedicationRecordStatus.PENDING)
+                        .doseTime(alarm.getDoseTime())
+                        .build())
+                .toList();
 
         // 4. DB에 일괄 저장
         if (!recordsToSave.isEmpty()) {
