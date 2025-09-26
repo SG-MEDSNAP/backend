@@ -64,8 +64,7 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
         JOIN mr.medication m
         WHERE m.id = :medicationId
           AND mr.doseTime = :doseTime
-          AND mr.status = 'PENDING'
-          AND mr.createdAt BETWEEN :start AND :end 
+          AND mr.createdAt >= :start AND mr.createdAt < :end
     """)
     boolean existsRecordForScheduledDay(
             @Param("medicationId") Long medicationId,
