@@ -2,19 +2,18 @@ package backend.medsnap.domain.auth.service;
 
 import java.util.Map;
 
-import backend.medsnap.domain.auth.dto.request.LogoutRequest;
-import backend.medsnap.domain.auth.dto.request.RefreshRequest;
-import backend.medsnap.domain.auth.exception.InvalidRefreshTokenException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import org.antlr.v4.runtime.Token;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import backend.medsnap.domain.auth.dto.request.LoginRequest;
+import backend.medsnap.domain.auth.dto.request.LogoutRequest;
+import backend.medsnap.domain.auth.dto.request.RefreshRequest;
 import backend.medsnap.domain.auth.dto.request.SignupRequest;
 import backend.medsnap.domain.auth.dto.token.TokenPair;
+import backend.medsnap.domain.auth.exception.InvalidRefreshTokenException;
 import backend.medsnap.domain.auth.exception.SocialAccountAlreadyExistsException;
 import backend.medsnap.domain.auth.exception.SocialAccountNotFoundException;
 import backend.medsnap.domain.auth.jwt.JwtTokenProvider;
@@ -117,8 +116,7 @@ public class AuthService {
         Long userId = Long.valueOf(jwt.getSubject());
 
         // 사용자 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(InvalidRefreshTokenException::new);
+        User user = userRepository.findById(userId).orElseThrow(InvalidRefreshTokenException::new);
 
         // 저장된 refresh 토큰 확인
         String storedEnc = user.getRefreshToken();
@@ -153,8 +151,7 @@ public class AuthService {
         Long userId = Long.valueOf(jwt.getSubject());
 
         // 사용자 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(InvalidRefreshTokenException::new);
+        User user = userRepository.findById(userId).orElseThrow(InvalidRefreshTokenException::new);
 
         // 저장된 refresh 와 상수시간 비교
         String storedEnc = user.getRefreshToken();

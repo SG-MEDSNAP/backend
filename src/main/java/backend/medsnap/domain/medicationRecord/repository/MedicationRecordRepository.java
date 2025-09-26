@@ -1,7 +1,6 @@
 package backend.medsnap.domain.medicationRecord.repository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
@@ -26,22 +25,20 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
         ORDER BY mr.doseTime ASC
         """)
     List<MedicationRecord> findByUserRecord(
-            @Param("userId") Long userId,
-            @Param("recordDate") LocalDate recordDate);
+            @Param("userId") Long userId, @Param("recordDate") LocalDate recordDate);
 
     /** [멱등성 체크용] 복약 내역 생성 중복 방지 */
     boolean existsByMedication_IdAndDoseTimeAndRecordDate(
-            Long medicationId,
-            LocalTime doseTime,
-            LocalDate recordDate);
+            Long medicationId, LocalTime doseTime, LocalDate recordDate);
 
     /** [스케줄러용] 기존 기록 키 일괄 조회 */
-    @Query(value =
-            "SELECT CONCAT(m.id, '_', TO_CHAR(mr.dose_time, 'HH24:MI:SS')) "
-                    + "FROM medication_records mr "
-                    + "JOIN medications m ON mr.medication_id = m.id "
-                    + "WHERE mr.record_date >= :start AND mr.record_date <= :end "
-                    + "AND m.id IN :medicationIds",
+    @Query(
+            value =
+                    "SELECT CONCAT(m.id, '_', TO_CHAR(mr.dose_time, 'HH24:MI:SS')) "
+                            + "FROM medication_records mr "
+                            + "JOIN medications m ON mr.medication_id = m.id "
+                            + "WHERE mr.record_date >= :start AND mr.record_date <= :end "
+                            + "AND m.id IN :medicationIds",
             nativeQuery = true)
     Set<String> findExistingRecordKeys(
             @Param("start") LocalDate start,

@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import backend.medsnap.domain.medicationRecord.exception.MedicationRecordException;
-import backend.medsnap.global.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +21,9 @@ import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.domain.medicationRecord.dto.response.DayListResponse;
 import backend.medsnap.domain.medicationRecord.entity.MedicationRecord;
 import backend.medsnap.domain.medicationRecord.entity.MedicationRecordStatus;
+import backend.medsnap.domain.medicationRecord.exception.MedicationRecordException;
 import backend.medsnap.domain.medicationRecord.repository.MedicationRecordRepository;
+import backend.medsnap.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,23 +37,23 @@ public class MedicationRecordService {
 
     private static final Duration GRACE_PERIOD = Duration.ofMinutes(45);
 
-    /**
-     * 특정 월에 복약 기록이 있는 모든 날짜를 조회 (달력 점 표시 기준)
-     */
+    /** 특정 월에 복약 기록이 있는 모든 날짜를 조회 (달력 점 표시 기준) */
     @Transactional(readOnly = true)
     public Set<LocalDate> getDatesWithRecordsByMonth(Long userId, int year, int month) {
         log.info("사용자 ID: {}의 {}년 {}월 복약 기록 날짜 조회 시작", userId, year, month);
 
         if (year < 2000 || month < 1 || month > 12) {
-            throw new MedicationRecordException(ErrorCode.COMMON_VALIDATION_ERROR, "유효하지 않은 년도 또는 월 정보입니다.");
+            throw new MedicationRecordException(
+                    ErrorCode.COMMON_VALIDATION_ERROR, "유효하지 않은 년도 또는 월 정보입니다.");
         }
 
         // 조회 기간 설정
         LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
         LocalDate lastDayOfMonth = firstDayOfMonth.with(TemporalAdjusters.lastDayOfMonth());
 
-        Set<LocalDate> dates = medicationRecordRepository.findDatesByMonth(
-                userId, firstDayOfMonth, lastDayOfMonth);
+        Set<LocalDate> dates =
+                medicationRecordRepository.findDatesByMonth(
+                        userId, firstDayOfMonth, lastDayOfMonth);
 
         log.info("조회 완료: 총 {}개의 복약 기록 날짜를 찾았습니다.", dates.size());
 
@@ -85,10 +85,11 @@ public class MedicationRecordService {
 
                                     // 이미 존재하는지 체크 (중복 방지)
                                     boolean exists =
-                                            medicationRecordRepository.existsByMedication_IdAndDoseTimeAndRecordDate(
-                                                    medication.getId(),
-                                                    alarm.getDoseTime(),
-                                                    today);
+                                            medicationRecordRepository
+                                                    .existsByMedication_IdAndDoseTimeAndRecordDate(
+                                                            medication.getId(),
+                                                            alarm.getDoseTime(),
+                                                            today);
                                     if (exists) {
                                         log.debug(
                                                 "약 ID: {}, 시간: {} - 이미 기록이 존재하여 건너뜀",

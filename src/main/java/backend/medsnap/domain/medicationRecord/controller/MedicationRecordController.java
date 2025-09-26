@@ -23,9 +23,7 @@ public class MedicationRecordController implements MedicationRecordSwagger {
 
     private final MedicationRecordService medicationRecordService;
 
-    /**
-     * 달력 점 표시용 날짜 목록 조회
-     */
+    /** 달력 점 표시용 날짜 목록 조회 */
     @Override
     @GetMapping("/dates")
     public ResponseEntity<ApiResponse<Set<LocalDate>>> getCalendarDots(
@@ -33,7 +31,8 @@ public class MedicationRecordController implements MedicationRecordSwagger {
             @RequestParam int year,
             @RequestParam int month) {
 
-        Set<LocalDate> datesWithRecords = medicationRecordService.getDatesWithRecordsByMonth(user.getId(), year, month);
+        Set<LocalDate> datesWithRecords =
+                medicationRecordService.getDatesWithRecordsByMonth(user.getId(), year, month);
         return ResponseEntity.ok(ApiResponse.success(datesWithRecords));
     }
 

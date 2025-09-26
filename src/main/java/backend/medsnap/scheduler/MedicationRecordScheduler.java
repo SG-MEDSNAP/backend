@@ -87,16 +87,16 @@ public class MedicationRecordScheduler {
                 validAlarms.stream()
                         .filter(
                                 alarm -> {
-                                    String timeString = alarm.getDoseTime().format(
-                                            DateTimeFormatter.ofPattern("HH:mm:ss"));
+                                    String timeString =
+                                            alarm.getDoseTime()
+                                                    .format(
+                                                            DateTimeFormatter.ofPattern(
+                                                                    "HH:mm:ss"));
 
-                                    String key =
-                                            alarm.getMedication().getId()
-                                                    + "_"
-                                                    + timeString;
+                                    String key = alarm.getMedication().getId() + "_" + timeString;
 
                                     boolean exists = existingKeys.contains(key);
-                                    
+
                                     if (exists) {
                                         log.debug(
                                                 "Skipping: MedicationId={}의 {} 시각에 이미 기록이 존재합니다.",
