@@ -54,8 +54,21 @@ public class MedicationRecordService {
                         (existing, replacement) -> existing // 중복 시 첫 번째 유지
                 ));
 
-        // 알람 기준으로 아이템 생성
+        // 알람 기준으로 아이템 생성 (약 등록일부터 오늘까지만 포함)
+        LocalDate today = LocalDate.now();
         List<DayListResponse.Item> items = alarms.stream()
+                .filter(alarm -> {
+                    // 약이 언제 등록되었는지 확인
+                    LocalDate medicationCreatedDate = alarm.getMedication().getCreatedAt().toLocalDate();
+
+                    // 두 가지 조건을 모두 만족해야 표시:
+                    // 1. 조회 날짜가 약 등록일 이후여야 함 (약이 존재했던 날)
+                    // 2. 조회 날짜가 오늘 이후가 아니어야 함 (미래 날짜 제외)
+                    boolean afterCreationDate = !date.isBefore(medicationCreatedDate);
+                    boolean notFutureDate = !date.isAfter(today);
+
+                    return afterCreationDate && notFutureDate;
+                })
                 .map(alarm -> {
                     String key = createRecordKey(alarm.getMedication().getId(), alarm.getDoseTime());
                     MedicationRecord record = recordMap.get(key);
