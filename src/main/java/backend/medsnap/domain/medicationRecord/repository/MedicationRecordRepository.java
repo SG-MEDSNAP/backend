@@ -33,7 +33,7 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
     @Query(value =
             "SELECT COUNT(mr) > 0 FROM medication_records mr "
                     + "WHERE mr.medication_id = :medicationId "
-                    + "AND TO_CHAR(mr.dose_time, 'HH24:MI:SS') = TO_CHAR(:doseTime, 'HH24:MI:SS') "
+                    + "AND TO_CHAR(mr.dose_time, 'HH24:MI:SS') = TO_CHAR(CAST(:doseTime AS time), 'HH24:MI:SS') "
                     + "AND mr.created_at >= :start AND mr.created_at < :end",
             nativeQuery = true)
     boolean existsRecordForScheduledDay(
