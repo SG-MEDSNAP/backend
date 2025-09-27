@@ -22,10 +22,18 @@ public class AppleOidcVerifier extends AbstractOidcVerifier {
     private final JwkProvider jwkProvider;
 
     public AppleOidcVerifier(
-            @Value("${apple.service-id:}") String clientId, OidcDiscoveryClient discoveryClient) {
-        super(new String[] {clientId});
-        if (clientId == null || clientId.isBlank()) {
-            throw new IllegalStateException("kakao.client-id가 설정되지 않았습니다.");
+            @Value("${apple.ios.client-id:}") String iosClientId,
+            @Value("${apple.web.client-id:}") String webClientId,
+            OidcDiscoveryClient discoveryClient) {
+
+        super(new String[] { iosClientId, webClientId });
+
+        if (iosClientId == null || iosClientId.isBlank()) {
+            throw new IllegalStateException("apple.ios.client-id가 설정되지 않았습니다.");
+        }
+
+        if (webClientId == null || webClientId.isBlank()) {
+            throw new IllegalStateException("apple.web.client-id가 설정되지 않았습니다.");
         }
 
         String discoveryUrl = "https://appleid.apple.com/.well-known/openid-configuration";
@@ -33,7 +41,7 @@ public class AppleOidcVerifier extends AbstractOidcVerifier {
 
         this.issuers = new String[] {props.getIssuer()};
 
-        List<String> algs = props.getId_token_signing_alg_values_supported();
+        final List<String> algs = props.getId_token_signing_alg_values_supported();
         this.allowedAlgs =
                 (algs == null || algs.isEmpty())
                         ? new String[] {"RS256"}
