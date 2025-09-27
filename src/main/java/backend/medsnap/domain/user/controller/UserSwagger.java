@@ -22,7 +22,7 @@ public interface UserSwagger {
     @Operation(
             summary = "마이페이지 수정",
             description = "사용자의 개인정보를 수정합니다.",
-            security = @SecurityRequirement(name = "bearerAuth")
+            security = @SecurityRequirement(name = "Bearer Authentication")
     )
     @ApiResponses(
             value = {
