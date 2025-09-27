@@ -78,6 +78,7 @@ public class AuthService {
         // 새로운 User와 SocialAccount 생성 및 저장
         User newUser =
                 User.builder()
+                        .name(request.getName())
                         .birthday(request.getBirthday())
                         .phone(request.getPhone())
                         .caregiverPhone(request.getCaregiverPhone())

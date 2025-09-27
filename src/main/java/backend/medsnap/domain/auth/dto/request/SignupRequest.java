@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -23,7 +24,11 @@ public class SignupRequest {
     @NotNull(message = "provider는 필수입니다.")
     private Provider provider;
 
+    @NotBlank(message = "이름은 필수입니다.")
+    private String name;
+
     @NotNull(message = "생일은 필수입니다.")
+    @Past(message = "생일은 현재 날짜보다 이전이어야 합니다.")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate birthday;
 
