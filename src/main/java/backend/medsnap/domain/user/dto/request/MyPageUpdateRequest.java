@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 @Schema(
         description = "마이페이지 수정 요청",
         example =
