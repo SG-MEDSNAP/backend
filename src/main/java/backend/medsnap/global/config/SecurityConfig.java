@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -47,9 +49,11 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Swagger 접근용 사용자 생성
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
+    /**
+     * Swagger 접근용 사용자 정의
+     */
+    @Bean(name = "swaggerUserDetailsService")
+    public UserDetailsService swaggerUserDetailsService(PasswordEncoder encoder) {
         return new InMemoryUserDetailsManager(
                 User.withUsername(swaggerUsername)
                         .password(encoder.encode(swaggerPassword))
@@ -57,10 +61,16 @@ public class SecurityConfig {
                         .build());
     }
 
-    // Swagger 전용 필터 체인 (JWT 인증 없이 Basic 인증만)
+    /**
+     * Swagger 전용 필터 체인 (Basic Auth)
+     */
     @Bean
     @Order(1)
-    public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain swaggerSecurityFilterChain(
+            HttpSecurity http,
+            PasswordEncoder encoder,
+            UserDetailsService swaggerUserDetailsService)
+            throws Exception {
         HttpSecurity swaggerHttp =
                 http.securityMatcher(
                         "/api/v1/docs/**",
@@ -72,7 +82,14 @@ public class SecurityConfig {
                         "/v3/api-docs/**");
 
         if (swaggerAuthEnabled) {
+            // Swagger 전용 AuthenticationManager 구성
+            AuthenticationManagerBuilder authBuilder =
+                    http.getSharedObject(AuthenticationManagerBuilder.class);
+            authBuilder.userDetailsService(swaggerUserDetailsService).passwordEncoder(encoder);
+            AuthenticationManager authManager = authBuilder.build();
+
             swaggerHttp
+                    .authenticationManager(authManager)
                     .authorizeHttpRequests(auth -> auth.anyRequest().hasRole("DOCS"))
                     .httpBasic(httpBasic -> httpBasic.realmName("Swagger API Documentation"));
         } else {
@@ -108,7 +125,9 @@ public class SecurityConfig {
         return swaggerHttp.build();
     }
 
-    // API 전용 필터 체인 (JWT 인증)
+    /**
+     * API 전용 필터 체인 (JWT)
+     */
     @Bean
     @Order(2)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
