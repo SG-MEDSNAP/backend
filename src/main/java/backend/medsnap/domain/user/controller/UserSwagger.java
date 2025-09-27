@@ -1,5 +1,11 @@
 package backend.medsnap.domain.user.controller;
 
+import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestBody;
+
 import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
 import backend.medsnap.domain.user.dto.request.MyPageUpdateRequest;
 import backend.medsnap.domain.user.dto.response.MyPageResponse;
@@ -11,10 +17,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "users", description = "사용자 API")
 public interface UserSwagger {
@@ -22,8 +24,7 @@ public interface UserSwagger {
     @Operation(
             summary = "마이페이지 수정",
             description = "사용자의 개인정보를 수정합니다.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
+            security = @SecurityRequirement(name = "Bearer Authentication"))
     @ApiResponses(
             value = {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -112,6 +113,5 @@ public interface UserSwagger {
             })
     ResponseEntity<ApiResponse<MyPageResponse>> updateMyPage(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody MyPageUpdateRequest request
-    );
+            @Valid @RequestBody MyPageUpdateRequest request);
 }

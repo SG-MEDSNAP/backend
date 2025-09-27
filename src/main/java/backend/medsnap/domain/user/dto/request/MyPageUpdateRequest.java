@@ -1,18 +1,24 @@
 package backend.medsnap.domain.user.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@Schema(description = "마이페이지 수정 요청", example = """
+@AllArgsConstructor
+@Schema(
+        description = "마이페이지 수정 요청",
+        example =
+                """
     {
       "name": "홍길동",
       "birthday": "1990-01-01",
