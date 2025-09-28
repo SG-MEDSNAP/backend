@@ -4,17 +4,16 @@ import jakarta.persistence.*;
 
 import backend.medsnap.domain.user.entity.User;
 import backend.medsnap.global.entity.BaseEntity;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(
         name = "push_tokens",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "token"})})
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PushToken extends BaseEntity {
 
     @Id
@@ -35,26 +34,11 @@ public class PushToken extends BaseEntity {
     @Column(nullable = false)
     private String provider;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isActive = true;
 
     private String lastError;
-
-    @Builder
-    public PushToken(
-            User user,
-            String token,
-            Platform platform,
-            String provider,
-            Boolean isActive,
-            String lastError) {
-        this.user = user;
-        this.token = token;
-        this.platform = platform;
-        this.provider = provider;
-        this.isActive = isActive;
-        this.lastError = lastError;
-    }
 
     public void reactivate() {
         this.isActive = true;
