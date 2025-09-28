@@ -21,7 +21,7 @@ public class PushTokenService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void upsertPushToken(Long userId, UpsertPushTokenRequest request) {
+    public PushToken upsertPushToken(Long userId, UpsertPushTokenRequest request) {
 
         // 사용자 존재 확인
         User user =
@@ -36,13 +36,13 @@ public class PushTokenService {
             throw new PushTokenException(ErrorCode.PLATFORM_INVALID);
         }
 
-        pushTokenRepository.findByUserAndToken(user, request.getToken()).ifPresentOrElse(
-                existingToken -> {
+        return pushTokenRepository.findByUserAndToken(user, request.getToken()).map(existingToken -> {
                     if (!existingToken.getIsActive()) {
                         existingToken.reactivate();
                     }
-                },
-                () -> pushTokenRepository.save(
+                    return existingToken;
+                })
+                .orElseGet(() -> pushTokenRepository.save(
                         PushToken.builder()
                                 .user(user)
                                 .token(request.getToken())
@@ -50,7 +50,6 @@ public class PushTokenService {
                                 .provider("expo")
                                 .isActive(true)
                                 .build()
-                )
-        );
+                ));
     }
 }

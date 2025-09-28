@@ -2,6 +2,8 @@ package backend.medsnap.domain.pushToken.controller;
 
 import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
 import backend.medsnap.domain.pushToken.dto.request.UpsertPushTokenRequest;
+import backend.medsnap.domain.pushToken.dto.response.PushTokenResponse;
+import backend.medsnap.domain.pushToken.entity.PushToken;
 import backend.medsnap.domain.pushToken.service.PushTokenService;
 import backend.medsnap.global.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -20,13 +22,14 @@ public class PushTokenController implements PushTokenSwagger {
 
     @Override
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> upsertPushToken(
+    public ResponseEntity<ApiResponse<PushTokenResponse>> upsertPushToken(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpsertPushTokenRequest request
     ) {
-        pushTokenService.upsertPushToken(userDetails.getId(), request);
+        PushToken pushToken = pushTokenService.upsertPushToken(userDetails.getId(), request);
+        PushTokenResponse response = new PushTokenResponse(pushToken.getToken(), pushToken.getPlatform());
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(HttpStatus.CREATED, null));
+                .body(ApiResponse.success(HttpStatus.CREATED, response));
     }
 }

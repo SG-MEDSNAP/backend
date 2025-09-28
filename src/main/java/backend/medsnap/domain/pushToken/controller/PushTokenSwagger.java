@@ -2,6 +2,7 @@ package backend.medsnap.domain.pushToken.controller;
 
 import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
 import backend.medsnap.domain.pushToken.dto.request.UpsertPushTokenRequest;
+import backend.medsnap.domain.pushToken.dto.response.PushTokenResponse;
 import backend.medsnap.global.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,7 +44,10 @@ public interface PushTokenSwagger {
                                           "code": "SUCCESS",
                                           "httpStatus": 201,
                                           "message": "요청이 성공적으로 처리되었습니다.",
-                                          "data": null
+                                          "data": {
+                                            "token": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
+                                            "platform": "IOS"
+                                          }
                                         }
                                         """))),
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -122,7 +126,7 @@ public interface PushTokenSwagger {
                                         }
                                         """)))
             })
-    ResponseEntity<ApiResponse<Void>> upsertPushToken(
+    ResponseEntity<ApiResponse<PushTokenResponse>> upsertPushToken(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
             @Parameter(description = "푸시토큰 등록/수정 요청", required = true)
                     @RequestBody UpsertPushTokenRequest request);
