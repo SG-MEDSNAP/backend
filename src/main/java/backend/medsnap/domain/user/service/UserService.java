@@ -1,12 +1,12 @@
 package backend.medsnap.domain.user.service;
 
-import backend.medsnap.domain.user.dto.response.UserInfoResponse;
-import backend.medsnap.domain.user.entity.SocialAccount;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.medsnap.domain.user.dto.request.MyPageUpdateRequest;
 import backend.medsnap.domain.user.dto.response.MyPageResponse;
+import backend.medsnap.domain.user.dto.response.UserInfoResponse;
+import backend.medsnap.domain.user.entity.SocialAccount;
 import backend.medsnap.domain.user.entity.User;
 import backend.medsnap.domain.user.exception.UserNotFoundException;
 import backend.medsnap.domain.user.repository.UserRepository;
@@ -28,9 +28,7 @@ public class UserService {
                         .findById(userId)
                         .orElseThrow(() -> new UserNotFoundException(userId));
 
-        SocialAccount socialAccount = user.getSocialAccounts().stream()
-                .findFirst()
-                .orElse(null);
+        SocialAccount socialAccount = user.getSocialAccounts().stream().findFirst().orElse(null);
 
         return UserInfoResponse.builder()
                 .id(user.getId())

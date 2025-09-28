@@ -19,10 +19,6 @@ public class MyPageResponse {
 
     public static MyPageResponse from(User u) {
         return new MyPageResponse(
-                u.getId(),
-                u.getName(),
-                u.getBirthday(),
-                u.getPhone(),
-                u.getIsPushConsent());
+                u.getId(), u.getName(), u.getBirthday(), u.getPhone(), u.getIsPushConsent());
     }
 }
