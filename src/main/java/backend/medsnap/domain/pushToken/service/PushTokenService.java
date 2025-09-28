@@ -36,11 +36,14 @@ public class PushTokenService {
             throw new PushTokenException(ErrorCode.PLATFORM_INVALID);
         }
 
-        return pushTokenRepository.findByUserAndToken(user, request.getToken()).map(existingToken -> {
+        return pushTokenRepository.findByUser(user).map(existingToken -> {
+                    // 기존 푸시토큰이 있으면 토큰, 플랫폼, 활성화 상태 업데이트
+                    existingToken.updateToken(request.getToken());
+                    existingToken.updatePlatform(platform);
                     if (!existingToken.getIsActive()) {
                         existingToken.reactivate();
                     }
-                    return existingToken;
+                    return pushTokenRepository.save(existingToken);
                 })
                 .orElseGet(() -> pushTokenRepository.save(
                         PushToken.builder()

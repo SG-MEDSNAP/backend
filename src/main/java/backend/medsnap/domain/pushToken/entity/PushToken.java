@@ -59,4 +59,12 @@ public class PushToken extends BaseEntity {
         this.isActive = false;
         this.lastError = error;
     }
+
+    public void updateToken(String token) {
+        this.token = token;
+    }
+
+    public void updatePlatform(Platform platform) {
+        this.platform = platform;
+    }
 }

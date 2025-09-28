@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface PushTokenRepository extends JpaRepository<PushToken, Long> {
 
-    Optional<PushToken> findByUserAndToken(User user, String token);
+    Optional<PushToken> findByUser(User user);
 }
