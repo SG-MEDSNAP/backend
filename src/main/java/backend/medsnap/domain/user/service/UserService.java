@@ -52,7 +52,7 @@ public class UserService {
                 request.getName(),
                 request.getBirthday(),
                 request.getPhone(),
-                request.getCaregiverPhone(),
+                null, // request.getCaregiverPhone() 대신 null
                 request.getIsPushConsent());
 
         return MyPageResponse.from(user);

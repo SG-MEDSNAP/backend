@@ -81,7 +81,7 @@ public class AuthService {
                         .name(request.getName())
                         .birthday(request.getBirthday())
                         .phone(request.getPhone())
-                        .caregiverPhone(request.getCaregiverPhone())
+                        .caregiverPhone(null) // request.getCaregiverPhone() 대신 null
                         .isPushConsent(request.getIsPushConsent())
                         .build();
         userRepository.save(newUser);

@@ -22,7 +22,7 @@ import lombok.Getter;
                   "name": "타이레놀",
                   "notifyCaregiver": true,
                   "preNotify": true,
-                  "caregiverPhone": "010-1234-5678",
+                  // "caregiverPhone": "010-1234-5678",
                   "doseTimes": ["09:00", "13:00"],
                   "doseDays": ["MON", "TUE", "WED", "THU"],
                   "createdAt": "2024-01-01T10:00:00",
@@ -43,7 +43,7 @@ public class MedicationListResponse {
     @Schema(description = "사전 알림 여부")
     private Boolean preNotify;
 
-    @Schema(description = "보호자 전화번호", example = "010-1234-5678")
+    // @Schema(description = "보호자 전화번호", example = "010-1234-5678")
     private String caregiverPhone;
 
     @Schema(description = "복용 시간 목록")

@@ -22,7 +22,6 @@ import lombok.NoArgsConstructor;
       "name": "홍길동",
       "birthday": "1990-01-01",
       "phone": "010-1234-5678",
-      "caregiverPhone": "010-9876-5432",
       "isPushConsent": true
     }
     """)
@@ -41,8 +40,8 @@ public class MyPageUpdateRequest {
     @Schema(description = "전화번호", example = "010-1234-5678")
     private String phone;
 
-    @Schema(description = "보호자 전화번호", example = "010-9876-5432")
-    private String caregiverPhone;
+    // @Schema(description = "보호자 전화번호", example = "010-9876-5432")
+    // private String caregiverPhone;
 
     @NotNull(message = "앱 알림 동의 여부는 필수입니다.")
     @Schema(description = "앱 알림 동의 여부", example = "true")

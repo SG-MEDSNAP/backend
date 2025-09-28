@@ -316,7 +316,7 @@ public class MedicationService {
                 .name(medication.getName())
                 .notifyCaregiver(medication.getNotifyCaregiver())
                 .preNotify(medication.getPreNotify())
-                .caregiverPhone(medication.getUser().getCaregiverPhone())
+                .caregiverPhone(null) // medication.getUser().getCaregiverPhone() 대신 null
                 .doseTimes(
                         medication.getAlarms().stream()
                                 .map(Alarm::getDoseTime)

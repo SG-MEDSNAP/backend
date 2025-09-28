@@ -14,7 +14,7 @@ public class MyPageResponse {
     private String name;
     private LocalDate birthday;
     private String phone;
-    private String caregiverPhone;
+    // private String caregiverPhone;
     private Boolean isPushConsent;
 
     public static MyPageResponse from(User u) {
@@ -23,7 +23,6 @@ public class MyPageResponse {
                 u.getName(),
                 u.getBirthday(),
                 u.getPhone(),
-                u.getCaregiverPhone(),
                 u.getIsPushConsent());
     }
 }
