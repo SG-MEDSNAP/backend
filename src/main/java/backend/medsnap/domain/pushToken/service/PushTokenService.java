@@ -1,5 +1,8 @@
 package backend.medsnap.domain.pushToken.service;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import backend.medsnap.domain.pushToken.dto.request.UpsertPushTokenRequest;
 import backend.medsnap.domain.pushToken.entity.Platform;
 import backend.medsnap.domain.pushToken.entity.PushToken;
@@ -10,8 +13,6 @@ import backend.medsnap.domain.user.exception.UserNotFoundException;
 import backend.medsnap.domain.user.repository.UserRepository;
 import backend.medsnap.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,23 +37,27 @@ public class PushTokenService {
             throw new PushTokenException(ErrorCode.PLATFORM_INVALID);
         }
 
-        return pushTokenRepository.findByUser(user).map(existingToken -> {
-                    // 기존 푸시토큰이 있으면 토큰, 플랫폼, 활성화 상태 업데이트
-                    existingToken.updateToken(request.getToken());
-                    existingToken.updatePlatform(platform);
-                    if (!existingToken.getIsActive()) {
-                        existingToken.reactivate();
-                    }
-                    return pushTokenRepository.save(existingToken);
-                })
-                .orElseGet(() -> pushTokenRepository.save(
-                        PushToken.builder()
-                                .user(user)
-                                .token(request.getToken())
-                                .platform(platform)
-                                .provider("expo")
-                                .isActive(true)
-                                .build()
-                ));
+        return pushTokenRepository
+                .findByUser(user)
+                .map(
+                        existingToken -> {
+                            // 기존 푸시토큰이 있으면 토큰, 플랫폼, 활성화 상태 업데이트
+                            existingToken.updateToken(request.getToken());
+                            existingToken.updatePlatform(platform);
+                            if (!existingToken.getIsActive()) {
+                                existingToken.reactivate();
+                            }
+                            return pushTokenRepository.save(existingToken);
+                        })
+                .orElseGet(
+                        () ->
+                                pushTokenRepository.save(
+                                        PushToken.builder()
+                                                .user(user)
+                                                .token(request.getToken())
+                                                .platform(platform)
+                                                .provider("expo")
+                                                .isActive(true)
+                                                .build()));
     }
 }

@@ -1,18 +1,18 @@
 package backend.medsnap.domain.pushToken.entity;
 
+import jakarta.persistence.*;
+
 import backend.medsnap.domain.user.entity.User;
 import backend.medsnap.global.entity.BaseEntity;
-import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "push_tokens",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"user_id", "token"})
-        })
+@Table(
+        name = "push_tokens",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "token"})})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PushToken extends BaseEntity {
@@ -28,7 +28,7 @@ public class PushToken extends BaseEntity {
     @Column(nullable = false)
     private String token;
 
-    @Enumerated(EnumType.STRING) // Enum 타입을 DB에 문자열로 저장
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Platform platform;
 
@@ -41,7 +41,13 @@ public class PushToken extends BaseEntity {
     private String lastError;
 
     @Builder
-    public PushToken(User user, String token, Platform platform, String provider, Boolean isActive, String lastError) {
+    public PushToken(
+            User user,
+            String token,
+            Platform platform,
+            String provider,
+            Boolean isActive,
+            String lastError) {
         this.user = user;
         this.token = token;
         this.platform = platform;

@@ -1,5 +1,9 @@
 package backend.medsnap.domain.pushToken.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestBody;
+
 import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
 import backend.medsnap.domain.pushToken.dto.request.UpsertPushTokenRequest;
 import backend.medsnap.domain.pushToken.dto.response.PushTokenResponse;
@@ -11,9 +15,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "push-tokens", description = "푸시토큰 API")
 public interface PushTokenSwagger {
@@ -21,10 +22,14 @@ public interface PushTokenSwagger {
     @Operation(summary = "푸시토큰 등록/수정", description = "사용자의 푸시토큰을 등록하거나 수정합니다.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "푸시토큰 등록/수정 요청",
-            content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = UpsertPushTokenRequest.class),
-                    examples = @ExampleObject(
-                            value = """
+            content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UpsertPushTokenRequest.class),
+                            examples =
+                                    @ExampleObject(
+                                            value =
+                                                    """
                             {
                               "token": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
                               "platform": "IOS"
@@ -35,11 +40,14 @@ public interface PushTokenSwagger {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
                         responseCode = "201",
                         description = "푸시토큰 등록/수정 성공",
-                        content = @Content(
-                                mediaType = "application/json",
-                                schema = @Schema(implementation = ApiResponse.class),
-                                examples = @ExampleObject(
-                                        value = """
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
                                         {
                                           "code": "SUCCESS",
                                           "httpStatus": 201,
@@ -53,11 +61,14 @@ public interface PushTokenSwagger {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
                         responseCode = "400",
                         description = "입력값 검증 실패",
-                        content = @Content(
-                                mediaType = "application/json",
-                                schema = @Schema(implementation = ApiResponse.class),
-                                examples = @ExampleObject(
-                                        value = """
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
                                         {
                                           "code": "C002",
                                           "httpStatus": 400,
@@ -68,11 +79,14 @@ public interface PushTokenSwagger {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
                         responseCode = "401",
                         description = "인증 실패",
-                        content = @Content(
-                                mediaType = "application/json",
-                                schema = @Schema(implementation = ApiResponse.class),
-                                examples = @ExampleObject(
-                                        value = """
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
                                         {
                                           "code": "A007",
                                           "httpStatus": 401,
@@ -83,11 +97,14 @@ public interface PushTokenSwagger {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
                         responseCode = "404",
                         description = "사용자를 찾을 수 없음",
-                        content = @Content(
-                                mediaType = "application/json",
-                                schema = @Schema(implementation = ApiResponse.class),
-                                examples = @ExampleObject(
-                                        value = """
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
                                         {
                                           "code": "U001",
                                           "httpStatus": 404,
@@ -98,11 +115,14 @@ public interface PushTokenSwagger {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
                         responseCode = "400",
                         description = "잘못된 플랫폼 정보",
-                        content = @Content(
-                                mediaType = "application/json",
-                                schema = @Schema(implementation = ApiResponse.class),
-                                examples = @ExampleObject(
-                                        value = """
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
                                         {
                                           "code": "PT001",
                                           "httpStatus": 400,
@@ -113,11 +133,14 @@ public interface PushTokenSwagger {
                 @io.swagger.v3.oas.annotations.responses.ApiResponse(
                         responseCode = "500",
                         description = "서버 오류",
-                        content = @Content(
-                                mediaType = "application/json",
-                                schema = @Schema(implementation = ApiResponse.class),
-                                examples = @ExampleObject(
-                                        value = """
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
                                         {
                                           "code": "C001",
                                           "httpStatus": 500,
@@ -128,6 +151,6 @@ public interface PushTokenSwagger {
             })
     ResponseEntity<ApiResponse<PushTokenResponse>> upsertPushToken(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Parameter(description = "푸시토큰 등록/수정 요청", required = true)
-                    @RequestBody UpsertPushTokenRequest request);
+            @Parameter(description = "푸시토큰 등록/수정 요청", required = true) @RequestBody
+                    UpsertPushTokenRequest request);
 }
