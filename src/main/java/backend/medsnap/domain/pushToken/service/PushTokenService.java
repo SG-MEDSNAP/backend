@@ -14,6 +14,8 @@ import backend.medsnap.domain.user.repository.UserRepository;
 import backend.medsnap.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Locale;
+
 @Service
 @RequiredArgsConstructor
 public class PushTokenService {
@@ -32,7 +34,8 @@ public class PushTokenService {
 
         Platform platform;
         try {
-            platform = Platform.valueOf(request.getPlatform().toUpperCase());
+            String normalizedPlatform = request.getPlatform().trim().toUpperCase(Locale.ROOT);
+            platform = Platform.valueOf(normalizedPlatform);
         } catch (IllegalArgumentException e) {
             throw new PushTokenException(ErrorCode.PLATFORM_INVALID);
         }
