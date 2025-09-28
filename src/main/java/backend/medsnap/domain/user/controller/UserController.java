@@ -1,13 +1,11 @@
 package backend.medsnap.domain.user.controller;
 
+import backend.medsnap.domain.user.dto.response.UserInfoResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
 import backend.medsnap.domain.user.dto.request.MyPageUpdateRequest;
@@ -22,6 +20,15 @@ import lombok.RequiredArgsConstructor;
 public class UserController implements UserSwagger {
 
     private final UserService userService;
+
+    @Override
+    @GetMapping
+    public ResponseEntity<ApiResponse<UserInfoResponse>> getUserInfo(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(
+                ApiResponse.success(userService.getUserInfo(userDetails.getId()))
+        );
+    }
 
     @Override
     @PutMapping("/mypage")

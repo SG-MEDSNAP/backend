@@ -1,5 +1,7 @@
 package backend.medsnap.domain.user.service;
 
+import backend.medsnap.domain.user.dto.response.UserInfoResponse;
+import backend.medsnap.domain.user.entity.SocialAccount;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,26 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    @Transactional(readOnly = true)
+    public UserInfoResponse getUserInfo(Long userId) {
+
+        User user =
+                userRepository
+                        .findById(userId)
+                        .orElseThrow(() -> new UserNotFoundException(userId));
+
+        SocialAccount socialAccount = user.getSocialAccounts().stream()
+                .findFirst()
+                .orElse(null);
+
+        return UserInfoResponse.builder()
+                .id(user.getId())
+                .role(user.getRole())
+                .name(user.getName())
+                .provider(socialAccount != null ? socialAccount.getProvider() : null)
+                .build();
+    }
 
     @Transactional
     public MyPageResponse updateMyPage(Long userId, MyPageUpdateRequest request) {
