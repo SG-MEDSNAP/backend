@@ -14,16 +14,11 @@ public class MyPageResponse {
     private String name;
     private LocalDate birthday;
     private String phone;
-    private String caregiverPhone;
+    // private String caregiverPhone;
     private Boolean isPushConsent;
 
     public static MyPageResponse from(User u) {
         return new MyPageResponse(
-                u.getId(),
-                u.getName(),
-                u.getBirthday(),
-                u.getPhone(),
-                u.getCaregiverPhone(),
-                u.getIsPushConsent());
+                u.getId(), u.getName(), u.getBirthday(), u.getPhone(), u.getIsPushConsent());
     }
 }

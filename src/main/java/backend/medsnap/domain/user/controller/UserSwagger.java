@@ -120,7 +120,6 @@ public interface UserSwagger {
                                                 "name": "홍길동",
                                                 "birthday": "1990-01-01",
                                                 "phone": "010-1234-5678",
-                                                "caregiverPhone": "010-9876-5432",
                                                 "isPushConsent": true
                                               },
                                               "error": null

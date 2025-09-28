@@ -26,7 +26,7 @@ public class AppleOidcVerifier extends AbstractOidcVerifier {
             @Value("${apple.web.client-id:}") String webClientId,
             OidcDiscoveryClient discoveryClient) {
 
-        super(new String[] { iosClientId, webClientId });
+        super(new String[] {iosClientId, webClientId});
 
         if (iosClientId == null || iosClientId.isBlank()) {
             throw new IllegalStateException("apple.ios.client-id가 설정되지 않았습니다.");

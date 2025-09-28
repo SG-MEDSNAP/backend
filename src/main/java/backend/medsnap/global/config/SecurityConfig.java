@@ -49,9 +49,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Swagger 접근용 사용자 정의
-     */
+    /** Swagger 접근용 사용자 정의 */
     @Bean(name = "swaggerUserDetailsService")
     public UserDetailsService swaggerUserDetailsService(PasswordEncoder encoder) {
         return new InMemoryUserDetailsManager(
@@ -61,9 +59,7 @@ public class SecurityConfig {
                         .build());
     }
 
-    /**
-     * Swagger 전용 필터 체인 (Basic Auth)
-     */
+    /** Swagger 전용 필터 체인 (Basic Auth) */
     @Bean
     @Order(1)
     public SecurityFilterChain swaggerSecurityFilterChain(
@@ -125,9 +121,7 @@ public class SecurityConfig {
         return swaggerHttp.build();
     }
 
-    /**
-     * API 전용 필터 체인 (JWT)
-     */
+    /** API 전용 필터 체인 (JWT) */
     @Bean
     @Order(2)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {

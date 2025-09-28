@@ -35,7 +35,7 @@ public class SignupRequest {
     @NotBlank(message = "전화번호는 필수입니다.")
     private String phone;
 
-    private String caregiverPhone;
+    // private String caregiverPhone;
 
     @NotNull(message = "푸시 동의 여부는 필수입니다.")
     private Boolean isPushConsent;

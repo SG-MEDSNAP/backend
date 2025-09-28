@@ -35,7 +35,7 @@ public class User extends BaseEntity {
 
     private String phone;
 
-    private String caregiverPhone;
+    // private String caregiverPhone;
 
     private String refreshToken;
 
@@ -58,7 +58,7 @@ public class User extends BaseEntity {
         this.name = name;
         this.birthday = birthday;
         this.phone = phone;
-        this.caregiverPhone = caregiverPhone;
+        // this.caregiverPhone = caregiverPhone;
         this.isPushConsent = isPushConsent;
     }
 
@@ -71,7 +71,7 @@ public class User extends BaseEntity {
         this.name = name;
         this.birthday = birthday;
         this.phone = phone;
-        this.caregiverPhone = caregiverPhone;
+        // this.caregiverPhone = caregiverPhone;
         this.isPushConsent = isPushConsent;
     }
 

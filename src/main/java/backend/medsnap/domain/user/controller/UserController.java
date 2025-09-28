@@ -1,6 +1,5 @@
 package backend.medsnap.domain.user.controller;
 
-import backend.medsnap.domain.user.dto.response.UserInfoResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
 import backend.medsnap.domain.user.dto.request.MyPageUpdateRequest;
 import backend.medsnap.domain.user.dto.response.MyPageResponse;
+import backend.medsnap.domain.user.dto.response.UserInfoResponse;
 import backend.medsnap.domain.user.service.UserService;
 import backend.medsnap.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +25,7 @@ public class UserController implements UserSwagger {
     @GetMapping
     public ResponseEntity<ApiResponse<UserInfoResponse>> getUserInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(
-                ApiResponse.success(userService.getUserInfo(userDetails.getId()))
-        );
+        return ResponseEntity.ok(ApiResponse.success(userService.getUserInfo(userDetails.getId())));
     }
 
     @Override
