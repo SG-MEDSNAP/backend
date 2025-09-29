@@ -39,7 +39,13 @@ public enum ErrorCode {
     FAQ_NOT_FOUND(HttpStatus.NOT_FOUND, "F001", "FAQ 정보를 찾을 수 없습니다."),
 
     // PushToken
-    PLATFORM_INVALID(HttpStatus.BAD_REQUEST, "P001", "유효하지 않은 플랫폼 정보입니다.");
+    PLATFORM_INVALID(HttpStatus.BAD_REQUEST, "P001", "유효하지 않은 플랫폼 정보입니다."),
+
+    // Notification
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "N001", "알림 정보를 찾을 수 없습니다."),
+    NOTIFICATION_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "N002", "알림 전송에 실패했습니다."),
+    NOTIFICATION_INVALID_PAYLOAD(HttpStatus.BAD_REQUEST, "N003", "유효하지 않은 알림 요청입니다."),
+    NOTIFICATION_NO_ACTIVE_TOKEN(HttpStatus.BAD_REQUEST, "N004", "활성화된 푸시 토큰이 없어 알림을 보낼 수 없습니다.");
 
     private final HttpStatus status;
     private final String code;
