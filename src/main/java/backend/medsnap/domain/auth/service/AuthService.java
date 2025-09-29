@@ -1,5 +1,6 @@
 package backend.medsnap.domain.auth.service;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -79,9 +80,9 @@ public class AuthService {
         User newUser =
                 User.builder()
                         .name(request.getName())
-                        .birthday(request.getBirthday())
+                        .birthday(LocalDate.of(2025, 3, 20)) // 하드코딩된 생일
                         .phone(request.getPhone())
-                        .caregiverPhone(null) // request.getCaregiverPhone() 대신 null
+                        // .caregiverPhone(null) // request.getCaregiverPhone() 대신 null
                         .isPushConsent(request.getIsPushConsent())
                         .build();
         userRepository.save(newUser);

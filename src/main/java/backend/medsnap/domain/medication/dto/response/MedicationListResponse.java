@@ -20,9 +20,7 @@ import lombok.Getter;
                 {
                   "id": 1,
                   "name": "타이레놀",
-                  "notifyCaregiver": true,
                   "preNotify": true,
-                  // "caregiverPhone": "010-1234-5678",
                   "doseTimes": ["09:00", "13:00"],
                   "doseDays": ["MON", "TUE", "WED", "THU"],
                   "createdAt": "2024-01-01T10:00:00",
@@ -37,14 +35,14 @@ public class MedicationListResponse {
     @Schema(description = "약 이름")
     private String name;
 
-    @Schema(description = "보호자 알림 여부")
-    private Boolean notifyCaregiver;
+    // @Schema(description = "보호자 알림 여부")
+    // private Boolean notifyCaregiver;
 
     @Schema(description = "사전 알림 여부")
     private Boolean preNotify;
 
     // @Schema(description = "보호자 전화번호", example = "010-1234-5678")
-    private String caregiverPhone;
+    // private String caregiverPhone;
 
     @Schema(description = "복용 시간 목록")
     @JsonFormat(pattern = "HH:mm")

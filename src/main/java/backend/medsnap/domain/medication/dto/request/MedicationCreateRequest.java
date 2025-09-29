@@ -21,7 +21,6 @@ import lombok.NoArgsConstructor;
                 """
     {
       "name": "타이레놀",
-      "notifyCaregiver": true,
       "preNotify": true,
       "doseTimes": ["09:00","21:00"],
       "doseDays": [
@@ -37,9 +36,9 @@ public class MedicationCreateRequest {
     @NotBlank(message = "약 이름은 필수입니다")
     private String name;
 
-    @Schema(description = "보호자 알림 여부")
-    @NotNull(message = "보호자 알림 여부는 필수입니다")
-    private Boolean notifyCaregiver;
+    // @Schema(description = "보호자 알림 여부")
+    // @NotNull(message = "보호자 알림 여부는 필수입니다")
+    // private Boolean notifyCaregiver;
 
     @Schema(description = "사전 알림 여부")
     @NotNull(message = "사전 알림 여부는 필수입니다")

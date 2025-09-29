@@ -29,8 +29,8 @@ public class Medication extends BaseEntity {
     @Column(nullable = false)
     private String imageUrl;
 
-    @Column(nullable = false)
-    private Boolean notifyCaregiver;
+    // @Column(nullable = false)
+    // private Boolean notifyCaregiver;
 
     @Column(nullable = false)
     private Boolean preNotify;
@@ -48,19 +48,19 @@ public class Medication extends BaseEntity {
 
     @Builder
     public Medication(
-            String name, String imageUrl, Boolean notifyCaregiver, Boolean preNotify, User user) {
+            String name, String imageUrl, Boolean preNotify, User user) {
         this.name = name;
         this.imageUrl = imageUrl;
-        this.notifyCaregiver = notifyCaregiver;
+        // this.notifyCaregiver = notifyCaregiver;
         this.preNotify = preNotify;
         this.user = user;
     }
 
     public void updateMedicationDetails(
-            String name, String imageUrl, Boolean notifyCaregiver, Boolean preNotify) {
+            String name, String imageUrl, Boolean preNotify) {
         this.name = name;
         this.imageUrl = imageUrl;
-        this.notifyCaregiver = notifyCaregiver;
+        // this.notifyCaregiver = notifyCaregiver;
         this.preNotify = preNotify;
     }
 }

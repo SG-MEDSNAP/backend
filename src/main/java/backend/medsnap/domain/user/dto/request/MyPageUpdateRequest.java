@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
                 """
     {
       "name": "홍길동",
-      "birthday": "1990-01-01",
+      "birthday": "2025-03-20",
       "phone": "010-1234-5678",
       "isPushConsent": true
     }
@@ -33,7 +33,7 @@ public class MyPageUpdateRequest {
     @NotNull(message = "생일은 필수입니다.")
     @Past(message = "생일은 현재 날짜보다 이전이어야 합니다.")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @Schema(description = "생일 (YYYY-MM-DD 형식, 현재 날짜보다 이전이어야 함)", example = "1990-01-01")
+    @Schema(description = "생일 (YYYY-MM-DD 형식, 현재 날짜보다 이전이어야 함)", example = "2025-03-20")
     private LocalDate birthday;
 
     @Schema(description = "전화번호", example = "010-1234-5678")

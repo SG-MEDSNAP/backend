@@ -118,7 +118,7 @@ public interface UserSwagger {
                                               "data": {
                                                 "id": 1,
                                                 "name": "홍길동",
-                                                "birthday": "1990-01-01",
+                                                "birthday": "2025-03-20",
                                                 "phone": "010-1234-5678",
                                                 "isPushConsent": true
                                               },

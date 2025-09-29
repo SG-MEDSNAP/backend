@@ -61,7 +61,7 @@ public class MedicationService {
                 Medication.builder()
                         .name(request.getName().trim())
                         .imageUrl(imageUrl)
-                        .notifyCaregiver(request.getNotifyCaregiver())
+                        // .notifyCaregiver(request.getNotifyCaregiver())
                         .preNotify(request.getPreNotify())
                         .user(user)
                         .build();
@@ -123,7 +123,6 @@ public class MedicationService {
             medication.updateMedicationDetails(
                     request.getName().trim(),
                     (newImageUrl != null) ? newImageUrl : oldImageUrl,
-                    request.getNotifyCaregiver(),
                     request.getPreNotify());
 
             // 알람 정보 수정
@@ -291,7 +290,7 @@ public class MedicationService {
                 .id(medication.getId())
                 .name(medication.getName())
                 .imageUrl(medication.getImageUrl())
-                .notifyCaregiver(medication.getNotifyCaregiver())
+                // .notifyCaregiver(medication.getNotifyCaregiver())
                 .preNotify(medication.getPreNotify())
                 .doseTimes(
                         medication.getAlarms().stream()
@@ -314,9 +313,9 @@ public class MedicationService {
         return MedicationListResponse.builder()
                 .id(medication.getId())
                 .name(medication.getName())
-                .notifyCaregiver(medication.getNotifyCaregiver())
+                // .notifyCaregiver(medication.getNotifyCaregiver())
                 .preNotify(medication.getPreNotify())
-                .caregiverPhone(null) // medication.getUser().getCaregiverPhone() 대신 null
+                // .caregiverPhone(null) // medication.getUser().getCaregiverPhone() 대신 null
                 .doseTimes(
                         medication.getAlarms().stream()
                                 .map(Alarm::getDoseTime)
