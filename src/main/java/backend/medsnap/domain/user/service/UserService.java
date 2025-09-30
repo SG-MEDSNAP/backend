@@ -35,6 +35,9 @@ public class UserService {
                 .role(user.getRole())
                 .name(user.getName())
                 .provider(socialAccount != null ? socialAccount.getProvider() : null)
+                .birthday(user.getBirthday())
+                .phone(user.getPhone())
+                .isPushConsent(user.getIsPushConsent())
                 .build();
     }
 
