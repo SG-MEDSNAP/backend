@@ -49,6 +49,25 @@ public class NotificationWorker {
                     .toList();
             log.info("Expo 전송 대상 토큰 {}개", tokenStrings.size());
 
+            // 트랜잭션 밖에서 외부 API 호출 실행
+            ExpoSendResult expoResult = sendToExpo(n, tokenStrings);
+
+            // 트랜잭션 안에서 결과 처리
+            processExpoResult(n, expoResult);
+        }
+    }
+    
+    /**
+     * 트랜잭션 밖에서 Expo API 호출 실행
+     */
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
+    public ExpoSendResult sendToExpo(Notification n, List<String> tokenStrings) {
+        List<String> allSuccessTicketIds = new ArrayList<>();
+        boolean hasError = false;
+        String errorMessage = null;
+        List<String> invalidTokens = new ArrayList<>();
+
+        try {
             for (List<String> chunk : chunks(tokenStrings, 100)) {
                 PushNotification pushNotification = new PushNotification();
                 pushNotification.setTo(chunk);
@@ -74,24 +93,49 @@ public class NotificationWorker {
                         String error = (errEnum != null) ? errEnum.name() : "Unknown";
 
                         log.warn("Expo 티켓 에러: notificationId={}, error={}", n.getId(), error);
-                        n.markProviderError(error);
+                        errorMessage = error;
 
-                        // 무효 토큰 정리
+                        // 무효 토큰 수집 (나중에 트랜잭션 안에서 처리)
                         if ("DeviceNotRegistered".equals(error)) {
-                            pushTokenRepository.deactivateAllByTokenIn(chunk, "DeviceNotRegistered");
-                            log.info("무효 토큰 비활성화 {}개 처리", chunk.size());
+                            invalidTokens.addAll(chunk);
                         }
                     }
                 }
 
-                if (allOk && !successTicketIds.isEmpty()) {
-                    n.markSent(appendIds(n.getProviderMessageId(), successTicketIds));
-                    log.info("알림 전송 성공: notificationId={}, tickets={}", n.getId(), successTicketIds);
-                } else if (!allOk && n.getStatus() != NotificationStatus.PROVIDER_ERROR) {
-                    n.markProviderError("Expo 전송 실패");
-                    log.error("알림 전송 실패(상태 반영): notificationId={}", n.getId());
+                if (allOk) {
+                    allSuccessTicketIds.addAll(successTicketIds);
+                    log.info("청크 전송 성공: notificationId={}, tickets={}", n.getId(), successTicketIds);
+                } else {
+                    hasError = true;
+                    log.error("청크 전송 실패: notificationId={}, error={}", n.getId(), errorMessage);
                 }
             }
+        } catch (Exception e) {
+            hasError = true;
+            errorMessage = "Expo API 호출 실패: " + e.getMessage();
+            log.error("Expo API 호출 중 예외 발생: notificationId={}, error={}", n.getId(), e.getMessage(), e);
+        }
+
+        return new ExpoSendResult(allSuccessTicketIds, hasError, errorMessage, invalidTokens);
+    }
+    
+    /**
+     * 트랜잭션 안에서 Expo API 결과 처리
+     */
+    private void processExpoResult(Notification n, ExpoSendResult expoResult) {
+        // 무효 토큰 정리
+        if (!expoResult.getInvalidTokens().isEmpty()) {
+            pushTokenRepository.deactivateAllByTokenIn(expoResult.getInvalidTokens(), "DeviceNotRegistered");
+            log.info("무효 토큰 비활성화 {}개 처리", expoResult.getInvalidTokens().size());
+        }
+
+        // 알림 상태 업데이트
+        if (!expoResult.getSuccessTicketIds().isEmpty() && !expoResult.hasError()) {
+            n.markSent(appendIds(n.getProviderMessageId(), expoResult.getSuccessTicketIds()));
+            log.info("알림 전송 성공: notificationId={}, tickets={}", n.getId(), expoResult.getSuccessTicketIds());
+        } else {
+            n.markProviderError(expoResult.hasError() ? expoResult.getErrorMessage() : "Expo 전송 실패");
+            log.error("알림 전송 실패: notificationId={}, error={}", n.getId(), expoResult.getErrorMessage());
         }
     }
 
@@ -108,4 +152,27 @@ public class NotificationWorker {
         if (current == null || current.isBlank()) return joined;
         return current + "," + joined;
     }
+    
+    /**
+     * Expo API 호출 결과를 담는 내부 클래스
+     */
+    private static class ExpoSendResult {
+        private final List<String> successTicketIds;
+        private final boolean hasError;
+        private final String errorMessage;
+        private final List<String> invalidTokens;
+        
+        public ExpoSendResult(List<String> successTicketIds, boolean hasError, String errorMessage, List<String> invalidTokens) {
+            this.successTicketIds = successTicketIds;
+            this.hasError = hasError;
+            this.errorMessage = errorMessage;
+            this.invalidTokens = invalidTokens;
+        }
+        
+        public List<String> getSuccessTicketIds() { return successTicketIds; }
+        public boolean hasError() { return hasError; }
+        public String getErrorMessage() { return errorMessage; }
+        public List<String> getInvalidTokens() { return invalidTokens; }
+    }
 }
+
