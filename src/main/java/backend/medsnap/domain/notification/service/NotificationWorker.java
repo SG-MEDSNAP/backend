@@ -4,6 +4,7 @@ import backend.medsnap.domain.notification.client.ExpoPushClient;
 import backend.medsnap.domain.notification.entity.Notification;
 import backend.medsnap.domain.notification.entity.NotificationStatus;
 import backend.medsnap.domain.notification.repository.NotificationRepository;
+import backend.medsnap.domain.notification.util.RateLimiter;
 import backend.medsnap.domain.pushToken.entity.PushToken;
 import backend.medsnap.domain.pushToken.repository.PushTokenRepository;
 import com.niamedtech.expo.exposerversdk.response.Status;
@@ -27,13 +28,16 @@ public class NotificationWorker {
     private final NotificationRepository notificationRepository;
     private final PushTokenRepository pushTokenRepository;
     private final ExpoPushClient expoClient;
+    private final RateLimiter rateLimiter;
 
     @Scheduled(fixedDelay = 5000)
     public void dispatchDue() {
         // 트랜잭션 안에서 배치 조회
         var batch = fetchBatch();
-        
-        log.info("처리할 알림 {}개 조회", batch.size());
+
+        if (!batch.isEmpty()) {
+            log.info("처리할 알림 {}개 조회", batch.size());
+        }
         
         // 각 알림을 개별 트랜잭션으로 처리
         for (Notification n : batch) {
@@ -92,6 +96,9 @@ public class NotificationWorker {
 
         try {
             for (List<String> chunk : chunks(tokenStrings, 100)) {
+                // Rate Limiting 적용
+                rateLimiter.acquire(chunk.size());
+                
                 PushNotification pushNotification = new PushNotification();
                 pushNotification.setTo(chunk);
                 pushNotification.setTitle(n.getTitle());

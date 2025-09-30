@@ -24,8 +24,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query("SELECT n " +
             "FROM Notification n " +
             "WHERE n.status = 'SENT' " +
-            "AND n.providerMessageId IS NOT NULL")
-    List<Notification> findRecentSentWithTickets();
+            "AND n.providerMessageId IS NOT NULL " +
+            "AND n.updatedAt >= :since")
+    List<Notification> findRecentSentWithTickets(@Param("since") java.time.LocalDateTime since);
 
     @Query("SELECT COUNT(n) > 0 " +
             "FROM Notification n " +

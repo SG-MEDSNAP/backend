@@ -30,4 +30,10 @@ public interface PushTokenRepository extends JpaRepository<PushToken, Long> {
             "SET pt.isActive = false, pt.lastError = :reason " +
             "WHERE pt.token IN :tokens")
     int deactivateAllByTokenIn(@Param("tokens") Collection<String> tokens, @Param("reason") String reason);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE PushToken pt " +
+            "SET pt.isActive = false, pt.lastError = :reason " +
+            "WHERE pt.user.id = :userId")
+    int deactivateAllByUserId(@Param("userId") Long userId, @Param("reason") String reason);
 }
