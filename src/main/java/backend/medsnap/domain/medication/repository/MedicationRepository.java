@@ -13,16 +13,19 @@ import backend.medsnap.domain.medication.entity.Medication;
 @Repository
 public interface MedicationRepository extends JpaRepository<Medication, Long> {
 
-    /** 약 이름 중복 체크 */
-    boolean existsByNameAndUserId(String name, Long userId);
+    /** 약 이름 중복 체크 (삭제되지 않은 것만) */
+    @Query("SELECT COUNT(m) > 0 FROM Medication m WHERE m.name = :name AND m.user.id = :userId AND m.deletedAt IS NULL")
+    boolean existsByNameAndUserId(@Param("name") String name, @Param("userId") Long userId);
 
-    /** 특정 ID를 제외한 약 이름 중복 체크 */
-    boolean existsByNameAndUserIdAndIdNot(String name, Long userId, Long id);
+    /** 특정 ID를 제외한 약 이름 중복 체크 (삭제되지 않은 것만) */
+    @Query("SELECT COUNT(m) > 0 FROM Medication m WHERE m.name = :name AND m.user.id = :userId AND m.id != :id AND m.deletedAt IS NULL")
+    boolean existsByNameAndUserIdAndIdNot(@Param("name") String name, @Param("userId") Long userId, @Param("id") Long id);
 
-    /** 사용자의 특정 약 조회 */
-    Optional<Medication> findByIdAndUserId(Long medicationId, Long userId);
+    /** 사용자의 특정 약 조회 (삭제되지 않은 것만) */
+    @Query("SELECT m FROM Medication m WHERE m.id = :medicationId AND m.user.id = :userId AND m.deletedAt IS NULL")
+    Optional<Medication> findByIdAndUserId(@Param("medicationId") Long medicationId, @Param("userId") Long userId);
 
-    /** 사용자의 모든 약 목록 조회 */
+    /** 사용자의 모든 약 목록 조회 (삭제되지 않은 것만) */
     @Query(
             """
         SELECT DISTINCT m
@@ -30,6 +33,7 @@ public interface MedicationRepository extends JpaRepository<Medication, Long> {
         LEFT JOIN FETCH m.alarms a
         JOIN FETCH m.user u
         WHERE m.user.id = :userId
+        AND m.deletedAt IS NULL
         """)
     List<Medication> findByUserIdWithAlarms(@Param("userId") Long userId);
 }

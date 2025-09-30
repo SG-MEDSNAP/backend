@@ -65,8 +65,8 @@ public class FaqService {
         // FAQ 존재 여부 확인
         Faq faq = faqRepository.findById(faqId).orElseThrow(() -> new FaqNotFoundException(faqId));
 
-        faqRepository.delete(faq);
-        log.info("FAQ ID: {}가 삭제되었습니다.", faqId);
+        faq.softDelete();
+        log.info("FAQ ID: {}가 소프트딜리트되었습니다.", faqId);
     }
 
     private FaqResponse getFaqResponse(Faq faq) {
