@@ -189,4 +189,55 @@ public interface UserSwagger {
     ResponseEntity<ApiResponse<MyPageResponse>> updateMyPage(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody MyPageUpdateRequest request);
+
+    @Operation(
+            summary = "사용자 탈퇴",
+            description = "현재 로그인한 사용자 계정을 소프트딜리트합니다. 삭제된 사용자는 로그인할 수 없습니다.",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "204",
+                        description = "사용자 탈퇴 성공"),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "401",
+                        description = "인증이 필요합니다",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                                            {
+                                              "code": "A008",
+                                              "httpStatus": 401,
+                                              "message": "인증이 필요합니다.",
+                                              "data": null,
+                                              "error": null
+                                            }
+                                            """))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "404",
+                        description = "사용자를 찾을 수 없습니다",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                                            {
+                                              "code": "U001",
+                                              "httpStatus": 404,
+                                              "message": "사용자를 찾을 수 없습니다.",
+                                              "data": null,
+                                              "error": null
+                                            }
+                                            """)))
+            })
+    ResponseEntity<Void> deleteUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails);
 }

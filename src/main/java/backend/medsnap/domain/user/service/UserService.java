@@ -58,4 +58,18 @@ public class UserService {
 
         return MyPageResponse.from(user);
     }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user =
+                userRepository
+                        .findById(userId)
+                        .orElseThrow(() -> new UserNotFoundException(userId));
+
+        user.updateRefreshToken(null);
+
+        user.softDelete();
+
+        log.info("유저 소프트 딜리트 userId={}", userId);
+    }
 }
