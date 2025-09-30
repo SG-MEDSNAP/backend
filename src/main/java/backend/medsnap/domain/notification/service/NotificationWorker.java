@@ -29,39 +29,62 @@ public class NotificationWorker {
     private final ExpoPushClient expoClient;
 
     @Scheduled(fixedDelay = 5000)
-    @Transactional
     public void dispatchDue() {
-
-        var batch = notificationRepository.pickDueForDispatch(200);
-
+        // 트랜잭션 안에서 배치 조회
+        var batch = fetchBatch();
+        
+        log.info("처리할 알림 {}개 조회", batch.size());
+        
+        // 각 알림을 개별 트랜잭션으로 처리
         for (Notification n : batch) {
-            log.info("알림 전송 준비: notificationId={}, userId={}", n.getId(), n.getUser().getId());
-            var tokens = pushTokenRepository.findActiveTokensByUserId(n.getUser().getId());
-
-            if (tokens.isEmpty()) {
-                log.warn("활성 푸시 토큰 없음: userId={}", n.getUser().getId());
-                n.markProviderError("No Active Push Token");
-                continue;
+            try {
+                processOneNotification(n);
+            } catch (Exception e) {
+                log.error("알림 처리 중 예외 발생: notificationId={}, error={}", n.getId(), e.getMessage(), e);
+                // 개별 알림 실패가 다른 알림에 영향을 주지 않도록 계속 진행
             }
-
-            var tokenStrings = tokens.stream()
-                    .map(PushToken::getToken)
-                    .toList();
-            log.info("Expo 전송 대상 토큰 {}개", tokenStrings.size());
-
-            // 트랜잭션 밖에서 외부 API 호출 실행
-            ExpoSendResult expoResult = sendToExpo(n, tokenStrings);
-
-            // 트랜잭션 안에서 결과 처리
-            processExpoResult(n, expoResult);
         }
     }
     
     /**
-     * 트랜잭션 밖에서 Expo API 호출 실행
+     * 트랜잭션 안에서 배치 조회
      */
-    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
-    public ExpoSendResult sendToExpo(Notification n, List<String> tokenStrings) {
+    @Transactional
+    protected List<Notification> fetchBatch() {
+        return notificationRepository.pickDueForDispatch(200);
+    }
+    
+    /**
+     * 개별 알림 처리
+     */
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+    protected void processOneNotification(Notification n) {
+        log.info("알림 전송 준비: notificationId={}, userId={}", n.getId(), n.getUser().getId());
+        
+        var tokens = pushTokenRepository.findActiveTokensByUserId(n.getUser().getId());
+
+        if (tokens.isEmpty()) {
+            log.warn("활성 푸시 토큰 없음: userId={}", n.getUser().getId());
+            n.markProviderError("No Active Push Token");
+            return;
+        }
+
+        var tokenStrings = tokens.stream()
+                .map(PushToken::getToken)
+                .toList();
+        log.info("Expo 전송 대상 토큰 {}개", tokenStrings.size());
+
+        // 외부 API 호출
+        ExpoSendResult expoResult = sendToExpo(n, tokenStrings);
+
+        // 결과 처리
+        processExpoResult(n, expoResult);
+    }
+    
+    /**
+     * Expo API 호출
+     */
+    private ExpoSendResult sendToExpo(Notification n, List<String> tokenStrings) {
         List<String> allSuccessTicketIds = new ArrayList<>();
         boolean hasError = false;
         String errorMessage = null;
@@ -95,7 +118,7 @@ public class NotificationWorker {
                         log.warn("Expo 티켓 에러: notificationId={}, error={}", n.getId(), error);
                         errorMessage = error;
 
-                        // 무효 토큰 수집 (나중에 트랜잭션 안에서 처리)
+                        // 무효 토큰 수집
                         if ("DeviceNotRegistered".equals(error)) {
                             invalidTokens.addAll(chunk);
                         }
@@ -120,7 +143,7 @@ public class NotificationWorker {
     }
     
     /**
-     * 트랜잭션 안에서 Expo API 결과 처리
+     * Expo API 결과 처리
      */
     private void processExpoResult(Notification n, ExpoSendResult expoResult) {
         // 무효 토큰 정리
