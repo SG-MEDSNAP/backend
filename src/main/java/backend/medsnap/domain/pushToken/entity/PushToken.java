@@ -2,6 +2,9 @@ package backend.medsnap.domain.pushToken.entity;
 
 import jakarta.persistence.*;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import backend.medsnap.domain.user.entity.User;
 import backend.medsnap.global.entity.BaseEntity;
 import lombok.*;
@@ -14,6 +17,8 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@SQLDelete(sql = "UPDATE push_tokens SET deleted_at = NOW() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
 public class PushToken extends BaseEntity {
 
     @Id

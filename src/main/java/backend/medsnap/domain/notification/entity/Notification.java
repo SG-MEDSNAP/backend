@@ -7,6 +7,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
@@ -22,6 +24,8 @@ import java.util.Map;
                columnNames = {"user_id", "scheduled_at", "title", "body"}
            )
        })
+@SQLDelete(sql = "UPDATE notifications SET deleted_at = NOW() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
 public class Notification extends BaseEntity {
 
     @Id
