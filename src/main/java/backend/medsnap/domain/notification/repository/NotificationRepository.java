@@ -14,7 +14,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @Query(value = """
         SELECT * FROM notifications
-        WHERE status = 'SCHEDULED' AND (scheduled_at IS NULL OR scheduled_at <= NOW())
+        WHERE status = 'SCHEDULED' 
+        AND (scheduled_at IS NULL OR scheduled_at <= CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Seoul')
         ORDER BY id
         FOR UPDATE SKIP LOCKED
         LIMIT :limit
