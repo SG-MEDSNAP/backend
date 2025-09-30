@@ -1,5 +1,6 @@
 package backend.medsnap.domain.medicationRecord.service;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,6 +24,9 @@ import backend.medsnap.domain.medicationRecord.entity.MedicationRecord;
 import backend.medsnap.domain.medicationRecord.entity.MedicationRecordStatus;
 import backend.medsnap.domain.medicationRecord.exception.MedicationRecordException;
 import backend.medsnap.domain.medicationRecord.repository.MedicationRecordRepository;
+import backend.medsnap.domain.notification.dto.request.NotificationCreateRequest;
+import backend.medsnap.domain.notification.repository.NotificationRepository;
+import backend.medsnap.domain.notification.service.NotificationService;
 import backend.medsnap.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +38,9 @@ public class MedicationRecordService {
 
     private final MedicationRecordRepository medicationRecordRepository;
     private final AlarmRepository alarmRepository;
+    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
+    private final Clock clock;
 
     private static final Duration GRACE_PERIOD = Duration.ofMinutes(45);
 
@@ -63,7 +70,7 @@ public class MedicationRecordService {
     /** 약 등록 시 당일의 복약 기록 생성 (오늘 등록한 약만) */
     @Transactional
     public void createTodayRecordsForMedication(Medication medication) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
         DayOfWeek todayDayOfWeek = convertJavaToDayOfWeek(today.getDayOfWeek());
 
         // 오늘 요일에 해당하는 알람들만 조회
@@ -119,6 +126,9 @@ public class MedicationRecordService {
                     medication.getId(),
                     today,
                     records.size());
+            
+            // 복약 기록 생성 시 알림도 함께 생성
+            createNotificationsForRecords(records, today);
         } else {
             log.info("약 ID: {} - 오늘({})에 생성할 새로운 기록이 없습니다.", medication.getId(), today);
         }
@@ -150,7 +160,7 @@ public class MedicationRecordService {
                                         ));
 
         // 알람 기준으로 아이템 생성 (약 등록일부터 오늘까지만 포함)
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
         List<DayListResponse.Item> items =
                 alarms.stream()
                         .filter(
@@ -223,12 +233,93 @@ public class MedicationRecordService {
         // 기록이 없을 때 시간 기준으로 상태 판정
         LocalDateTime alarmDateTime = LocalDateTime.of(date, alarmTime);
         LocalDateTime graceEndTime = alarmDateTime.plus(GRACE_PERIOD);
-        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime currentTime = LocalDateTime.now(clock);
 
         if (currentTime.isAfter(graceEndTime)) {
             return MedicationRecordStatus.SKIPPED;
         } else {
             return MedicationRecordStatus.PENDING;
+        }
+    }
+
+    /** 복약 기록에 대한 알림 생성 */
+    private void createNotificationsForRecords(List<MedicationRecord> records, LocalDate recordDate) {
+        try {
+            for (MedicationRecord record : records) {
+                Medication medication = record.getMedication();
+                LocalTime doseTime = record.getDoseTime();
+                
+                // 알림 예약 시간: 복용 시간에 맞춰 설정
+                LocalDateTime notificationTime = recordDate.atTime(doseTime);
+                
+                // 사전 알림이 활성화되어 있다면 10분 전에 알림 생성
+                if (Boolean.TRUE.equals(medication.getPreNotify())) {
+                    LocalDateTime preNotificationTime = notificationTime.minusMinutes(10);
+                    if (preNotificationTime.isAfter(LocalDateTime.now())) {
+                        createMedicationNotification(
+                            medication.getUser().getId(),
+                            medication.getName(),
+                            doseTime,
+                            preNotificationTime,
+                            "메드스냅",
+                            String.format("%s 복용 시간이 10분 남았습니다.", medication.getName())
+                        );
+                    }
+                }
+                
+                // 정시 알림 생성
+                if (notificationTime.isAfter(LocalDateTime.now(clock))) {
+                    createMedicationNotification(
+                        medication.getUser().getId(),
+                        medication.getName(),
+                        doseTime,
+                        notificationTime,
+                        "메드스냅",
+                        String.format("%s 복용 시간입니다.", medication.getName())
+                    );
+                }
+            }
+            log.info("복약 기록 {}개에 대한 알림 생성 완료", records.size());
+        } catch (Exception e) {
+            log.error("복약 기록 알림 생성 중 오류 발생", e);
+        }
+    }
+    
+    /** 약물 복용 알림 생성 헬퍼 메서드 */
+    private void createMedicationNotification(Long userId, String medicationName, LocalTime doseTime, 
+                                            LocalDateTime scheduledAt, String title, String body) {
+        try {
+            // 과거 시간 필터링 (KST 기준으로 비교)
+            LocalDateTime now = LocalDateTime.now(clock);
+            if (!scheduledAt.isAfter(now)) {
+                log.debug("과거 알림 건너뜀: 사용자 ID {}, 시간 {}", userId, scheduledAt);
+                return;
+            }
+            
+            // 중복 알림 체크 (강화된 키: userId + scheduledAt + title + body)
+            if (notificationRepository.existsByUserIdAndScheduledAtAndTitleAndBody(userId, scheduledAt, title, body)) {
+                log.debug("중복 알림 건너뜀: 사용자 ID {}, 시간 {}, 제목 {}, 본문 {}", userId, scheduledAt, title, body);
+                return;
+            }
+            
+            Map<String, Object> data = Map.of(
+                "type", "medication",
+                "medicationName", medicationName,
+                "doseTime", doseTime.toString(),
+                "scheduledAt", scheduledAt.toString()
+            );
+            
+            NotificationCreateRequest request = NotificationCreateRequest.builder()
+                .title(title)
+                .body(body)
+                .data(data)
+                .scheduledAt(scheduledAt)
+                .build();
+                
+            notificationService.createNotification(userId, request);
+            log.debug("알림 생성 완료: 사용자 ID {}, 약물 {}, 시간 {}", userId, medicationName, doseTime);
+        } catch (Exception e) {
+            log.error("알림 생성 실패: 사용자 ID {}, 약물 {}, 시간 {}", userId, medicationName, doseTime, e);
         }
     }
 
