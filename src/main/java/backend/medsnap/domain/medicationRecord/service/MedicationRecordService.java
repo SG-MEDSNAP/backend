@@ -261,8 +261,8 @@ public class MedicationRecordService {
                             medication.getName(),
                             doseTime,
                             preNotificationTime,
-                            "복약 알림",
-                            String.format("%s %s 복용 시간이 10분 남았습니다.", medication.getName(), doseTime)
+                            "메드스냅",
+                            String.format("%s 복용 시간이 10분 남았습니다.", medication.getName())
                         );
                     }
                 }
@@ -274,8 +274,8 @@ public class MedicationRecordService {
                         medication.getName(),
                         doseTime,
                         notificationTime,
-                        "복약 알림",
-                        String.format("%s %s 복용 시간입니다.", medication.getName(), doseTime)
+                        "메드스냅",
+                        String.format("%s 복용 시간입니다.", medication.getName())
                     );
                 }
             }
