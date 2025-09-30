@@ -10,6 +10,7 @@ public enum ErrorCode {
     // Common
     COMMON_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "내부 서버 오류가 발생했습니다."),
     COMMON_VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "C002", "입력값 검증에 실패했습니다."),
+    COMMON_NOT_FOUND(HttpStatus.NOT_FOUND, "C003", "요청한 리소스를 찾을 수 없습니다."),
 
     // Authentication
     AUTH_OIDC_INVALID(HttpStatus.UNAUTHORIZED, "A001", "유효하지 않은 아이디 토큰입니다."),

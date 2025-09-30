@@ -1,5 +1,6 @@
 package backend.medsnap.global.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.ResponseEntity;
@@ -65,6 +66,18 @@ public class GlobalExceptionHandler {
                 ApiResponse.error(ErrorCode.COMMON_VALIDATION_ERROR, e.getMessage());
 
         return ResponseEntity.status(ErrorCode.COMMON_VALIDATION_ERROR.getStatus()).body(response);
+    }
+
+    /** EntityNotFoundException 처리 (404 Not Found) */
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleEntityNotFoundException(
+            EntityNotFoundException e) {
+        log.warn("EntityNotFoundException: {}", e.getMessage());
+
+        ApiResponse<Object> response =
+                ApiResponse.error(ErrorCode.COMMON_NOT_FOUND, null);
+
+        return ResponseEntity.status(ErrorCode.COMMON_NOT_FOUND.getStatus()).body(response);
     }
 
     /** 기타 모든 예외 처리 */
