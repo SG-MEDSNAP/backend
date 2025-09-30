@@ -6,6 +6,7 @@ import java.util.List;
 import jakarta.persistence.*;
 
 import backend.medsnap.domain.alarm.entity.Alarm;
+import backend.medsnap.domain.medicationRecord.entity.MedicationRecord;
 import backend.medsnap.domain.user.entity.User;
 import backend.medsnap.global.entity.BaseEntity;
 import lombok.AccessLevel;
@@ -45,6 +46,13 @@ public class Medication extends BaseEntity {
             orphanRemoval = true,
             fetch = FetchType.LAZY)
     private List<Alarm> alarms = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "medication",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<MedicationRecord> medicationRecords = new ArrayList<>();
 
     @Builder
     public Medication(
