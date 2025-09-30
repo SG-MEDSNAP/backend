@@ -2,6 +2,9 @@ package backend.medsnap.domain.user.entity;
 
 import jakarta.persistence.*;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import backend.medsnap.global.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,6 +21,8 @@ import lombok.NoArgsConstructor;
         })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE social_accounts SET deleted_at = NOW() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
 public class SocialAccount extends BaseEntity {
 
     @Id

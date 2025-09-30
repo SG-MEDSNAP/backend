@@ -66,10 +66,12 @@ public class UserService {
                         .findById(userId)
                         .orElseThrow(() -> new UserNotFoundException(userId));
 
+        // 토큰만 무효화 (다른 정보는 모두 보존)
         user.updateRefreshToken(null);
 
+        // 소프트딜리트
         user.softDelete();
 
-        log.info("유저 소프트 딜리트 userId={}", userId);
+        log.info("유저 소프트 딜리트 완료 userId={}", userId);
     }
 }
