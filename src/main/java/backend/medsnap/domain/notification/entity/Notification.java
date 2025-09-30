@@ -9,14 +9,19 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "notifications")
+@Table(name = "notifications", 
+       uniqueConstraints = {
+           @UniqueConstraint(
+               name = "ux_notifications_dedupe",
+               columnNames = {"user_id", "scheduled_at", "title", "body"}
+           )
+       })
 public class Notification extends BaseEntity {
 
     @Id
@@ -37,7 +42,7 @@ public class Notification extends BaseEntity {
     @Column(columnDefinition = "jsonb")
     private Map<String, Object> data;
 
-    private OffsetDateTime scheduledAt;
+    private LocalDateTime scheduledAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32)
@@ -48,7 +53,7 @@ public class Notification extends BaseEntity {
     private String errorCode;
 
     private Notification(User user, String title, String body,
-                         Map<String, Object> data, OffsetDateTime scheduledAt) {
+                         Map<String, Object> data, LocalDateTime scheduledAt) {
         this.user = user;
         this.title = title;
         this.body = body;
@@ -58,7 +63,7 @@ public class Notification extends BaseEntity {
     }
 
     public static Notification create(User user, String title, String body,
-                                      Map<String, Object> data, OffsetDateTime scheduledAt) {
+                                      Map<String, Object> data, LocalDateTime scheduledAt) {
         return new Notification(user, title, body, data, scheduledAt);
     }
 

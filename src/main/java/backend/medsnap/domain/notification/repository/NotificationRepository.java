@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -20,6 +21,17 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
         """, nativeQuery = true)
     List<Notification> pickDueForDispatch(@Param("limit") int limit);
 
-    @Query("SELECT n FROM Notification n WHERE n.status = 'SENT' AND n.providerMessageId IS NOT NULL")
+    @Query("SELECT n " +
+            "FROM Notification n " +
+            "WHERE n.status = 'SENT' " +
+            "AND n.providerMessageId IS NOT NULL")
     List<Notification> findRecentSentWithTickets();
+
+    @Query("SELECT COUNT(n) > 0 " +
+            "FROM Notification n " +
+            "WHERE n.user.id = :userId " +
+            "AND n.scheduledAt = :scheduledAt " +
+            "AND n.title = :title " +
+            "AND n.body = :body")
+    boolean existsByUserIdAndScheduledAtAndTitleAndBody(@Param("userId") Long userId, @Param("scheduledAt") LocalDateTime scheduledAt, @Param("title") String title, @Param("body") String body);
 }

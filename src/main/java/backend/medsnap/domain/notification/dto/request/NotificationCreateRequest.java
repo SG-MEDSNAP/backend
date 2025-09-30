@@ -16,9 +16,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class NotificationCreateRequest {
 
-    @NotNull(message = "userId는 필수입니다.")
-    private Long userId;
-
     @NotBlank(message = "title은 필수입니다.")
     private String title;
 
@@ -27,5 +24,6 @@ public class NotificationCreateRequest {
 
     private Map<String, Object> data;
 
+    @NotNull(message = "scheduledAt은 필수입니다.")
     private LocalDateTime scheduledAt;
 }
