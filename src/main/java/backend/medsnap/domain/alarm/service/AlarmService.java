@@ -71,21 +71,21 @@ public class AlarmService {
         List<Long> existingAlarmIds =
                 alarmRepository.findExistingAlarmIds(alarmIds, medication.getId());
 
-        // 삭제
+        // 소프트딜리트
         if (!existingAlarmIds.isEmpty()) {
             int deletedCount =
-                    alarmRepository.deleteByIdsAndMedicationId(
+                    alarmRepository.softDeleteByIdsAndMedicationId(
                             existingAlarmIds, medication.getId());
-            log.info("약 ID: {}의 {}개 알람이 삭제되었습니다.", medication.getId(), deletedCount);
+            log.info("약 ID: {}의 {}개 알람이 소프트딜리트되었습니다.", medication.getId(), deletedCount);
         }
     }
 
-    /** 특정 약의 전체 알람 삭제 */
+    /** 특정 약의 전체 알람 소프트딜리트 */
     @Transactional
     public void deleteAllAlarmsByMedicationId(Long medicationId) {
 
-        alarmRepository.deleteByMedicationId(medicationId);
-        log.info("약 ID: {}에 연결된 모든 알람이 삭제되었습니다.", medicationId);
+        alarmRepository.softDeleteByMedicationId(medicationId);
+        log.info("약 ID: {}에 연결된 모든 알람이 소프트딜리트되었습니다.", medicationId);
     }
 
     /** 특정 약의 남은 알람 개수 조회 */

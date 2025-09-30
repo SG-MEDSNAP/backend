@@ -5,6 +5,9 @@ import java.util.List;
 
 import jakarta.persistence.*;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import backend.medsnap.domain.alarm.entity.Alarm;
 import backend.medsnap.domain.medicationRecord.entity.MedicationRecord;
 import backend.medsnap.domain.user.entity.User;
@@ -18,6 +21,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "medications")
+@SQLDelete(sql = "UPDATE medications SET deleted_at = NOW() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
 public class Medication extends BaseEntity {
 
     @Id
@@ -70,5 +75,15 @@ public class Medication extends BaseEntity {
         this.imageUrl = imageUrl;
         // this.notifyCaregiver = notifyCaregiver;
         this.preNotify = preNotify;
+    }
+
+    // 소프트 딜리트 (알림들도 소프트 딜리트)
+    @Override
+    public void softDelete() {
+        // 알림들을 소프트 딜리트
+        alarms.forEach(Alarm::softDelete);
+        
+        // 부모 클래스의 softDelete 호출
+        super.softDelete();
     }
 }

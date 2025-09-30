@@ -6,6 +6,9 @@ import java.time.LocalTime;
 
 import jakarta.persistence.*;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import backend.medsnap.domain.medication.entity.Medication;
@@ -25,6 +28,8 @@ import lombok.NoArgsConstructor;
                     columnNames = {"medication_id", "dose_time", "record_date"})
         })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE medication_records SET deleted_at = NOW() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
 public class MedicationRecord extends BaseEntity {
 
     @Id

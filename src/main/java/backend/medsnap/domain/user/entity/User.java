@@ -6,6 +6,9 @@ import java.util.List;
 
 import jakarta.persistence.*;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.global.entity.BaseEntity;
 import lombok.AccessLevel;
@@ -17,6 +20,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
 public class User extends BaseEntity {
 
     @Id
@@ -76,5 +81,14 @@ public class User extends BaseEntity {
     // Refresh Token 업데이트
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    // 소프트 딜리트
+    @Override
+    public void softDelete() {
+        // provider_user_id를 null로 설정
+        socialAccounts.forEach(SocialAccount::clearProviderUserId);
+        
+        super.softDelete();
     }
 }

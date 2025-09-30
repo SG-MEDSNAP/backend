@@ -169,9 +169,9 @@ public class MedicationService {
         int alarmCount = medication.getAlarms().size();
         log.info("약 ID: {}에 연결된 알람 개수: {}", medicationId, alarmCount);
 
-        // 약 삭제
-        medicationRepository.delete(medication);
-        log.info("약 ID: {} 및 관련 알람 {}개가 삭제되었습니다.", medicationId, alarmCount);
+        // 약 소프트딜리트
+        medication.softDelete();
+        log.info("약 ID: {} 및 관련 알람 {}개가 소프트딜리트되었습니다.", medicationId, alarmCount);
 
         // S3 이미지 삭제
         deleteMedicationImage(medication);
@@ -200,9 +200,9 @@ public class MedicationService {
         if (remainingAlarmCount == 0) {
             log.info("약 ID: {}의 모든 알람이 삭제되어 약도 함께 삭제합니다.", medicationId);
 
-            // 약 삭제
-            medicationRepository.delete(medication);
-            log.info("약 ID: {} 삭제 완료", medication.getId());
+            // 약 소프트딜리트
+            medication.softDelete();
+            log.info("약 ID: {} 소프트딜리트 완료", medication.getId());
 
             deleteMedicationImage(medication);
         }

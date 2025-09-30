@@ -36,4 +36,14 @@ public class UserController implements UserSwagger {
         return ResponseEntity.ok(
                 ApiResponse.success(userService.updateMyPage(userDetails.getId(), request)));
     }
+
+    @Override
+    @DeleteMapping
+    public ResponseEntity<Void> deleteUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        userService.deleteUser(userDetails.getId());
+
+        return ResponseEntity.noContent().build();
+    }
 }
