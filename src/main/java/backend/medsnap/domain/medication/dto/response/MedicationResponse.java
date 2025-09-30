@@ -21,7 +21,6 @@ import lombok.Getter;
       "id": 1,
       "name": "타이레놀",
       "imageUrl": "https://example.com/image.jpg",
-      "notifyCaregiver": true,
       "preNotify": true,
       "doseTimes": ["09:00","21:00"],
       "doseDays": [
@@ -44,8 +43,8 @@ public class MedicationResponse {
     @Schema(description = "약 이미지 URL")
     private String imageUrl;
 
-    @Schema(description = "보호자 알림 여부")
-    private Boolean notifyCaregiver;
+    // @Schema(description = "보호자 알림 여부")
+    // private Boolean notifyCaregiver;
 
     @Schema(description = "사전 알림 여부")
     private Boolean preNotify;

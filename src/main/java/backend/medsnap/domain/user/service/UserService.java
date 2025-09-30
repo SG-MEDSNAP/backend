@@ -35,6 +35,9 @@ public class UserService {
                 .role(user.getRole())
                 .name(user.getName())
                 .provider(socialAccount != null ? socialAccount.getProvider() : null)
+                .birthday(user.getBirthday())
+                .phone(user.getPhone())
+                .isPushConsent(user.getIsPushConsent())
                 .build();
     }
 
@@ -50,7 +53,7 @@ public class UserService {
                 request.getName(),
                 request.getBirthday(),
                 request.getPhone(),
-                null, // request.getCaregiverPhone() 대신 null
+                // null, // request.getCaregiverPhone() 대신 null
                 request.getIsPushConsent());
 
         return MyPageResponse.from(user);

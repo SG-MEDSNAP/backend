@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Past;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import backend.medsnap.domain.user.entity.Provider;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,19 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(
+        description = "회원가입 요청",
+        example =
+                """
+    {
+      "idToken": "string",
+      "provider": "GOOGLE",
+      "name": "string",
+      "birthday": "2025-03-20",
+      "phone": "010-1234-5678",
+      "isPushConsent": true
+    }
+    """)
 public class SignupRequest {
 
     @NotBlank(message = "Id Token은 필수입니다.")

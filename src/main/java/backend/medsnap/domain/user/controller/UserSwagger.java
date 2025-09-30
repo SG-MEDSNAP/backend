@@ -45,9 +45,12 @@ public interface UserSwagger {
                                               "message": "요청이 성공적으로 처리되었습니다.",
                                               "data": {
                                                 "id": 1,
-                                                "role": "PATIENT",
+                                                "role": "USER",
                                                 "name": "홍길동",
-                                                "provider": "KAKAO"
+                                                "provider": "KAKAO",
+                                                "birthday": "2025-03-20",
+                                                "phone": "010-1234-5678",
+                                                "isPushConsent": true
                                               },
                                               "error": null
                                             }
@@ -118,7 +121,7 @@ public interface UserSwagger {
                                               "data": {
                                                 "id": 1,
                                                 "name": "홍길동",
-                                                "birthday": "1990-01-01",
+                                                "birthday": "2025-03-20",
                                                 "phone": "010-1234-5678",
                                                 "isPushConsent": true
                                               },

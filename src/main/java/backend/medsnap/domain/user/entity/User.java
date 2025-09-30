@@ -52,7 +52,6 @@ public class User extends BaseEntity {
             String name,
             LocalDate birthday,
             String phone,
-            String caregiverPhone,
             Boolean isPushConsent) {
         this.role = Role.USER;
         this.name = name;
@@ -66,7 +65,6 @@ public class User extends BaseEntity {
             String name,
             LocalDate birthday,
             String phone,
-            String caregiverPhone,
             Boolean isPushConsent) {
         this.name = name;
         this.birthday = birthday;
