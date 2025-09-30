@@ -82,4 +82,13 @@ public class User extends BaseEntity {
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
+
+    // 소프트 딜리트
+    @Override
+    public void softDelete() {
+        // provider_user_id를 null로 설정
+        socialAccounts.forEach(SocialAccount::clearProviderUserId);
+        
+        super.softDelete();
+    }
 }

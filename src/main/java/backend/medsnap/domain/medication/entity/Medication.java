@@ -76,4 +76,14 @@ public class Medication extends BaseEntity {
         // this.notifyCaregiver = notifyCaregiver;
         this.preNotify = preNotify;
     }
+
+    // 소프트 딜리트 (알림들도 소프트 딜리트)
+    @Override
+    public void softDelete() {
+        // 알림들을 소프트 딜리트
+        alarms.forEach(Alarm::softDelete);
+        
+        // 부모 클래스의 softDelete 호출
+        super.softDelete();
+    }
 }

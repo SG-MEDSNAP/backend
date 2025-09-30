@@ -12,13 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(
-        name = "social_accounts",
-        uniqueConstraints = {
-            @UniqueConstraint(
-                    name = "uk_social_provider_user",
-                    columnNames = {"provider", "provider_user_id"})
-        })
+@Table(name = "social_accounts")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE social_accounts SET deleted_at = NOW() WHERE id = ?")
@@ -29,7 +23,7 @@ public class SocialAccount extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String providerUserId; // sub
 
     @Enumerated(EnumType.STRING)
@@ -45,5 +39,9 @@ public class SocialAccount extends BaseEntity {
         this.providerUserId = providerUserId;
         this.provider = provider;
         this.user = user;
+    }
+
+    public void clearProviderUserId() {
+        this.providerUserId = null;
     }
 }
