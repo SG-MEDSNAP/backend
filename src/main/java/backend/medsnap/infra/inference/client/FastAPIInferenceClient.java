@@ -32,7 +32,7 @@ public class FastAPIInferenceClient implements InferenceClient {
             return inferenceWebClient.post()
                     .uri("/v1/infer") // 실제 FastAPI API 엔드포인트
                     .header("X-Request-Id", requestId)
-                    .bodyValue(InferenceRequest.of(imageUrl))
+                    .bodyValue(InferenceRequest.of(requestId, imageUrl))
                     .retrieve()
                     .onStatus(HttpStatusCode::is4xxClientError, response ->
                             response.bodyToMono(String.class).flatMap(body ->
@@ -45,6 +45,9 @@ public class FastAPIInferenceClient implements InferenceClient {
                     .bodyToMono(InferenceResponse.class)
                     .timeout(Duration.ofSeconds(10))
                     .block();
+        } catch (InferenceException e) {
+            log.error("추론 서버 통신에 실패했습니다 - requestId: {}", requestId, e);
+            throw e;
         } catch (Exception e) {
             log.error("추론 서버 통신에 실패했습니다 - requestId: {}", requestId, e);
             throw new InferenceException("추론 서버 통신 실패", e);
