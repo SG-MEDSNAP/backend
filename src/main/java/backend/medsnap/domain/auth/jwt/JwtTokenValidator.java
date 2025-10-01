@@ -9,6 +9,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import backend.medsnap.domain.auth.exception.InvalidJwtTokenException;
+import backend.medsnap.domain.user.entity.Role;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -45,6 +46,18 @@ public class JwtTokenValidator {
             return Long.parseLong(sub);
         } catch (RuntimeException ex) {
             log.warn("JWT subject 파싱 실패. subject={}", sub);
+            throw new InvalidJwtTokenException();
+        }
+    }
+
+    // 토큰에서 사용자 Role 추출
+    public Role getRoleFromToken(String token) {
+        DecodedJWT decodedJWT = validateToken(token);
+        String role = decodedJWT.getClaim("role").asString();
+        try {
+            return Role.valueOf(role);
+        } catch (IllegalArgumentException ex) {
+            log.warn("JWT role 파싱 실패. role={}", role);
             throw new InvalidJwtTokenException();
         }
     }
