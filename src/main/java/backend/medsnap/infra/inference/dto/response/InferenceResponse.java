@@ -1,9 +1,7 @@
 package backend.medsnap.infra.inference.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 import java.util.Map;
 
@@ -17,18 +15,21 @@ public class InferenceResponse {
     private boolean success;
     private String code;
     private String message;
-    private Result result;
+    private Data data;
     private ErrorInfo error;
 
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Result {
-        private Boolean has_medicine;
+    public static class Data {
+        @JsonProperty("has_medicine")
+        private Boolean hasMedicine;
         private Double confidence;
-        private ModelInfo model_info;
-        private TimingMs timing_ms;
+        @JsonProperty("model_info")
+        private ModelInfo modelInfo;
+        @JsonProperty("timing_ms")
+        private TimingMs timingMs;
     }
 
     @Getter

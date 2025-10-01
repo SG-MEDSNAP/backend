@@ -1,5 +1,6 @@
 package backend.medsnap.infra.inference.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class InferenceRequest {
 
+    @JsonProperty("request_id")
     private String requestId;
+
+    @JsonProperty("image_url")
     private String imageUrl;
 
     public static InferenceRequest of(String imageUrl) {

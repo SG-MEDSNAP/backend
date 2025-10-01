@@ -359,15 +359,15 @@ public class MedicationRecordService {
 
     /** AI 추론 결과가 성공적인지 판별 */
     private boolean isSuccessfulInference(InferenceResponse response) {
-        if (response == null || !response.isSuccess() || response.getResult() == null) {
+        if (response == null || !response.isSuccess() || response.getData() == null) {
             return false;
         }
 
-        InferenceResponse.Result result = response.getResult();
+        InferenceResponse.Data data = response.getData();
         // 약이 존재하고, 신뢰도 점수가 0.8 이상일 때만 성공으로 판단
-        return Boolean.TRUE.equals(result.getHas_medicine())
-                && result.getConfidence() != null
-                && result.getConfidence() >= 0.8;
+        return Boolean.TRUE.equals(data.getHasMedicine())
+                && data.getConfidence() != null
+                && data.getConfidence() >= 0.8;
     }
 
     /** 복약 기록 조회 및 사용자 권한 검증 */
