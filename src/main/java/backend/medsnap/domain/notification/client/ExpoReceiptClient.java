@@ -24,11 +24,6 @@ public class ExpoReceiptClient {
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
 
-    /**
-     * 푸시 리시트 조회
-     * @param ticketIds 푸시 티켓 ID 목록
-     * @return 리시트 응답 데이터
-     */
     public ReceiptResponse getReceipts(List<String> ticketIds) {
         try {
             log.info("푸시 리시트 조회 요청: {}개 티켓", ticketIds.size());
@@ -37,12 +32,12 @@ public class ExpoReceiptClient {
             Map<String, Object> requestBody = Map.of("ids", ticketIds);
             String jsonBody = objectMapper.writeValueAsString(requestBody);
 
-            // HTTP 요청 생성
+            // HTTP 요청 생성 - Accept-Encoding 제거 (압축 비활성화)
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://exp.host/--/api/v2/push/getReceipts"))
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
-                    .header("Accept-Encoding", "gzip, deflate")
+                    .header("Accept-Encoding", "identity") // ← 압축 비활성화
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .timeout(Duration.ofSeconds(30))
                     .build();
@@ -50,22 +45,59 @@ public class ExpoReceiptClient {
             // 요청 실행
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-            // 응답 처리
-            if (response.statusCode() == 200) {
-                ReceiptResponse receiptResponse = objectMapper.readValue(response.body(), ReceiptResponse.class);
-                log.info("푸시 리시트 조회 성공: {}개 리시트", receiptResponse.getData().size());
-                return receiptResponse;
-            } else {
+            // 응답 상태 확인
+            if (response.statusCode() != 200) {
                 log.error("푸시 리시트 조회 실패: HTTP {}, 응답: {}", response.statusCode(), response.body());
                 throw new NotificationException(ErrorCode.NOTIFICATION_SEND_FAIL, 
                     "푸시 리시트 조회 실패: HTTP " + response.statusCode());
             }
 
+            // 응답 본문 정리
+            String rawBody = response.body();
+            log.debug("Expo 원본 응답 길이: {} bytes", rawBody.length());
+            
+            String cleanedBody = cleanResponse(rawBody);
+            
+            // JSON 파싱
+            ReceiptResponse receiptResponse = objectMapper.readValue(cleanedBody, ReceiptResponse.class);
+            log.info("푸시 리시트 조회 성공: {}개 리시트", 
+                receiptResponse.getData() != null ? receiptResponse.getData().size() : 0);
+            
+            return receiptResponse;
+
         } catch (IOException | InterruptedException e) {
             log.error("푸시 리시트 조회 중 예외 발생", e);
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new NotificationException(ErrorCode.NOTIFICATION_SEND_FAIL, 
                 "푸시 리시트 조회 중 오류 발생: " + e.getMessage());
         }
+    }
+
+    /**
+     * 응답에서 제어 문자 및 BOM 제거
+     */
+    private String cleanResponse(String response) {
+        if (response == null || response.isEmpty()) {
+            return response;
+        }
+        
+        // BOM(Byte Order Mark) 제거
+        if (response.startsWith("\uFEFF")) {
+            response = response.substring(1);
+            log.debug("BOM 제거됨");
+        }
+        
+        // 제어 문자 제거 (ASCII 0-31, 127 중 \r, \n, \t 제외)
+        String cleaned = response.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]", "");
+        
+        if (!cleaned.equals(response)) {
+            log.warn("응답에서 제어 문자 제거됨: 원본 {} bytes → 정리 후 {} bytes", 
+                response.length(), cleaned.length());
+        }
+        
+        return cleaned;
     }
 
     /**

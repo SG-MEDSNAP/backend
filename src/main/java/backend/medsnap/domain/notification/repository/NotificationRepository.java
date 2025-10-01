@@ -36,4 +36,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "AND n.title = :title " +
             "AND n.body = :body")
     boolean existsByUserIdAndScheduledAtAndTitleAndBody(@Param("userId") Long userId, @Param("scheduledAt") LocalDateTime scheduledAt, @Param("title") String title, @Param("body") String body);
+
 }
