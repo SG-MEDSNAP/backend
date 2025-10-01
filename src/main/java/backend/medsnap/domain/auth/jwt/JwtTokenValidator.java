@@ -49,16 +49,4 @@ public class JwtTokenValidator {
             throw new InvalidJwtTokenException();
         }
     }
-
-    // 토큰에서 사용자 Role 추출
-    public Role getRoleFromToken(String token) {
-        DecodedJWT decodedJWT = validateToken(token);
-        String role = decodedJWT.getClaim("role").asString();
-        try {
-            return Role.valueOf(role);
-        } catch (IllegalArgumentException ex) {
-            log.warn("JWT role 파싱 실패. role={}", role);
-            throw new InvalidJwtTokenException();
-        }
-    }
 }
