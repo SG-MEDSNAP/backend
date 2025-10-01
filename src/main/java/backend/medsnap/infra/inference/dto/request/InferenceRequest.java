@@ -20,10 +20,14 @@ public class InferenceRequest {
     @JsonProperty("image_url")
     private String imageUrl;
 
-    public static InferenceRequest of(String imageUrl) {
+    public static InferenceRequest of(String requestId, String imageUrl) {
         return InferenceRequest.builder()
-                .requestId(UUID.randomUUID().toString())
+                .requestId(requestId)
                 .imageUrl(imageUrl)
                 .build();
+    }
+
+    public static InferenceRequest of(String imageUrl) {
+        return of(UUID.randomUUID().toString(), imageUrl);
     }
 }
