@@ -46,7 +46,16 @@ public enum ErrorCode {
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "N001", "알림 정보를 찾을 수 없습니다."),
     NOTIFICATION_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "N002", "알림 전송에 실패했습니다."),
     NOTIFICATION_INVALID_PAYLOAD(HttpStatus.BAD_REQUEST, "N003", "유효하지 않은 알림 요청입니다."),
-    NOTIFICATION_NO_ACTIVE_TOKEN(HttpStatus.BAD_REQUEST, "N004", "활성화된 푸시 토큰이 없어 알림을 보낼 수 없습니다.");
+    NOTIFICATION_NO_ACTIVE_TOKEN(HttpStatus.BAD_REQUEST, "N004", "활성화된 푸시 토큰이 없어 알림을 보낼 수 없습니다."),
+
+    // Medication Record
+    MEDICATION_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "MR001", "복약 기록을 찾을 수 없습니다."),
+    MEDICATION_RECORD_FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "MR002", "해당 기록에 대한 접근 권한이 없습니다."),
+    AI_VERIFICATION_FAILED(HttpStatus.BAD_REQUEST, "MR003", "AI 복약 인증에 실패했습니다."),
+
+    // Inference (AI)
+    INFERENCE_COMMUNICATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "I001", "추론 서버와 통신하는 중 오류가 발생했습니다."),
+    INFERENCE_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "I002", "추론 서버에 잘못된 요청을 보냈습니다.");
 
     private final HttpStatus status;
     private final String code;

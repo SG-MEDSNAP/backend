@@ -3,12 +3,12 @@ package backend.medsnap.domain.medicationRecord.controller;
 import java.time.LocalDate;
 import java.util.Set;
 
+import backend.medsnap.domain.medicationRecord.dto.request.VerifyRequest;
+import backend.medsnap.domain.medicationRecord.dto.response.VerifyResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
 import backend.medsnap.domain.medicationRecord.dto.response.DayListResponse;
@@ -22,6 +22,18 @@ import lombok.RequiredArgsConstructor;
 public class MedicationRecordController implements MedicationRecordSwagger {
 
     private final MedicationRecordService medicationRecordService;
+
+    /** 복약 인증 */
+    @PatchMapping("/{recordId}/verify")
+    public ResponseEntity<ApiResponse<VerifyResponse>> verifyMedication(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long recordId,
+            @RequestBody @Valid VerifyRequest request) {
+
+        VerifyResponse response = medicationRecordService.verifyMedication(userDetails.getId(), recordId, request.getImageUrl());
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 
     /** 달력 점 표시용 날짜 목록 조회 */
     @Override

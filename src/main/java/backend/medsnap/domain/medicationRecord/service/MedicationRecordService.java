@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import backend.medsnap.domain.medicationRecord.dto.response.VerifyResponse;
+import backend.medsnap.infra.inference.client.InferenceClient;
+import backend.medsnap.infra.inference.dto.response.InferenceResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,9 +43,40 @@ public class MedicationRecordService {
     private final AlarmRepository alarmRepository;
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
+    private final InferenceClient inferenceClient;
     private final Clock clock;
 
     private static final Duration GRACE_PERIOD = Duration.ofMinutes(45);
+
+    /**
+     * 복약 인증 처리
+     */
+    @Transactional
+    public VerifyResponse verifyMedication(Long userId, Long recordId, String imageUrl) {
+        log.info("복약 인증 시작 - userId: {}, recordId: {}", userId, recordId);
+
+        MedicationRecord record = findAndValidateRecord(userId, recordId);
+
+        // 멱등성: 이미 처리된 요청은 성공으로 간주하고 현재 상태 반환
+        if (record.getStatus() == MedicationRecordStatus.TAKEN) {
+            log.warn("이미 복약 완료된 기록입니다 - recordId: {}", recordId);
+            return VerifyResponse.from(record);
+        }
+
+        // InferenceClient는 imageUrl만 받아 내부적으로 모든 통신을 처리
+        InferenceResponse response = inferenceClient.verify(imageUrl);
+
+        // 추론 성공 여부 판정 (신뢰도 80% 이상 포함)
+        if (!isSuccessfulInference(response)) {
+            log.warn("추론 실패 또는 신뢰도 미달 - recordId: {}, response: {}", recordId, response);
+            throw new MedicationRecordException(ErrorCode.AI_VERIFICATION_FAILED);
+        }
+
+        record.markAsTaken(imageUrl, LocalDateTime.now(clock));
+        log.info("복약 인증 성공 - recordId: {}", recordId);
+
+        return VerifyResponse.from(record);
+    }
 
     /** 특정 월에 복약 기록이 있는 모든 날짜를 조회 (달력 점 표시 기준) */
     @Transactional(readOnly = true)
@@ -321,6 +355,30 @@ public class MedicationRecordService {
         } catch (Exception e) {
             log.error("알림 생성 실패: 사용자 ID {}, 약물 {}, 시간 {}", userId, medicationName, doseTime, e);
         }
+    }
+
+    /** AI 추론 결과가 성공적인지 판별 */
+    private boolean isSuccessfulInference(InferenceResponse response) {
+        if (response == null || !response.isSuccess() || response.getResult() == null) {
+            return false;
+        }
+
+        InferenceResponse.Result result = response.getResult();
+        // 약이 존재하고, 신뢰도 점수가 0.8 이상일 때만 성공으로 판단
+        return Boolean.TRUE.equals(result.getHas_medicine())
+                && result.getConfidence() != null
+                && result.getConfidence() >= 0.8;
+    }
+
+    /** 복약 기록 조회 및 사용자 권한 검증 */
+    private MedicationRecord findAndValidateRecord(Long userId, Long recordId) {
+        MedicationRecord record = medicationRecordRepository.findById(recordId)
+                .orElseThrow(() -> new MedicationRecordException(ErrorCode.MEDICATION_RECORD_NOT_FOUND));
+
+        if (!record.getMedication().getUser().getId().equals(userId)) {
+            throw new MedicationRecordException(ErrorCode.MEDICATION_RECORD_FORBIDDEN_ACCESS);
+        }
+        return record;
     }
 
     /** Java DayOfWeek를 도메인 DayOfWeek로 변환 */
