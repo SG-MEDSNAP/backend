@@ -21,7 +21,6 @@ public class VerifyResponse {
     private LocalDateTime checkedAt;
     private LocalDateTime firstAlarmAt;
     private LocalDateTime secondAlarmAt;
-    private LocalDateTime caregiverNotifiedAt;
 
     public static VerifyResponse from(MedicationRecord record) {
         return VerifyResponse.builder()
@@ -34,7 +33,6 @@ public class VerifyResponse {
                 .checkedAt(record.getCheckedAt())
                 .firstAlarmAt(record.getFirstAlarmAt())
                 .secondAlarmAt(record.getSecondAlarmAt())
-                .caregiverNotifiedAt(record.getCaregiverNotifiedAt())
                 .build();
     }
 }

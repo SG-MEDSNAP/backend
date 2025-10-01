@@ -52,11 +52,12 @@ public class MedicationRecordService {
     private static final Duration GRACE_PERIOD = Duration.ofMinutes(45);
 
     /**
-     * 복약 인증 처리
+     * 복약 인증 처리 (AI API 연동)
+     * TODO: AI API 준비 완료 후 활성화
      */
     @Transactional
-    public VerifyResponse verifyMedication(Long userId, Long recordId, MultipartFile image) {
-        log.info("복약 인증 시작 - userId: {}, recordId: {}", userId, recordId);
+    public VerifyResponse verifyMedicationWithAI(Long userId, Long recordId, MultipartFile image) {
+        log.info("복약 인증 시작 (AI) - userId: {}, recordId: {}", userId, recordId);
 
         MedicationRecord record = findAndValidateRecord(userId, recordId);
 
@@ -83,6 +84,34 @@ public class MedicationRecordService {
 
         record.markAsTaken(imageUrl, LocalDateTime.now(clock));
         log.info("복약 인증 성공 - recordId: {}", recordId);
+
+        return VerifyResponse.from(record);
+    }
+
+    /**
+     * 복약 인증 처리 (목데이터 - AI API 준비 전 임시)
+     */
+    @Transactional
+    public VerifyResponse verifyMedication(Long userId, Long recordId, MultipartFile image) {
+        log.info("복약 인증 시작 (목데이터) - userId: {}, recordId: {}", userId, recordId);
+
+        MedicationRecord record = findAndValidateRecord(userId, recordId);
+
+        // 멱등성: 이미 처리된 요청은 성공으로 간주하고 현재 상태 반환
+        if (record.getStatus() == MedicationRecordStatus.TAKEN) {
+            log.warn("이미 복약 완료된 기록입니다 - recordId: {}", recordId);
+            return VerifyResponse.from(record);
+        }
+
+        // S3에 이미지 업로드
+        String imageUrl = s3Service.uploadFile(image, "medication-verification");
+        log.info("이미지 S3 업로드 완료 - recordId: {}, imageUrl: {}", recordId, imageUrl);
+
+        // TODO: AI API 연동 전까지는 무조건 성공 처리
+        log.info("AI 인증 생략 - 목데이터로 성공 처리 - recordId: {}", recordId);
+
+        record.markAsTaken(imageUrl, LocalDateTime.now(clock));
+        log.info("복약 인증 성공 (목데이터) - recordId: {}", recordId);
 
         return VerifyResponse.from(record);
     }

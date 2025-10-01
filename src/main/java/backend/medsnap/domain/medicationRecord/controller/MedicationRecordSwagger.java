@@ -53,8 +53,7 @@ public interface MedicationRecordSwagger {
                             "imageUrl": "https://s3.amazonaws.com/bucket/medication_photo.jpg",
                             "checkedAt": "2025-09-30T09:15:00",
                             "firstAlarmAt": "2025-09-30T09:00:00",
-                            "secondAlarmAt": "2025-09-30T09:10:00",
-                            "caregiverNotifiedAt": "2025-09-30T09:20:00"
+                            "secondAlarmAt": "2025-09-30T09:10:00"
                           }
                         }
                         """))),
