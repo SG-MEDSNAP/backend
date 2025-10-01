@@ -19,21 +19,25 @@ public interface PushTokenRepository extends JpaRepository<PushToken, Long> {
     Optional<PushToken> findByUser(User user);
 
     /** 워커용: 활성 토큰 조회 */
-    @Query("SELECT pt " +
-            "FROM PushToken pt " +
-            "WHERE pt.user.id = :userId " +
-            "AND pt.isActive = true")
+    @Query(
+            "SELECT pt "
+                    + "FROM PushToken pt "
+                    + "WHERE pt.user.id = :userId "
+                    + "AND pt.isActive = true")
     List<PushToken> findActiveTokensByUserId(@Param("userId") Long userId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE PushToken pt " +
-            "SET pt.isActive = false, pt.lastError = :reason " +
-            "WHERE pt.token IN :tokens")
-    int deactivateAllByTokenIn(@Param("tokens") Collection<String> tokens, @Param("reason") String reason);
+    @Query(
+            "UPDATE PushToken pt "
+                    + "SET pt.isActive = false, pt.lastError = :reason "
+                    + "WHERE pt.token IN :tokens")
+    int deactivateAllByTokenIn(
+            @Param("tokens") Collection<String> tokens, @Param("reason") String reason);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE PushToken pt " +
-            "SET pt.isActive = false, pt.lastError = :reason " +
-            "WHERE pt.user.id = :userId")
+    @Query(
+            "UPDATE PushToken pt "
+                    + "SET pt.isActive = false, pt.lastError = :reason "
+                    + "WHERE pt.user.id = :userId")
     int deactivateAllByUserId(@Param("userId") Long userId, @Param("reason") String reason);
 }

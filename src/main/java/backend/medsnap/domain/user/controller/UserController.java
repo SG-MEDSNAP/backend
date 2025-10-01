@@ -39,9 +39,7 @@ public class UserController implements UserSwagger {
 
     @Override
     @DeleteMapping
-    public ResponseEntity<Void> deleteUser(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
         userService.deleteUser(userDetails.getId());
 
         return ResponseEntity.noContent().build();

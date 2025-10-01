@@ -1,29 +1,31 @@
 package backend.medsnap.domain.notification.entity;
 
-import backend.medsnap.domain.user.entity.User;
-import backend.medsnap.global.entity.BaseEntity;
+import java.time.LocalDateTime;
+import java.util.Map;
+
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
-import java.util.Map;
+import backend.medsnap.domain.user.entity.User;
+import backend.medsnap.global.entity.BaseEntity;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "notifications", 
-       uniqueConstraints = {
-           @UniqueConstraint(
-               name = "ux_notifications_dedupe",
-               columnNames = {"user_id", "scheduled_at", "title", "body"}
-           )
-       })
+@Table(
+        name = "notifications",
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    name = "ux_notifications_dedupe",
+                    columnNames = {"user_id", "scheduled_at", "title", "body"})
+        })
 @SQLDelete(sql = "UPDATE notifications SET deleted_at = NOW() WHERE id = ?")
 @Where(clause = "deleted_at IS NULL")
 public class Notification extends BaseEntity {
@@ -56,8 +58,12 @@ public class Notification extends BaseEntity {
 
     private String errorCode;
 
-    private Notification(User user, String title, String body,
-                         Map<String, Object> data, LocalDateTime scheduledAt) {
+    private Notification(
+            User user,
+            String title,
+            String body,
+            Map<String, Object> data,
+            LocalDateTime scheduledAt) {
         this.user = user;
         this.title = title;
         this.body = body;
@@ -66,8 +72,12 @@ public class Notification extends BaseEntity {
         this.status = NotificationStatus.SCHEDULED;
     }
 
-    public static Notification create(User user, String title, String body,
-                                      Map<String, Object> data, LocalDateTime scheduledAt) {
+    public static Notification create(
+            User user,
+            String title,
+            String body,
+            Map<String, Object> data,
+            LocalDateTime scheduledAt) {
         return new Notification(user, title, body, data, scheduledAt);
     }
 

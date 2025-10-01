@@ -54,7 +54,8 @@ public enum ErrorCode {
     AI_VERIFICATION_FAILED(HttpStatus.BAD_REQUEST, "MR003", "AI 복약 인증에 실패했습니다."),
 
     // Inference (AI)
-    INFERENCE_COMMUNICATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "I001", "추론 서버와 통신하는 중 오류가 발생했습니다."),
+    INFERENCE_COMMUNICATION_ERROR(
+            HttpStatus.INTERNAL_SERVER_ERROR, "I001", "추론 서버와 통신하는 중 오류가 발생했습니다."),
     INFERENCE_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "I002", "추론 서버에 잘못된 요청을 보냈습니다.");
 
     private final HttpStatus status;

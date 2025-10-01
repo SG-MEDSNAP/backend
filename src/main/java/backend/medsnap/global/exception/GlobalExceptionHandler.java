@@ -74,8 +74,7 @@ public class GlobalExceptionHandler {
             EntityNotFoundException e) {
         log.warn("EntityNotFoundException: {}", e.getMessage());
 
-        ApiResponse<Object> response =
-                ApiResponse.error(ErrorCode.COMMON_NOT_FOUND, null);
+        ApiResponse<Object> response = ApiResponse.error(ErrorCode.COMMON_NOT_FOUND, null);
 
         return ResponseEntity.status(ErrorCode.COMMON_NOT_FOUND.getStatus()).body(response);
     }

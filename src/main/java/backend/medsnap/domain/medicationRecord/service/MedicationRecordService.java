@@ -12,10 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import backend.medsnap.domain.medicationRecord.dto.response.VerifyResponse;
-import backend.medsnap.infra.inference.client.InferenceClient;
-import backend.medsnap.infra.inference.dto.response.InferenceResponse;
-import backend.medsnap.infra.s3.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +21,7 @@ import backend.medsnap.domain.alarm.entity.DayOfWeek;
 import backend.medsnap.domain.alarm.repository.AlarmRepository;
 import backend.medsnap.domain.medication.entity.Medication;
 import backend.medsnap.domain.medicationRecord.dto.response.DayListResponse;
+import backend.medsnap.domain.medicationRecord.dto.response.VerifyResponse;
 import backend.medsnap.domain.medicationRecord.entity.MedicationRecord;
 import backend.medsnap.domain.medicationRecord.entity.MedicationRecordStatus;
 import backend.medsnap.domain.medicationRecord.exception.MedicationRecordException;
@@ -33,6 +30,9 @@ import backend.medsnap.domain.notification.dto.request.NotificationCreateRequest
 import backend.medsnap.domain.notification.repository.NotificationRepository;
 import backend.medsnap.domain.notification.service.NotificationService;
 import backend.medsnap.global.exception.ErrorCode;
+import backend.medsnap.infra.inference.client.InferenceClient;
+import backend.medsnap.infra.inference.dto.response.InferenceResponse;
+import backend.medsnap.infra.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,10 +51,7 @@ public class MedicationRecordService {
 
     private static final Duration GRACE_PERIOD = Duration.ofMinutes(45);
 
-    /**
-     * 복약 인증 처리 (AI API 연동)
-     * TODO: AI API 준비 완료 후 활성화
-     */
+    /** 복약 인증 처리 (AI API 연동) TODO: AI API 준비 완료 후 활성화 */
     @Transactional
     public VerifyResponse verifyMedicationWithAI(Long userId, Long recordId, MultipartFile image) {
         log.info("복약 인증 시작 (AI) - userId: {}, recordId: {}", userId, recordId);
@@ -88,9 +85,7 @@ public class MedicationRecordService {
         return VerifyResponse.from(record);
     }
 
-    /**
-     * 복약 인증 처리 (목데이터 - AI API 준비 전 임시)
-     */
+    /** 복약 인증 처리 (목데이터 - AI API 준비 전 임시) */
     @Transactional
     public VerifyResponse verifyMedication(Long userId, Long recordId, MultipartFile image) {
         log.info("복약 인증 시작 (목데이터) - userId: {}, recordId: {}", userId, recordId);
@@ -198,7 +193,7 @@ public class MedicationRecordService {
                     medication.getId(),
                     today,
                     records.size());
-            
+
             // 복약 기록 생성 시 알림도 함께 생성
             createNotificationsForRecords(records, today);
         } else {
@@ -315,40 +310,39 @@ public class MedicationRecordService {
     }
 
     /** 복약 기록에 대한 알림 생성 */
-    private void createNotificationsForRecords(List<MedicationRecord> records, LocalDate recordDate) {
+    private void createNotificationsForRecords(
+            List<MedicationRecord> records, LocalDate recordDate) {
         try {
             for (MedicationRecord record : records) {
                 Medication medication = record.getMedication();
                 LocalTime doseTime = record.getDoseTime();
-                
+
                 // 알림 예약 시간: 복용 시간에 맞춰 설정
                 LocalDateTime notificationTime = recordDate.atTime(doseTime);
-                
+
                 // 사전 알림이 활성화되어 있다면 10분 전에 알림 생성
                 if (Boolean.TRUE.equals(medication.getPreNotify())) {
                     LocalDateTime preNotificationTime = notificationTime.minusMinutes(10);
                     if (preNotificationTime.isAfter(LocalDateTime.now())) {
                         createMedicationNotification(
-                            medication.getUser().getId(),
-                            medication.getName(),
-                            doseTime,
-                            preNotificationTime,
-                            "메드스냅",
-                            String.format("%s 복용 시간이 10분 남았습니다.", medication.getName())
-                        );
+                                medication.getUser().getId(),
+                                medication.getName(),
+                                doseTime,
+                                preNotificationTime,
+                                "메드스냅",
+                                String.format("%s 복용 시간이 10분 남았습니다.", medication.getName()));
                     }
                 }
-                
+
                 // 정시 알림 생성
                 if (notificationTime.isAfter(LocalDateTime.now(clock))) {
                     createMedicationNotification(
-                        medication.getUser().getId(),
-                        medication.getName(),
-                        doseTime,
-                        notificationTime,
-                        "메드스냅",
-                        String.format("%s 복용 시간입니다.", medication.getName())
-                    );
+                            medication.getUser().getId(),
+                            medication.getName(),
+                            doseTime,
+                            notificationTime,
+                            "메드스냅",
+                            String.format("%s 복용 시간입니다.", medication.getName()));
                 }
             }
             log.info("복약 기록 {}개에 대한 알림 생성 완료", records.size());
@@ -356,10 +350,15 @@ public class MedicationRecordService {
             log.error("복약 기록 알림 생성 중 오류 발생", e);
         }
     }
-    
+
     /** 약물 복용 알림 생성 헬퍼 메서드 */
-    private void createMedicationNotification(Long userId, String medicationName, LocalTime doseTime, 
-                                            LocalDateTime scheduledAt, String title, String body) {
+    private void createMedicationNotification(
+            Long userId,
+            String medicationName,
+            LocalTime doseTime,
+            LocalDateTime scheduledAt,
+            String title,
+            String body) {
         try {
             // 과거 시간 필터링 (KST 기준으로 비교)
             LocalDateTime now = LocalDateTime.now(clock);
@@ -367,27 +366,38 @@ public class MedicationRecordService {
                 log.debug("과거 알림 건너뜀: 사용자 ID {}, 시간 {}", userId, scheduledAt);
                 return;
             }
-            
+
             // 중복 알림 체크 (강화된 키: userId + scheduledAt + title + body)
-            if (notificationRepository.existsByUserIdAndScheduledAtAndTitleAndBody(userId, scheduledAt, title, body)) {
-                log.debug("중복 알림 건너뜀: 사용자 ID {}, 시간 {}, 제목 {}, 본문 {}", userId, scheduledAt, title, body);
+            if (notificationRepository.existsByUserIdAndScheduledAtAndTitleAndBody(
+                    userId, scheduledAt, title, body)) {
+                log.debug(
+                        "중복 알림 건너뜀: 사용자 ID {}, 시간 {}, 제목 {}, 본문 {}",
+                        userId,
+                        scheduledAt,
+                        title,
+                        body);
                 return;
             }
-            
-            Map<String, Object> data = Map.of(
-                "type", "medication",
-                "medicationName", medicationName,
-                "doseTime", doseTime.toString(),
-                "scheduledAt", scheduledAt.toString()
-            );
-            
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                .title(title)
-                .body(body)
-                .data(data)
-                .scheduledAt(scheduledAt)
-                .build();
-                
+
+            Map<String, Object> data =
+                    Map.of(
+                            "type",
+                            "medication",
+                            "medicationName",
+                            medicationName,
+                            "doseTime",
+                            doseTime.toString(),
+                            "scheduledAt",
+                            scheduledAt.toString());
+
+            NotificationCreateRequest request =
+                    NotificationCreateRequest.builder()
+                            .title(title)
+                            .body(body)
+                            .data(data)
+                            .scheduledAt(scheduledAt)
+                            .build();
+
             notificationService.createNotification(userId, request);
             log.debug("알림 생성 완료: 사용자 ID {}, 약물 {}, 시간 {}", userId, medicationName, doseTime);
         } catch (Exception e) {
@@ -410,8 +420,13 @@ public class MedicationRecordService {
 
     /** 복약 기록 조회 및 사용자 권한 검증 */
     private MedicationRecord findAndValidateRecord(Long userId, Long recordId) {
-        MedicationRecord record = medicationRecordRepository.findById(recordId)
-                .orElseThrow(() -> new MedicationRecordException(ErrorCode.MEDICATION_RECORD_NOT_FOUND));
+        MedicationRecord record =
+                medicationRecordRepository
+                        .findById(recordId)
+                        .orElseThrow(
+                                () ->
+                                        new MedicationRecordException(
+                                                ErrorCode.MEDICATION_RECORD_NOT_FOUND));
 
         if (!record.getMedication().getUser().getId().equals(userId)) {
             throw new MedicationRecordException(ErrorCode.MEDICATION_RECORD_FORBIDDEN_ACCESS);

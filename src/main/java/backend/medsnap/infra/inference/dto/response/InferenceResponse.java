@@ -1,9 +1,10 @@
 package backend.medsnap.infra.inference.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.*;
 
 @Getter
 @Builder
@@ -25,9 +26,12 @@ public class InferenceResponse {
     public static class Data {
         @JsonProperty("has_medicine")
         private Boolean hasMedicine;
+
         private Double confidence;
+
         @JsonProperty("model_info")
         private ModelInfo modelInfo;
+
         @JsonProperty("timing_ms")
         private TimingMs timingMs;
     }

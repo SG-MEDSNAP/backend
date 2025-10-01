@@ -29,9 +29,12 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
             @Param("userId") Long userId, @Param("recordDate") LocalDate recordDate);
 
     /** [멱등성 체크용] 복약 내역 생성 중복 방지 (삭제되지 않은 것만) */
-    @Query("SELECT COUNT(mr) > 0 FROM MedicationRecord mr WHERE mr.medication.id = :medicationId AND mr.doseTime = :doseTime AND mr.recordDate = :recordDate AND mr.deletedAt IS NULL")
+    @Query(
+            "SELECT COUNT(mr) > 0 FROM MedicationRecord mr WHERE mr.medication.id = :medicationId AND mr.doseTime = :doseTime AND mr.recordDate = :recordDate AND mr.deletedAt IS NULL")
     boolean existsByMedication_IdAndDoseTimeAndRecordDate(
-            @Param("medicationId") Long medicationId, @Param("doseTime") LocalTime doseTime, @Param("recordDate") LocalDate recordDate);
+            @Param("medicationId") Long medicationId,
+            @Param("doseTime") LocalTime doseTime,
+            @Param("recordDate") LocalDate recordDate);
 
     /** [스케줄러용] 기존 기록 키 일괄 조회 (삭제되지 않은 것만) */
     @Query(

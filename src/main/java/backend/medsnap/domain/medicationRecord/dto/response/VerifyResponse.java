@@ -1,12 +1,12 @@
 package backend.medsnap.domain.medicationRecord.dto.response;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import backend.medsnap.domain.medicationRecord.entity.MedicationRecord;
 import backend.medsnap.domain.medicationRecord.entity.MedicationRecordStatus;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Getter
 @Builder
