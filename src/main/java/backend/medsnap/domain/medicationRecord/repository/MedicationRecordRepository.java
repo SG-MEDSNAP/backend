@@ -62,4 +62,19 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
             @Param("userId") Long userId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
+
+    /** 알림 시간 업데이트용 - 사용자, 날짜, 시간으로 복약 기록 조회 */
+    @Query(
+            """
+        SELECT mr FROM MedicationRecord mr
+        JOIN FETCH mr.medication m
+        WHERE m.user.id = :userId
+        AND mr.recordDate = :recordDate
+        AND mr.doseTime = :doseTime
+        AND mr.deletedAt IS NULL
+        """)
+    List<MedicationRecord> findByMedicationUserAndRecordDateAndDoseTime(
+            @Param("userId") Long userId,
+            @Param("recordDate") LocalDate recordDate,
+            @Param("doseTime") LocalTime doseTime);
 }

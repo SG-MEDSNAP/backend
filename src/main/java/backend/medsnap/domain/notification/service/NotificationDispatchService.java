@@ -1,5 +1,7 @@
 package backend.medsnap.domain.notification.service;
 
+import backend.medsnap.domain.medicationRecord.entity.MedicationRecord;
+import backend.medsnap.domain.medicationRecord.repository.MedicationRecordRepository;
 import backend.medsnap.domain.notification.client.ExpoPushClient;
 import backend.medsnap.domain.notification.entity.Notification;
 import backend.medsnap.domain.notification.repository.NotificationRepository;
@@ -15,8 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -26,6 +31,7 @@ public class NotificationDispatchService {
 
     private final NotificationRepository notificationRepository;
     private final PushTokenRepository pushTokenRepository;
+    private final MedicationRecordRepository medicationRecordRepository;
     private final ExpoPushClient expoClient;
     private final RateLimiter rateLimiter;
 
@@ -147,6 +153,9 @@ public class NotificationDispatchService {
         if (!expoResult.getSuccessTicketIds().isEmpty() && !expoResult.hasError()) {
             n.markSent(appendIds(n.getProviderMessageId(), expoResult.getSuccessTicketIds()));
             log.info("알림 전송 성공: notificationId={}, tickets={}, status={}", n.getId(), expoResult.getSuccessTicketIds(), n.getStatus());
+            
+            // 복약 알림인 경우 MedicationRecord 업데이트
+            updateMedicationRecordAlarmTime(n);
         } else {
             n.markProviderError(expoResult.hasError() ? expoResult.getErrorMessage() : "Expo 전송 실패");
             log.error("알림 전송 실패: notificationId={}, error={}, status={}", n.getId(), expoResult.getErrorMessage(), n.getStatus());
@@ -165,6 +174,65 @@ public class NotificationDispatchService {
         String joined = String.join(",", add);
         if (current == null || current.isBlank()) return joined;
         return current + "," + joined;
+    }
+    
+    /**
+     * 복약 알림인 경우 MedicationRecord의 알림 시간 업데이트
+     */
+    private void updateMedicationRecordAlarmTime(Notification notification) {
+        try {
+            Map<String, Object> data = notification.getData();
+            if (data == null || !"medication".equals(data.get("type"))) {
+                return; // 복약 알림이 아님
+            }
+            
+            String medicationName = (String) data.get("medicationName");
+            String doseTimeStr = (String) data.get("doseTime");
+            String scheduledAtStr = (String) data.get("scheduledAt");
+            
+            if (medicationName == null || doseTimeStr == null || scheduledAtStr == null) {
+                log.warn("복약 알림 데이터가 불완전합니다: notificationId={}", notification.getId());
+                return;
+            }
+            
+            LocalDateTime scheduledAt = LocalDateTime.parse(scheduledAtStr);
+            LocalTime actualDoseTime = LocalTime.parse(doseTimeStr);
+            LocalDateTime now = LocalDateTime.now();
+            
+            // 실제 복용 시간으로 조회
+            List<MedicationRecord> records = medicationRecordRepository
+                .findByMedicationUserAndRecordDateAndDoseTime(
+                    notification.getUser().getId(),
+                    scheduledAt.toLocalDate(),
+                    actualDoseTime
+                );
+            
+            for (MedicationRecord record : records) {
+                LocalDateTime expectedDoseTime = record.getRecordDate().atTime(record.getDoseTime());
+                
+                // 사전 알림인지 정시 알림인지 구분
+                boolean isPreNotification = scheduledAt.isBefore(expectedDoseTime);
+                
+                if (isPreNotification) {
+                    // 사전 알림 → firstAlarmAt
+                    if (record.getFirstAlarmAt() == null) {
+                        record.markFirstAlarmSent(now);
+                        log.info("사전 알림 시간 기록: recordId={}, time={}, scheduledAt={}, expectedTime={}", 
+                            record.getId(), now, scheduledAt, expectedDoseTime);
+                    }
+                } else {
+                    // 정시 알림 → secondAlarmAt
+                    if (record.getSecondAlarmAt() == null) {
+                        record.markSecondAlarmSent(now);
+                        log.info("정시 알림 시간 기록: recordId={}, time={}, scheduledAt={}, expectedTime={}", 
+                            record.getId(), now, scheduledAt, expectedDoseTime);
+                    }
+                }
+            }
+            
+        } catch (Exception e) {
+            log.error("MedicationRecord 알림 시간 업데이트 실패: notificationId={}", notification.getId(), e);
+        }
     }
     
     /**

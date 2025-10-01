@@ -88,4 +88,12 @@ public class MedicationRecord extends BaseEntity {
         this.imageUrl = imageUrl;
         this.checkedAt = checkedAt;
     }
+
+    public void markFirstAlarmSent(LocalDateTime alarmTime) {
+        this.firstAlarmAt = alarmTime;
+    }
+
+    public void markSecondAlarmSent(LocalDateTime alarmTime) {
+        this.secondAlarmAt = alarmTime;
+    }
 }
