@@ -15,8 +15,10 @@ import java.util.stream.Collectors;
 import backend.medsnap.domain.medicationRecord.dto.response.VerifyResponse;
 import backend.medsnap.infra.inference.client.InferenceClient;
 import backend.medsnap.infra.inference.dto.response.InferenceResponse;
+import backend.medsnap.infra.s3.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import backend.medsnap.domain.alarm.entity.Alarm;
 import backend.medsnap.domain.alarm.entity.DayOfWeek;
@@ -44,6 +46,7 @@ public class MedicationRecordService {
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
     private final InferenceClient inferenceClient;
+    private final S3Service s3Service;
     private final Clock clock;
 
     private static final Duration GRACE_PERIOD = Duration.ofMinutes(45);
@@ -52,7 +55,7 @@ public class MedicationRecordService {
      * 복약 인증 처리
      */
     @Transactional
-    public VerifyResponse verifyMedication(Long userId, Long recordId, String imageUrl) {
+    public VerifyResponse verifyMedication(Long userId, Long recordId, MultipartFile image) {
         log.info("복약 인증 시작 - userId: {}, recordId: {}", userId, recordId);
 
         MedicationRecord record = findAndValidateRecord(userId, recordId);
@@ -63,12 +66,18 @@ public class MedicationRecordService {
             return VerifyResponse.from(record);
         }
 
+        // S3에 이미지 업로드
+        String imageUrl = s3Service.uploadFile(image, "medication-verification");
+        log.info("이미지 S3 업로드 완료 - recordId: {}, imageUrl: {}", recordId, imageUrl);
+
         // InferenceClient는 imageUrl만 받아 내부적으로 모든 통신을 처리
         InferenceResponse response = inferenceClient.verify(imageUrl);
 
         // 추론 성공 여부 판정 (신뢰도 80% 이상 포함)
         if (!isSuccessfulInference(response)) {
             log.warn("추론 실패 또는 신뢰도 미달 - recordId: {}, response: {}", recordId, response);
+            // S3에서 업로드된 이미지 삭제
+            s3Service.deleteFile(imageUrl);
             throw new MedicationRecordException(ErrorCode.AI_VERIFICATION_FAILED);
         }
 

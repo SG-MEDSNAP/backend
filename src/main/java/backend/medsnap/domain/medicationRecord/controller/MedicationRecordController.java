@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
 import backend.medsnap.domain.medicationRecord.dto.response.DayListResponse;
@@ -24,13 +25,14 @@ public class MedicationRecordController implements MedicationRecordSwagger {
     private final MedicationRecordService medicationRecordService;
 
     /** 복약 인증 */
-    @PatchMapping("/{recordId}/verify")
+    @Override
+    @PatchMapping(value = "/{recordId}/verify", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse<VerifyResponse>> verifyMedication(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long recordId,
-            @RequestBody @Valid VerifyRequest request) {
+            @RequestParam("image") @Valid MultipartFile image) {
 
-        VerifyResponse response = medicationRecordService.verifyMedication(userDetails.getId(), recordId, request.getImageUrl());
+        VerifyResponse response = medicationRecordService.verifyMedication(userDetails.getId(), recordId, image);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }
