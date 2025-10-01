@@ -1,16 +1,13 @@
 package backend.medsnap.domain.notification.util;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Token Bucket 알고리즘을 사용한 Rate Limiter
- * Expo Push Service의 600개/초 제한을 준수
- */
+import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
+
+/** Token Bucket 알고리즘을 사용한 Rate Limiter Expo Push Service의 600개/초 제한을 준수 */
 @Slf4j
 @Component
 public class RateLimiter {
@@ -21,23 +18,21 @@ public class RateLimiter {
     private final AtomicInteger tokens = new AtomicInteger(MAX_TOKENS);
     private final AtomicLong lastRefillTime = new AtomicLong(System.currentTimeMillis());
 
-    /**
-     * 토큰을 획득하려고 시도
-     */
+    /** 토큰을 획득하려고 시도 */
     public boolean tryAcquire(int requestedTokens) {
         if (requestedTokens <= 0) {
             return true;
         }
 
         refillTokens();
-        
+
         while (true) {
             int currentTokens = tokens.get();
             if (currentTokens < requestedTokens) {
                 log.debug("토큰 부족: 요청={}, 현재 토큰={}", requestedTokens, currentTokens);
                 return false;
             }
-            
+
             int newTokens = currentTokens - requestedTokens;
             if (tokens.compareAndSet(currentTokens, newTokens)) {
                 log.debug("토큰 획득 성공: 요청={}, 남은 토큰={}", requestedTokens, newTokens);
@@ -47,9 +42,7 @@ public class RateLimiter {
         }
     }
 
-    /**
-     * 토큰을 획득할 때까지 대기
-     */
+    /** 토큰을 획득할 때까지 대기 */
     public void acquire(int requestedTokens) {
         while (!tryAcquire(requestedTokens)) {
             try {
@@ -61,17 +54,13 @@ public class RateLimiter {
         }
     }
 
-    /**
-     * 현재 사용 가능한 토큰 수
-     */
+    /** 현재 사용 가능한 토큰 수 */
     public int getAvailableTokens() {
         refillTokens();
         return tokens.get();
     }
 
-    /**
-     * 토큰 리필 로직
-     */
+    /** 토큰 리필 로직 */
     private void refillTokens() {
         long now = System.currentTimeMillis();
         long lastRefill = lastRefillTime.get();

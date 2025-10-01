@@ -1,5 +1,7 @@
 package backend.medsnap.domain.pushToken.service;
 
+import java.util.Locale;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,8 +15,6 @@ import backend.medsnap.domain.user.exception.UserNotFoundException;
 import backend.medsnap.domain.user.repository.UserRepository;
 import backend.medsnap.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-
-import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor

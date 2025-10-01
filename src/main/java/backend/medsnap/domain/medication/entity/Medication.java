@@ -60,8 +60,7 @@ public class Medication extends BaseEntity {
     private List<MedicationRecord> medicationRecords = new ArrayList<>();
 
     @Builder
-    public Medication(
-            String name, String imageUrl, Boolean preNotify, User user) {
+    public Medication(String name, String imageUrl, Boolean preNotify, User user) {
         this.name = name;
         this.imageUrl = imageUrl;
         // this.notifyCaregiver = notifyCaregiver;
@@ -69,8 +68,7 @@ public class Medication extends BaseEntity {
         this.user = user;
     }
 
-    public void updateMedicationDetails(
-            String name, String imageUrl, Boolean preNotify) {
+    public void updateMedicationDetails(String name, String imageUrl, Boolean preNotify) {
         this.name = name;
         this.imageUrl = imageUrl;
         // this.notifyCaregiver = notifyCaregiver;
@@ -82,7 +80,7 @@ public class Medication extends BaseEntity {
     public void softDelete() {
         // 알림들을 소프트 딜리트
         alarms.forEach(Alarm::softDelete);
-        
+
         // 부모 클래스의 softDelete 호출
         super.softDelete();
     }

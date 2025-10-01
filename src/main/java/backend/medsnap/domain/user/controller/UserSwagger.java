@@ -238,6 +238,5 @@ public interface UserSwagger {
                                             }
                                             """)))
             })
-    ResponseEntity<Void> deleteUser(
-            @AuthenticationPrincipal CustomUserDetails userDetails);
+    ResponseEntity<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails);
 }

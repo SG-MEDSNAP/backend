@@ -53,11 +53,7 @@ public class User extends BaseEntity {
     private List<Medication> medications = new ArrayList<>();
 
     @Builder
-    public User(
-            String name,
-            LocalDate birthday,
-            String phone,
-            Boolean isPushConsent) {
+    public User(String name, LocalDate birthday, String phone, Boolean isPushConsent) {
         this.role = Role.USER;
         this.name = name;
         this.birthday = birthday;
@@ -67,10 +63,7 @@ public class User extends BaseEntity {
     }
 
     public void updateProfile(
-            String name,
-            LocalDate birthday,
-            String phone,
-            Boolean isPushConsent) {
+            String name, LocalDate birthday, String phone, Boolean isPushConsent) {
         this.name = name;
         this.birthday = birthday;
         this.phone = phone;
@@ -88,7 +81,7 @@ public class User extends BaseEntity {
     public void softDelete() {
         // provider_user_id를 null로 설정
         socialAccounts.forEach(SocialAccount::clearProviderUserId);
-        
+
         super.softDelete();
     }
 }

@@ -3,11 +3,15 @@ package backend.medsnap.domain.medicationRecord.controller;
 import java.time.LocalDate;
 import java.util.Set;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.multipart.MultipartFile;
 
 import backend.medsnap.domain.auth.dto.token.CustomUserDetails;
 import backend.medsnap.domain.medicationRecord.dto.response.DayListResponse;
+import backend.medsnap.domain.medicationRecord.dto.response.VerifyResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,6 +22,184 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "medication-records", description = "복약 현황 API")
 public interface MedicationRecordSwagger {
+
+    @Operation(summary = "복약 인증", description = "복약 사진을 업로드하여 AI를 통해 인증하고 복약 기록을 업데이트합니다.")
+    @ApiResponses(
+            value = {
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "200",
+                        description = "복약 인증 성공",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "SUCCESS",
+                          "httpStatus": 200,
+                          "message": "요청이 성공적으로 처리되었습니다.",
+                          "data": {
+                            "recordId": 123,
+                            "alarmTime": "09:00",
+                            "medicationId": 1,
+                            "medicationName": "타이레놀",
+                            "status": "TAKEN",
+                            "imageUrl": "https://s3.amazonaws.com/bucket/medication_photo.jpg",
+                            "checkedAt": "2025-09-30T09:15:00",
+                            "firstAlarmAt": "2025-09-30T09:00:00",
+                            "secondAlarmAt": "2025-09-30T09:10:00"
+                          }
+                        }
+                        """))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "400",
+                        description = "잘못된 요청 (이미지 파일 누락, 파일 형식 오류, 복약 기록 상태 오류 등)",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "C002",
+                          "httpStatus": 400,
+                          "message": "입력값 검증에 실패했습니다.",
+                          "data": null
+                        }
+                        """))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "401",
+                        description = "인증 실패",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "A007",
+                          "httpStatus": 401,
+                          "message": "유효하지 않은 JWT 토큰입니다.",
+                          "data": null
+                        }
+                        """))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "403",
+                        description = "권한 없음 (다른 사용자의 복약 기록 접근)",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "A008",
+                          "httpStatus": 403,
+                          "message": "접근 권한이 없습니다.",
+                          "data": null
+                        }
+                        """))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "404",
+                        description = "복약 기록을 찾을 수 없음",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "MR001",
+                          "httpStatus": 404,
+                          "message": "복약 기록을 찾을 수 없습니다.",
+                          "data": null
+                        }
+                        """))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "409",
+                        description = "이미 인증된 복약 기록",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "MR002",
+                          "httpStatus": 409,
+                          "message": "이미 인증된 복약 기록입니다.",
+                          "data": null
+                        }
+                        """))),
+                @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                        responseCode = "500",
+                        description = "서버 오류 (S3 업로드 실패, AI 인증 실패 등)",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                backend.medsnap.global.dto
+                                                                        .ApiResponse.class),
+                                        examples =
+                                                @ExampleObject(
+                                                        value =
+                                                                """
+                        {
+                          "code": "C001",
+                          "httpStatus": 500,
+                          "message": "내부 서버 오류가 발생했습니다.",
+                          "data": null
+                        }
+                        """)))
+            })
+    ResponseEntity<backend.medsnap.global.dto.ApiResponse<VerifyResponse>> verifyMedication(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Parameter(description = "복약 기록 ID", required = true, example = "123")
+                    @org.springframework.web.bind.annotation.PathVariable
+                    Long recordId,
+            @Parameter(description = "복약 사진 파일 (multipart/form-data)", required = true)
+                    @org.springframework.web.bind.annotation.RequestParam("image")
+                    @Valid
+                    MultipartFile image);
 
     @Operation(summary = "달력 점 표시용 날짜 목록 조회", description = "특정 년월에 복약 기록이 있는 날짜들을 조회합니다.")
     @ApiResponses(
