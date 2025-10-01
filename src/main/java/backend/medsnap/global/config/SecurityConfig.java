@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -129,6 +130,16 @@ public class SecurityConfig {
                         auth ->
                                 auth.requestMatchers("/api/v1/auth/**", "/error", "/error/**")
                                         .permitAll()
+                                        // FAQ 조회는 인증된 모든 사용자 가능
+                                        .requestMatchers(HttpMethod.GET, "/api/v1/faqs/**")
+                                        .authenticated()
+                                        // FAQ 등록, 수정, 삭제는 ADMIN만 가능
+                                        .requestMatchers(HttpMethod.POST, "/api/v1/faqs/**")
+                                        .hasRole("ADMIN")
+                                        .requestMatchers(HttpMethod.PUT, "/api/v1/faqs/**")
+                                        .hasRole("ADMIN")
+                                        .requestMatchers(HttpMethod.DELETE, "/api/v1/faqs/**")
+                                        .hasRole("ADMIN")
                                         .anyRequest()
                                         .authenticated())
                 .csrf(csrf -> csrf.disable())

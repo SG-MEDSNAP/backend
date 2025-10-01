@@ -9,6 +9,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import backend.medsnap.domain.auth.exception.InvalidJwtTokenException;
+import backend.medsnap.domain.user.entity.Role;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -14,6 +14,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import backend.medsnap.domain.auth.dto.token.TokenPair;
+import backend.medsnap.domain.user.entity.Role;
 import backend.medsnap.domain.user.entity.User;
 
 @Component
@@ -36,18 +37,19 @@ public class JwtTokenProvider {
     }
 
     public TokenPair createTokenPair(User user) {
-        String accessToken = createAccessToken(user.getId());
+        String accessToken = createAccessToken(user.getId(), user.getRole());
         String refreshToken = createRefreshToken(user.getId());
         return new TokenPair(accessToken, refreshToken);
     }
 
-    private String createAccessToken(Long userId) {
+    private String createAccessToken(Long userId, Role role) {
         Date expiresAt = Date.from(Instant.now().plus(accessTokenValidityHours, ChronoUnit.HOURS));
 
         return JWT.create()
                 .withIssuer(issuer)
                 .withSubject(String.valueOf(userId))
                 .withClaim("typ", "access")
+                .withClaim("role", role.name())
                 .withExpiresAt(expiresAt)
                 .sign(algorithm);
     }
