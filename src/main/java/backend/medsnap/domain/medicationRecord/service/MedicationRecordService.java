@@ -412,10 +412,8 @@ public class MedicationRecordService {
         }
 
         InferenceResponse.Data data = response.getData();
-        // 약이 존재하고, 신뢰도 점수가 0.8 이상일 때만 성공으로 판단
-        return Boolean.TRUE.equals(data.getHasMedicine())
-                && data.getConfidence() != null
-                && data.getConfidence() >= 0.8;
+        // has_medicine 값으로 복약 판단: true면 복용, false면 미복용
+        return Boolean.TRUE.equals(data.getHasMedicine());
     }
 
     /** 복약 기록 조회 및 사용자 권한 검증 */
