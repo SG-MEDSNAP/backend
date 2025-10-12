@@ -67,6 +67,14 @@ services:
         limits:
           cpus: '0.50'
           memory: 512M
+    depends_on:
+      - ai-server
+    networks:
+      - app-network
+
+  ai-server:
+    build: ./ai-server
+    restart: unless-stopped
     networks:
       - app-network
 

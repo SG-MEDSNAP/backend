@@ -32,6 +32,17 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      ai-server:
+        condition: service_started
+    networks:
+      - app-network
+
+  ai-server:
+    build: ./ai-server
+    container_name: ai-server
+    restart: always
+    ports:
+      - "8001:8000"
     networks:
       - app-network
 
