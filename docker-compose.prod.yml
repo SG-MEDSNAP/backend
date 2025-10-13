@@ -13,7 +13,6 @@ services:
       - INFO=1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
     restart: unless-stopped
@@ -50,9 +49,11 @@ services:
       - socket-proxy
 
   app:
-    build: .
+    build: ./backend
     env_file:
       - .env.prod
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
     labels:
       - "traefik.enable=true"
       # http → https 리다이렉트 이후 https 엔드포인트
