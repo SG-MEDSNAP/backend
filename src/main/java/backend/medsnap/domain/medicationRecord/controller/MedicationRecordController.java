@@ -33,7 +33,8 @@ public class MedicationRecordController implements MedicationRecordSwagger {
             @RequestParam("image") @Valid MultipartFile image) {
 
         VerifyResponse response =
-                medicationRecordService.verifyMedicationWithAI(userDetails.getId(), recordId, image);
+                medicationRecordService.verifyMedicationWithAI(
+                        userDetails.getId(), recordId, image);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }
