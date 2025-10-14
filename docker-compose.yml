@@ -28,12 +28,24 @@ services:
     env_file:
       - .env.local
     environment:
-      SPRING_PROFILES_ACTIVE: local
+      SPRING_PROFILES_ACTIVE: dev
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - app-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # AI 서버를 로컬에서 따로 실행할 경우 주석 처리
+  # ai-server:
+  #   build: ./ai-server
+  #   container_name: ai-server
+  #   restart: always
+  #   ports:
+  #     - "8001:8000"
+  #   networks:
+  #     - app-network
 
 volumes:
   pgdata:

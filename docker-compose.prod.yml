@@ -13,7 +13,6 @@ services:
       - INFO=1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
     restart: unless-stopped
@@ -50,9 +49,11 @@ services:
       - socket-proxy
 
   app:
-    build: .
+    build: ./backend
     env_file:
       - .env.prod
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
     labels:
       - "traefik.enable=true"
       # http → https 리다이렉트 이후 https 엔드포인트
@@ -67,6 +68,25 @@ services:
         limits:
           cpus: '0.50'
           memory: 512M
+    depends_on:
+      - ai-server
+    networks:
+      - app-network
+
+  ai-server:
+    build: ./ai-server
+    container_name: ai-server
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
     networks:
       - app-network
 
