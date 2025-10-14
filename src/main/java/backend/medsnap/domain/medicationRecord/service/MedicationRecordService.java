@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
 import java.util.List;
@@ -286,7 +287,7 @@ public class MedicationRecordService {
 
     /** (약 ID, 복용 시간) 조합으로 키 생성 */
     private String createRecordKey(Long medicationId, LocalTime doseTime) {
-        return medicationId + "_" + doseTime.toString();
+        return medicationId + "_" + doseTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
     }
 
     /** 복용 상태 결정 */
