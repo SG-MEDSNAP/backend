@@ -187,15 +187,15 @@ public class MedicationRecordService {
                         .toList();
 
         if (!records.isEmpty()) {
-            medicationRecordRepository.saveAll(records);
+            List<MedicationRecord> savedRecords = medicationRecordRepository.saveAll(records);
             log.info(
                     "약 ID: {} - 오늘({})에 대한 {}개의 복약 기록이 생성되었습니다.",
                     medication.getId(),
                     today,
-                    records.size());
+                    savedRecords.size());
 
             // 복약 기록 생성 시 알림도 함께 생성
-            createNotificationsForRecords(records, today);
+            createNotificationsForRecords(savedRecords, today);
         } else {
             log.info("약 ID: {} - 오늘({})에 생성할 새로운 기록이 없습니다.", medication.getId(), today);
         }

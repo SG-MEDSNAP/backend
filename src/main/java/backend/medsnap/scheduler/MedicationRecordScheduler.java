@@ -126,14 +126,14 @@ public class MedicationRecordScheduler {
 
         // 4. DB에 일괄 저장
         if (!recordsToSave.isEmpty()) {
-            medicationRecordRepository.saveAll(recordsToSave);
+            List<MedicationRecord> savedRecords = medicationRecordRepository.saveAll(recordsToSave);
             log.info(
                     "스케줄링 성공: {}개의 복약 예정 기록 (PENDING)이 {} 날짜로 생성되었습니다.",
-                    recordsToSave.size(),
+                    savedRecords.size(),
                     todayDate);
 
             // 복약 기록 생성 시 알림도 함께 생성
-            createNotificationsForRecords(recordsToSave, todayDate);
+            createNotificationsForRecords(savedRecords, todayDate);
         } else {
             log.info("추가로 생성할 복약 예정 기록이 없습니다. 스케줄러 종료.");
         }
