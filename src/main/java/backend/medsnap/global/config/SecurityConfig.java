@@ -128,7 +128,7 @@ public class SecurityConfig {
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                         auth ->
-                                auth.requestMatchers("/api/v1/auth/**", "/error", "/error/**")
+                                auth.requestMatchers("/", "/api/v1/auth/**", "/error", "/error/**")
                                         .permitAll()
                                         // FAQ 조회는 인증된 모든 사용자 가능
                                         .requestMatchers(HttpMethod.GET, "/api/v1/faqs/**")
