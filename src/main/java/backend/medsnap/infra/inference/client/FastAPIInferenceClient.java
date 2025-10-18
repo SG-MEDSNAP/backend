@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
-@Profile("prod")
+@Profile({"prod", "production"})
 @RequiredArgsConstructor
 public class FastAPIInferenceClient implements InferenceClient {
 

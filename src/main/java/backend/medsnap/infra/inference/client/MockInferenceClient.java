@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@Profile("local")
+@Profile({"local", "dev"})
 public class MockInferenceClient implements InferenceClient {
 
     @Override
