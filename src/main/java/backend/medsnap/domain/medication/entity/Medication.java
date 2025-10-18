@@ -52,9 +52,7 @@ public class Medication extends BaseEntity {
             fetch = FetchType.LAZY)
     private List<Alarm> alarms = new ArrayList<>();
 
-    @OneToMany(
-            mappedBy = "medication",
-            fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "medication", fetch = FetchType.LAZY)
     private List<MedicationRecord> medicationRecords = new ArrayList<>();
 
     @Builder
@@ -77,7 +75,6 @@ public class Medication extends BaseEntity {
     public void softDelete() {
 
         alarms.forEach(Alarm::softDelete);
-
 
         super.softDelete();
     }
