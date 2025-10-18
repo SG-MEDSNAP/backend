@@ -24,12 +24,17 @@ public class JpaAuditingConfig {
         @Override
         public Optional<String> getCurrentAuditor() {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            
-            if (authentication == null || !authentication.isAuthenticated() || 
-                "anonymousUser".equals(authentication.getPrincipal())) {
+
+            if (authentication == null || !authentication.isAuthenticated()) {
                 return Optional.of("system");
             }
             
+            // 익명 사용자 확인
+            if (authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken) {
+                return Optional.of("system");
+            }
+
+
             // Principal에서 사용자 정보 추출
             Object principal = authentication.getPrincipal();
             
