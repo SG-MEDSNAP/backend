@@ -32,7 +32,7 @@ public class FastAPIInferenceClient implements InferenceClient {
         try {
             return inferenceWebClient
                     .patch()
-                    .uri("/") // FastAPI 추론 엔드포인트
+                    .uri("/predict") // FastAPI 추론 엔드포인트
                     .header("X-Request-Id", requestId)
                     .bodyValue(InferenceRequest.of(requestId, imageUrl))
                     .retrieve()
