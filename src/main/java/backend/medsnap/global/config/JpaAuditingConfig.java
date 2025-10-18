@@ -28,21 +28,22 @@ public class JpaAuditingConfig {
             if (authentication == null || !authentication.isAuthenticated()) {
                 return Optional.of("system");
             }
-            
+
             // 익명 사용자 확인
-            if (authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken) {
+            if (authentication
+                    instanceof
+                    org.springframework.security.authentication.AnonymousAuthenticationToken) {
                 return Optional.of("system");
             }
 
-
             // Principal에서 사용자 정보 추출
             Object principal = authentication.getPrincipal();
-            
+
             if (principal instanceof UserDetails) {
                 UserDetails userDetails = (UserDetails) principal;
                 return Optional.of(userDetails.getUsername());
             }
-            
+
             // 일반적인 경우 사용자명 반환
             String userId = authentication.getName();
             return Optional.of(userId);

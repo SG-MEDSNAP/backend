@@ -76,7 +76,6 @@ public class User extends BaseEntity {
         this.refreshToken = refreshToken;
     }
 
-
     @Override
     public void softDelete() {
 
