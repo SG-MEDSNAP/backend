@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
-@Profile("!local")
+@Profile("prod")
 @RequiredArgsConstructor
 public class FastAPIInferenceClient implements InferenceClient {
 
@@ -32,7 +32,7 @@ public class FastAPIInferenceClient implements InferenceClient {
         try {
             return inferenceWebClient
                     .post()
-                    .uri("/predict") // FastAPI 추론 엔드포인트
+                    .uri("/") // FastAPI 추론 엔드포인트
                     .header("X-Request-Id", requestId)
                     .bodyValue(InferenceRequest.of(requestId, imageUrl))
                     .retrieve()
@@ -68,6 +68,15 @@ public class FastAPIInferenceClient implements InferenceClient {
             throw e;
         } catch (Exception e) {
             log.error("추론 서버 통신에 실패했습니다 - requestId: {}", requestId, e);
+            
+            // 연결 실패 시 더 구체적인 에러 메시지 제공
+            if (e.getMessage() != null && e.getMessage().contains("Connection refused")) {
+                throw new InferenceException(
+                    ErrorCode.INFERENCE_COMMUNICATION_ERROR,
+                    "AI 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요."
+                );
+            }
+            
             throw new InferenceException("추론 서버 통신 실패", e);
         }
     }
