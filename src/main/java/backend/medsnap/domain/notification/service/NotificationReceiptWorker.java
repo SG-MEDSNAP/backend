@@ -26,6 +26,7 @@ public class NotificationReceiptWorker {
     private final ExpoReceiptClient expoReceiptClient;
 
     /** 15분마다 푸시 리시트 확인 */
+    @Transactional
     @Scheduled(fixedDelay = 900000) // 15분 = 900,000ms
     public void checkPushReceipts() {
         log.info("--- [푸시 리시트 확인 시작] ---");
