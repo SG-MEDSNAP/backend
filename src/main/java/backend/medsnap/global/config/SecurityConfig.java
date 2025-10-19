@@ -67,7 +67,7 @@ public class SecurityConfig {
     public SecurityFilterChain swaggerSecurityFilterChain(
             HttpSecurity http,
             PasswordEncoder encoder,
-            UserDetailsService swaggerUserDetailsService)
+            @Qualifier("swaggerUserDetailsService") UserDetailsService swaggerUserDetailsService)
             throws Exception {
         
         // HttpSecurity 객체에 직접 securityMatcher 적용
