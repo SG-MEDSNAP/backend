@@ -1,5 +1,6 @@
 package backend.medsnap.global.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -125,7 +126,16 @@ public class SecurityConfig {
     /** API 전용 필터 체인 (JWT) */
     @Bean
     @Order(2)
-    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain apiSecurityFilterChain(
+            HttpSecurity http,
+            @Qualifier("customUserDetailsService") UserDetailsService customUserDetailsService,
+            PasswordEncoder passwordEncoder) throws Exception {
+        
+        // API 전용 AuthenticationManager 구성
+        AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authBuilder.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder);
+        AuthenticationManager authManager = authBuilder.build();
+        
         http.authorizeHttpRequests(
                         auth ->
                                 auth.requestMatchers("/", "/api/v1/auth/**", "/error", "/error/**")

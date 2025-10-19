@@ -15,7 +15,7 @@ import backend.medsnap.domain.user.entity.User;
 import backend.medsnap.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
-@Service
+@Service("customUserDetailsService")
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
