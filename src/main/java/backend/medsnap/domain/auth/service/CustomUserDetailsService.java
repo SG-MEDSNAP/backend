@@ -16,7 +16,6 @@ import backend.medsnap.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Primary
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
