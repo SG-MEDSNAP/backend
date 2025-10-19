@@ -69,8 +69,9 @@ public class SecurityConfig {
             PasswordEncoder encoder,
             UserDetailsService swaggerUserDetailsService)
             throws Exception {
-        HttpSecurity swaggerHttp =
-                http.securityMatcher(
+        
+        // HttpSecurity 객체에 직접 securityMatcher 적용
+        http.securityMatcher(
                         "/api/v1/docs/**",
                         "/api/v1/api-docs/**",
                         "/api/v1/swagger-ui/**",
@@ -86,22 +87,22 @@ public class SecurityConfig {
             authBuilder.userDetailsService(swaggerUserDetailsService).passwordEncoder(encoder);
             AuthenticationManager authManager = authBuilder.build();
 
-            swaggerHttp
+            http
                     .authenticationManager(authManager)
                     .authorizeHttpRequests(auth -> auth.anyRequest().hasRole("DOCS"))
                     .httpBasic(httpBasic -> httpBasic.realmName("Swagger API Documentation"));
         } else {
-            swaggerHttp.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+            http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         }
 
-        swaggerHttp
+        http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // HTTPS 설정
         if (requireSsl) {
-            swaggerHttp
+            http
                     .requiresChannel(channel -> channel.anyRequest().requiresSecure())
                     .headers(
                             headers ->
@@ -120,7 +121,7 @@ public class SecurityConfig {
                                             .contentTypeOptions(contentType -> {}));
         }
 
-        return swaggerHttp.build();
+        return http.build();
     }
 
     /** API 전용 필터 체인 (JWT) */
