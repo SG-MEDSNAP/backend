@@ -1,11 +1,10 @@
 package backend.medsnap.global.dto;
 
-import org.springframework.http.HttpStatus;
-
 import backend.medsnap.global.exception.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @Builder
@@ -51,6 +50,17 @@ public class ApiResponse<T> {
                 .message(errorCode.getMessage())
                 .data(null)
                 .error(error)
+                .build();
+    }
+
+    // 에러 응답 (data 포함)
+    public static <T> ApiResponse<T> errorWithData(ErrorCode errorCode, T data) {
+        return ApiResponse.<T>builder()
+                .code(errorCode.getCode())
+                .httpStatus(errorCode.getStatus().value())
+                .message(errorCode.getMessage())
+                .data(data)
+                .error(null)
                 .build();
     }
 }

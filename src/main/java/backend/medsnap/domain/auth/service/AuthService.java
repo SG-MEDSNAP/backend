@@ -1,15 +1,7 @@
 package backend.medsnap.domain.auth.service;
 
-import java.time.LocalDate;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
 import backend.medsnap.domain.auth.dto.request.LoginRequest;
+import backend.medsnap.domain.auth.dto.request.AppleUserPayload;
 import backend.medsnap.domain.auth.dto.request.LogoutRequest;
 import backend.medsnap.domain.auth.dto.request.RefreshRequest;
 import backend.medsnap.domain.auth.dto.request.SignupRequest;
@@ -28,10 +20,20 @@ import backend.medsnap.global.dto.ApiResponse;
 import backend.medsnap.infra.oauth.exception.OidcVerificationException;
 import backend.medsnap.infra.oauth.verifier.AbstractOidcVerifier;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDate;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class AuthService {
 
     private final Map<String, AbstractOidcVerifier> oidcVerifiers;
@@ -39,6 +41,7 @@ public class AuthService {
     private final SocialAccountRepository socialAccountRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final AesGcmEncryptor aesGcmEncryptor;
+    private final ObjectMapper objectMapper;
 
     public ApiResponse<TokenPair> login(LoginRequest request) {
 
@@ -47,10 +50,11 @@ public class AuthService {
         String providerUserId = decodedJWT.getSubject();
 
         // 소셜 계정 조회
+        String nameHint = extractNameHint(request, decodedJWT);
         SocialAccount socialAccount =
                 socialAccountRepository
                         .findByProviderAndProviderUserId(request.getProvider(), providerUserId)
-                        .orElseThrow(SocialAccountNotFoundException::new);
+                        .orElseThrow(() -> new SocialAccountNotFoundException(nameHint));
 
         User user = socialAccount.getUser();
 
@@ -62,6 +66,60 @@ public class AuthService {
         user.updateRefreshToken(encryptedRefreshToken);
 
         return ApiResponse.success(tokenPair);
+    }
+
+    private String extractNameHint(LoginRequest request, DecodedJWT decodedJWT) {
+        Provider provider = request.getProvider();
+
+        if (provider == null) {
+            return null;
+        }
+
+        return switch (provider) {
+            case GOOGLE -> normalizeName(decodedJWT.getClaim("name").asString());
+            case APPLE -> extractAppleName(request.getAppleUserJson());
+            default -> null;
+        };
+    }
+
+    private String extractAppleName(String appleUserJson) {
+        if (appleUserJson == null || appleUserJson.isBlank()) {
+            return null;
+        }
+
+        try {
+            AppleUserPayload payload = objectMapper.readValue(appleUserJson, AppleUserPayload.class);
+            AppleUserPayload.Name name = payload.getName();
+            if (name == null) {
+                return null;
+            }
+
+            String firstName = normalizeName(name.getFirstName());
+            String lastName = normalizeName(name.getLastName());
+
+            if (firstName == null && lastName == null) {
+                return null;
+            }
+
+            if (firstName == null) {
+                return lastName;
+            }
+            if (lastName == null) {
+                return firstName;
+            }
+            return (lastName + " " + firstName).trim();
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to parse appleUserJson: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String normalizeName(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
     public ApiResponse<TokenPair> signup(SignupRequest request) {
