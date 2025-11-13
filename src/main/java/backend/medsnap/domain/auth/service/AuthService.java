@@ -138,7 +138,7 @@ public class AuthService {
         User newUser =
                 User.builder()
                         .name(request.getName())
-                        .birthday(LocalDate.of(2025, 3, 20)) // 하드코딩된 생일
+                        .birthday(request.getBirthday())
                         .phone(request.getPhone())
                         // .caregiverPhone(null) // request.getCaregiverPhone() 대신 null
                         .isPushConsent(request.getIsPushConsent())
