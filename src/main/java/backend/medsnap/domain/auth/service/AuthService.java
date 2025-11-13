@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import java.time.LocalDate;
 import java.util.Map;
 
 @Service
@@ -75,7 +74,9 @@ public class AuthService {
         return switch (provider) {
             case GOOGLE -> normalizeName(decodedJWT.getClaim("name").asString());
             case APPLE -> {
-                log.debug("extractNameHint APPLE: appleUserPayload={}", request.getAppleUserPayload());
+                log.debug(
+                        "extractNameHint APPLE: appleUserPayload present={}",
+                        request.getAppleUserPayload() != null);
                 yield extractAppleName(request.getAppleUserPayload());
             }
             default -> null;
@@ -96,8 +97,11 @@ public class AuthService {
 
         String firstName = normalizeName(name.getFirstName());
         String lastName = normalizeName(name.getLastName());
-        
-        log.debug("extractAppleName: firstName={}, lastName={}", firstName, lastName);
+
+        log.debug(
+                "extractAppleName: name extracted. firstNamePresent={}, lastNamePresent={}",
+                firstName != null,
+                lastName != null);
 
         if (firstName == null && lastName == null) {
             return null;
