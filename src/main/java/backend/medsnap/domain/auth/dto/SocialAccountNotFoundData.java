@@ -8,4 +8,3 @@ import lombok.Getter;
 public class SocialAccountNotFoundData {
     private final String nameHint;
 }
-

@@ -69,16 +69,16 @@ public class SecurityConfig {
             PasswordEncoder encoder,
             @Qualifier("swaggerUserDetailsService") UserDetailsService swaggerUserDetailsService)
             throws Exception {
-        
+
         // HttpSecurity 객체에 직접 securityMatcher 적용
         http.securityMatcher(
-                        "/api/v1/docs/**",
-                        "/api/v1/api-docs/**",
-                        "/api/v1/swagger-ui/**",
-                        "/api/v1/swagger-ui.html",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/v3/api-docs/**");
+                "/api/v1/docs/**",
+                "/api/v1/api-docs/**",
+                "/api/v1/swagger-ui/**",
+                "/api/v1/swagger-ui.html",
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/v3/api-docs/**");
 
         if (swaggerAuthEnabled) {
             // Swagger 전용 AuthenticationManager 구성
@@ -87,23 +87,20 @@ public class SecurityConfig {
             authBuilder.userDetailsService(swaggerUserDetailsService).passwordEncoder(encoder);
             AuthenticationManager authManager = authBuilder.build();
 
-            http
-                    .authenticationManager(authManager)
+            http.authenticationManager(authManager)
                     .authorizeHttpRequests(auth -> auth.anyRequest().hasRole("DOCS"))
                     .httpBasic(httpBasic -> httpBasic.realmName("Swagger API Documentation"));
         } else {
             http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         }
 
-        http
-                .csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.disable())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // HTTPS 설정
         if (requireSsl) {
-            http
-                    .requiresChannel(channel -> channel.anyRequest().requiresSecure())
+            http.requiresChannel(channel -> channel.anyRequest().requiresSecure())
                     .headers(
                             headers ->
                                     headers.httpStrictTransportSecurity(

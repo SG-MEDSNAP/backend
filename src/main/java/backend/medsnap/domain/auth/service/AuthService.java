@@ -1,7 +1,15 @@
 package backend.medsnap.domain.auth.service;
 
-import backend.medsnap.domain.auth.dto.request.LoginRequest;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import backend.medsnap.domain.auth.dto.request.AppleUserPayload;
+import backend.medsnap.domain.auth.dto.request.LoginRequest;
 import backend.medsnap.domain.auth.dto.request.LogoutRequest;
 import backend.medsnap.domain.auth.dto.request.RefreshRequest;
 import backend.medsnap.domain.auth.dto.request.SignupRequest;
@@ -21,11 +29,6 @@ import backend.medsnap.infra.oauth.exception.OidcVerificationException;
 import backend.medsnap.infra.oauth.verifier.AbstractOidcVerifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
