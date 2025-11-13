@@ -25,8 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -41,7 +39,6 @@ public class AuthService {
     private final SocialAccountRepository socialAccountRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final AesGcmEncryptor aesGcmEncryptor;
-    private final ObjectMapper objectMapper;
 
     public ApiResponse<TokenPair> login(LoginRequest request) {
 
@@ -77,41 +74,42 @@ public class AuthService {
 
         return switch (provider) {
             case GOOGLE -> normalizeName(decodedJWT.getClaim("name").asString());
-            case APPLE -> extractAppleName(request.getAppleUserJson());
+            case APPLE -> {
+                log.debug("extractNameHint APPLE: appleUserPayload={}", request.getAppleUserPayload());
+                yield extractAppleName(request.getAppleUserPayload());
+            }
             default -> null;
         };
     }
 
-    private String extractAppleName(String appleUserJson) {
-        if (appleUserJson == null || appleUserJson.isBlank()) {
+    private String extractAppleName(AppleUserPayload appleUserPayload) {
+        if (appleUserPayload == null) {
+            log.debug("extractAppleName: appleUserPayload is null");
             return null;
         }
 
-        try {
-            AppleUserPayload payload = objectMapper.readValue(appleUserJson, AppleUserPayload.class);
-            AppleUserPayload.Name name = payload.getName();
-            if (name == null) {
-                return null;
-            }
-
-            String firstName = normalizeName(name.getFirstName());
-            String lastName = normalizeName(name.getLastName());
-
-            if (firstName == null && lastName == null) {
-                return null;
-            }
-
-            if (firstName == null) {
-                return lastName;
-            }
-            if (lastName == null) {
-                return firstName;
-            }
-            return (lastName + " " + firstName).trim();
-        } catch (JsonProcessingException e) {
-            log.warn("Failed to parse appleUserJson: {}", e.getMessage());
+        AppleUserPayload.Name name = appleUserPayload.getName();
+        if (name == null) {
+            log.debug("extractAppleName: name is null");
             return null;
         }
+
+        String firstName = normalizeName(name.getFirstName());
+        String lastName = normalizeName(name.getLastName());
+        
+        log.debug("extractAppleName: firstName={}, lastName={}", firstName, lastName);
+
+        if (firstName == null && lastName == null) {
+            return null;
+        }
+
+        if (firstName == null) {
+            return lastName;
+        }
+        if (lastName == null) {
+            return firstName;
+        }
+        return (lastName + " " + firstName).trim();
     }
 
     private String normalizeName(String value) {

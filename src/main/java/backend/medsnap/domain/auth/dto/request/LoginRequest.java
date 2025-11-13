@@ -20,6 +20,5 @@ public class LoginRequest {
     private Provider provider;
 
     // apple 최초 로그인 시 포함
-    @Valid
-    private AppleUserPayload appleUserJson;
+    private AppleUserPayload appleUserPayload;
 }
