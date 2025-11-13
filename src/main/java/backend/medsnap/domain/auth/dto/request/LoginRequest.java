@@ -1,6 +1,7 @@
 package backend.medsnap.domain.auth.dto.request;
 
 import backend.medsnap.domain.user.entity.Provider;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,5 +20,6 @@ public class LoginRequest {
     private Provider provider;
 
     // apple 최초 로그인 시 포함
-    private String appleUserJson;
+    @Valid
+    private AppleUserPayload appleUserJson;
 }
