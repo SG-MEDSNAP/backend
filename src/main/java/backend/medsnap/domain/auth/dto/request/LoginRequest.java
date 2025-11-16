@@ -18,4 +18,7 @@ public class LoginRequest {
 
     @NotNull(message = "provider는 필수입니다.")
     private Provider provider;
+
+    // apple 최초 로그인 시 포함
+    private AppleUserPayload appleUserPayload;
 }

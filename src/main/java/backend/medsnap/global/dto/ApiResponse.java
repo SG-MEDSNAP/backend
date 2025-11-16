@@ -53,4 +53,15 @@ public class ApiResponse<T> {
                 .error(error)
                 .build();
     }
+
+    // 에러 응답 (data 포함)
+    public static <T> ApiResponse<T> errorWithData(ErrorCode errorCode, T data) {
+        return ApiResponse.<T>builder()
+                .code(errorCode.getCode())
+                .httpStatus(errorCode.getStatus().value())
+                .message(errorCode.getMessage())
+                .data(data)
+                .error(null)
+                .build();
+    }
 }

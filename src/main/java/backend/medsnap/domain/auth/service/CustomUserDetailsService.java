@@ -2,7 +2,6 @@ package backend.medsnap.domain.auth.service;
 
 import java.util.Collections;
 
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

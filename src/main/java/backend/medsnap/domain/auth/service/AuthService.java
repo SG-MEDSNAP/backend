@@ -1,6 +1,5 @@
 package backend.medsnap.domain.auth.service;
 
-import java.time.LocalDate;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -9,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import backend.medsnap.domain.auth.dto.request.AppleUserPayload;
 import backend.medsnap.domain.auth.dto.request.LoginRequest;
 import backend.medsnap.domain.auth.dto.request.LogoutRequest;
 import backend.medsnap.domain.auth.dto.request.RefreshRequest;
@@ -28,10 +28,12 @@ import backend.medsnap.global.dto.ApiResponse;
 import backend.medsnap.infra.oauth.exception.OidcVerificationException;
 import backend.medsnap.infra.oauth.verifier.AbstractOidcVerifier;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class AuthService {
 
     private final Map<String, AbstractOidcVerifier> oidcVerifiers;
@@ -47,10 +49,11 @@ public class AuthService {
         String providerUserId = decodedJWT.getSubject();
 
         // 소셜 계정 조회
+        String nameHint = extractNameHint(request, decodedJWT);
         SocialAccount socialAccount =
                 socialAccountRepository
                         .findByProviderAndProviderUserId(request.getProvider(), providerUserId)
-                        .orElseThrow(SocialAccountNotFoundException::new);
+                        .orElseThrow(() -> new SocialAccountNotFoundException(nameHint));
 
         User user = socialAccount.getUser();
 
@@ -62,6 +65,66 @@ public class AuthService {
         user.updateRefreshToken(encryptedRefreshToken);
 
         return ApiResponse.success(tokenPair);
+    }
+
+    private String extractNameHint(LoginRequest request, DecodedJWT decodedJWT) {
+        Provider provider = request.getProvider();
+
+        if (provider == null) {
+            return null;
+        }
+
+        return switch (provider) {
+            case GOOGLE -> normalizeName(decodedJWT.getClaim("name").asString());
+            case APPLE -> {
+                log.debug(
+                        "extractNameHint APPLE: appleUserPayload present={}",
+                        request.getAppleUserPayload() != null);
+                yield extractAppleName(request.getAppleUserPayload());
+            }
+            default -> null;
+        };
+    }
+
+    private String extractAppleName(AppleUserPayload appleUserPayload) {
+        if (appleUserPayload == null) {
+            log.debug("extractAppleName: appleUserPayload is null");
+            return null;
+        }
+
+        AppleUserPayload.Name name = appleUserPayload.getName();
+        if (name == null) {
+            log.debug("extractAppleName: name is null");
+            return null;
+        }
+
+        String firstName = normalizeName(name.getFirstName());
+        String lastName = normalizeName(name.getLastName());
+
+        log.debug(
+                "extractAppleName: name extracted. firstNamePresent={}, lastNamePresent={}",
+                firstName != null,
+                lastName != null);
+
+        if (firstName == null && lastName == null) {
+            return null;
+        }
+
+        if (firstName == null) {
+            return lastName;
+        }
+        if (lastName == null) {
+            return firstName;
+        }
+        return (lastName + " " + firstName).trim();
+    }
+
+    private String normalizeName(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
     public ApiResponse<TokenPair> signup(SignupRequest request) {
@@ -80,7 +143,7 @@ public class AuthService {
         User newUser =
                 User.builder()
                         .name(request.getName())
-                        .birthday(LocalDate.of(2025, 3, 20)) // 하드코딩된 생일
+                        .birthday(request.getBirthday())
                         .phone(request.getPhone())
                         // .caregiverPhone(null) // request.getCaregiverPhone() 대신 null
                         .isPushConsent(request.getIsPushConsent())

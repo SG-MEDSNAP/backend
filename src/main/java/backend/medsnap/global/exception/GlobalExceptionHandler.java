@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
+import backend.medsnap.domain.auth.dto.SocialAccountNotFoundData;
+import backend.medsnap.domain.auth.exception.SocialAccountNotFoundException;
 import backend.medsnap.global.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +45,20 @@ public class GlobalExceptionHandler {
         ApiResponse<Object> response = ApiResponse.error(ErrorCode.COMMON_VALIDATION_ERROR);
 
         return ResponseEntity.status(ErrorCode.COMMON_VALIDATION_ERROR.getStatus()).body(response);
+    }
+
+    @ExceptionHandler(SocialAccountNotFoundException.class)
+    public ResponseEntity<ApiResponse<SocialAccountNotFoundData>>
+            handleSocialAccountNotFoundException(SocialAccountNotFoundException e) {
+
+        log.warn("SocialAccountNotFoundException: {}", e.getMessage());
+
+        ErrorCode errorCode = e.getErrorCode();
+        SocialAccountNotFoundData data = new SocialAccountNotFoundData(e.getNameHint());
+        ApiResponse<SocialAccountNotFoundData> response =
+                ApiResponse.errorWithData(errorCode, data);
+
+        return ResponseEntity.status(errorCode.getStatus()).body(response);
     }
 
     /** BusinessException 처리 */
