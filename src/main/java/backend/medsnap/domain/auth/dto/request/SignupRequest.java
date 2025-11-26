@@ -41,12 +41,10 @@ public class SignupRequest {
     @NotBlank(message = "이름은 필수입니다.")
     private String name;
 
-    @NotNull(message = "생일은 필수입니다.")
     @Past(message = "생일은 현재 날짜보다 이전이어야 합니다.")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate birthday;
 
-    @NotBlank(message = "전화번호는 필수입니다.")
     private String phone;
 
     // private String caregiverPhone;

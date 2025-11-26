@@ -30,7 +30,6 @@ public class MyPageUpdateRequest {
     @Schema(description = "사용자 이름", example = "홍길동")
     private String name;
 
-    @NotNull(message = "생일은 필수입니다.")
     @Past(message = "생일은 현재 날짜보다 이전이어야 합니다.")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Schema(description = "생일 (YYYY-MM-DD 형식, 현재 날짜보다 이전이어야 함)", example = "2025-03-20")
